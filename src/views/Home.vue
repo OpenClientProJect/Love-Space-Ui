@@ -266,6 +266,13 @@ onUnmounted(() => {
   border-bottom: 1px solid #eee;
   position: relative;
   z-index: 2; /* 确保在背景图上方 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 和 Edge */
+}
+
+/* 隐藏滚动条 Chrome, Safari */
+.category-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .category-item {
@@ -275,11 +282,32 @@ onUnmounted(() => {
   color: #666;
   transition: all 0.3s;
   position: relative;
+  box-sizing: border-box;
 }
 
 .category-item:hover {
   color: #fb7299;
   transform: scale(1.05);
+}
+
+/* 修改激活状态样式，确保不会导致内容溢出 */
+.category-item.active {
+  color: #fb7299;
+  font-weight: bold;
+}
+
+.category-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background-color: #fb7299;
+  border-radius: 2px;
+  /* 确保伪元素不会造成内容溢出 */
+  box-sizing: content-box;
 }
 
 /* 新的主布局样式 */
@@ -637,23 +665,5 @@ onUnmounted(() => {
     padding: 8px 12px;
     font-size: 14px;
   }
-}
-
-/* 添加修改样式 */
-.category-item.active {
-  color: #fb7299;
-  font-weight: bold;
-}
-
-.category-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 3px;
-  background-color: #fb7299;
-  border-radius: 2px;
 }
 </style>
