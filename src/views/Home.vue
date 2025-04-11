@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import {getVideoListService} from "@/api/video";
 import { VideoPlay, CaretTop, ArrowUp, Refresh } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -66,6 +66,15 @@ const updateCarouselHeight = () => {
 // 轮播图高度
 const carouselHeight = ref('480px')
 
+// 视频分组，前6个显示在主区域，其余的显示在底部
+const topVideos = computed(() => {
+  return videos.value.slice(0, 6);
+});
+
+const bottomVideos = computed(() => {
+  return videos.value.slice(6);
+});
+
 //调用获取视频列表数据接口
 const getVideoList = async () => {
   const res = await getVideoListService()
@@ -121,6 +130,7 @@ onUnmounted(() => {
         {{ category }}
       </div>
     </div>
+    
     <!-- 新的主要内容区域，左边轮播图，右边视频 -->
     <div class="main-layout">
       <!-- 左侧轮播图区域 -->
@@ -153,19 +163,43 @@ onUnmounted(() => {
       <div class="right-videos">
         <!-- 视频列表 -->
         <div class="video-grid">
-          <div v-for="(video, index) in videos" :key="index" class="video-card" @click="handleVideoClick(video)">
+          <div v-for="(video, index) in topVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
             <div class="video-thumbnail">
-              <img :src="video.cover " :alt="video.title" class="cover-image">
+              <img :src="video.cover" :alt="video.title" class="cover-image">
             </div>
             <div class="video-title">
-              {{ video.title}}
+              {{ video.title }}
             </div>
             <div class="video-info">
               <div class="uploader">
                 <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
                 <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="user-avatar">
-                <span class="username">{{ video.nickname}} </span>
+                <span class="username">{{ video.nickname }} </span>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部额外内容区域 -->
+    <div class="bottom-section" v-if="bottomVideos.length > 0">
+      <div class="section-title">
+        <h2>更多推荐</h2>
+      </div>
+      <div class="bottom-video-grid">
+        <div v-for="(video, index) in bottomVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
+          <div class="video-thumbnail">
+            <img :src="video.cover" :alt="video.title" class="cover-image">
+          </div>
+          <div class="video-title">
+            {{ video.title }}
+          </div>
+          <div class="video-info">
+            <div class="uploader">
+              <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
+              <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="user-avatar">
+              <span class="username">{{ video.nickname }} </span>
             </div>
           </div>
         </div>
@@ -677,5 +711,64 @@ onUnmounted(() => {
   text-overflow: ellipsis;
   color: #666;
   font-size: 12px;
+}
+
+/* 底部内容区域样式 */
+.bottom-section {
+  margin-top: 40px;
+  padding: 0 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+}
+
+.section-title {
+  margin-bottom: 20px;
+  border-left: 4px solid #fb7299;
+  padding-left: 12px;
+}
+
+.section-title h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #18191c;
+  margin: 0;
+}
+
+.bottom-video-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 1200px) {
+  .bottom-video-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .bottom-video-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .bottom-video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .bottom-section {
+    padding: 0 20px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .bottom-video-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 </style>
