@@ -35,7 +35,7 @@
     <div class="dialog-content">
       <!-- 左侧图片 -->
       <div class="left-section" v-if="!isMobile">
-        <img src="http://sqng6krv6.hn-bkt.clouddn.com/Logologinimge.png" alt="login-banner"/>
+        <img src="../assets/imge/login.jpg" alt="login-banner"/>
       </div>
 
       <!-- 右侧登录表单 -->

@@ -133,8 +133,9 @@ const navItems = computed(() => {
   if (userInfo.value?.role === 'admin') {
     // 在视频菜单后插入番剧管理菜单
     return [
-      ...baseNavItems.slice(0, 1),
+      ...baseNavItems.slice(0, 1),// 在视频菜单前插入番剧管理菜单
       {name: 'anime', label: '番剧管理', icon: 'Film', count: 0},
+      {name: 'adminVideo', label: '视频管理', icon: 'Film', count: 0},
       ...baseNavItems.slice(1)
     ]
   }
