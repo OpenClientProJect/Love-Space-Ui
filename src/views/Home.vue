@@ -99,15 +99,36 @@ const handleRefresh = () => {
   window.location.reload()
 }
 
-// 监听窗口大小变化
+// 监听滚动位置，控制轮播图的行为
+const isScrolledToBottom = ref(false)
+const handleScroll = () => {
+  // 计算滚动位置
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+  const windowHeight = window.innerHeight
+  const documentHeight = Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.body.clientHeight,
+    document.documentElement.clientHeight
+  )
+  
+  // 检查是否滚动到了底部区域附近（距离底部300px）
+  isScrolledToBottom.value = scrollTop + windowHeight > documentHeight - 300
+}
+
+// 监听窗口大小变化和滚动事件
 onMounted(() => {
   updateCarouselHeight()
   window.addEventListener('resize', updateCarouselHeight)
+  window.addEventListener('scroll', handleScroll)
 })
 
 // 组件卸载时移除事件监听
 onUnmounted(() => {
   window.removeEventListener('resize', updateCarouselHeight)
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -348,7 +369,7 @@ onUnmounted(() => {
   gap: 20px;
   margin-top: 20px;
   padding: 0 40px;
-  max-width: 1200px;
+  max-width: calc(100% - 80px);
   margin-left: auto;
   margin-right: auto;
   position: relative;
@@ -357,7 +378,8 @@ onUnmounted(() => {
 
 .left-carousel {
   width: 40%;
-  min-width: 460px;
+  min-width: 300px;
+  max-width: 480px;
 }
 
 .right-videos {
@@ -455,6 +477,7 @@ onUnmounted(() => {
 .video-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
   gap: 12px;
   width: 100%;
 }
@@ -640,20 +663,31 @@ onUnmounted(() => {
     min-width: auto;
   }
   
-  .video-grid {
-    grid-template-columns: repeat(4, 1fr);
+  /* 当页面变窄时调整轮播图尺寸 */
+  .left-carousel {
+    max-width: 100%;
   }
-}
-
-@media screen and (max-width: 992px) {
+  
+  .carousel-container {
+    width: 100%;
+    max-height: 450px;
+  }
+  
+  /* 即使在小屏幕上也保持3×2布局 */
   .video-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media screen and (max-width: 768px) {
+  /* 中等屏幕仍保持3×2布局 */
   .video-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* 调整轮播图高度 */
+  .carousel-container {
+    max-height: 400px;
   }
   
   .fixed-buttons {
@@ -678,8 +712,15 @@ onUnmounted(() => {
 }
 
 @media screen and (max-width: 576px) {
+  /* 在最小屏幕上改为2×3布局 */
   .video-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
+  }
+  
+  /* 调整轮播图高度适应小屏幕 */
+  .carousel-container {
+    max-height: 350px;
   }
   
   .carousel-title {
@@ -717,7 +758,7 @@ onUnmounted(() => {
 .bottom-section {
   margin-top: 40px;
   padding: 0 40px;
-  max-width: 1200px;
+  max-width: calc(100% - 80px);
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 40px;
@@ -738,7 +779,7 @@ onUnmounted(() => {
 
 .bottom-video-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
   width: 100%;
 }
@@ -769,6 +810,22 @@ onUnmounted(() => {
 @media screen and (max-width: 576px) {
   .bottom-video-grid {
     grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* 大屏幕适配 */
+@media screen and (min-width: 1600px) {
+  .main-layout, .bottom-section {
+    max-width: 1500px;
+  }
+  
+  /* 大屏幕上也保持3×2布局 */
+  .video-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .bottom-video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }
 </style>
