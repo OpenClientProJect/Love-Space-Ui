@@ -153,23 +153,21 @@ onUnmounted(() => {
       <div class="right-videos">
         <!-- 视频列表 -->
         <div class="video-grid">
-          <el-card v-for="video in videos" :key="video.id" class="video-card" @click="handleVideoClick(video)">
+          <div v-for="(video, index) in videos" :key="index" class="video-card" @click="handleVideoClick(video)">
             <div class="video-thumbnail">
-              <img :src="video.cover" :alt="video.title" class="cover-image">
-              <div class="video-stats">
-                <span><el-icon><VideoPlay /></el-icon> 1234</span>
-                <span>👍 567</span>
+              <img :src="video.cover " :alt="video.title" class="cover-image">
+            </div>
+            <div class="video-title">
+              {{ video.title}}
+            </div>
+            <div class="video-info">
+              <div class="uploader">
+                <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
+                <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="user-avatar">
+                <span class="username">{{ video.nickname}} </span>
               </div>
             </div>
-            <div class="video-title">{{ video.title }}</div>
-            <div class="video-info">
-              <span class="uploader">
-                <span class="up-tag">UP：</span>
-                <el-avatar :size="24" :src="video.userPic" />
-                John Doe
-              </span>
-            </div>
-          </el-card>
+          </div>
         </div>
       </div>
     </div>
@@ -423,13 +421,13 @@ onUnmounted(() => {
 .video-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 }
 
 .video-card {
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
   height: 100%;
@@ -437,6 +435,7 @@ onUnmounted(() => {
   margin-bottom: 0;
   background-color: #fff;
   border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .video-card:hover {
@@ -450,56 +449,43 @@ onUnmounted(() => {
   background-color: #f5f5f5;
   margin-bottom: 0;
   overflow: hidden;
-  border-radius: 4px 4px 0 0;
-}
-
-.video-stats {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 8px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  color: white;
-  font-size: 12px;
-}
-
-:deep(.el-card__body) {
-  padding: 8px;
-}
-
-:deep(.el-card) {
-  border-radius: 4px;
-  overflow: hidden;
-  border: none;
+  border-radius: 6px 6px 0 0;
 }
 
 .video-title {
-  font-size: 14px;
-  margin-bottom: 4px;
-  margin-top: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 1.4;
-  font-weight: 500;
-  text-align: left;
-  height: 40px;
-  padding: 0 8px;
-  color: #18191c;
+  margin: 0;
+  padding: 8px 10px;
+  -webkit-line-clamp: 1;
+  line-height: 1.3;
+  font-weight: normal;
+  height: auto;
+  border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
+  background-color: #f8f8f9;
 }
 
 .video-info {
   font-size: 12px;
   color: #999;
   display: flex;
-  justify-content: space-between;
-  padding: 0 8px 8px;
+  align-items: center;
+  padding: 6px 10px;
   text-align: left;
+  margin-top: 0;
+}
+
+.uploader {
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.up-tag {
+  color: #fb7299;
+  font-weight: bold;
+  font-size: 12px;
+  margin-right: 0;
 }
 
 .cover-image {
@@ -507,24 +493,33 @@ onUnmounted(() => {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
-  border-radius: 4px;
 }
 
 .video-thumbnail:hover .cover-image {
   transform: scale(1.05);
 }
 
-.uploader {
-  color: #666;
+.video-duration {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 0 4px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 12px;
+  border-radius: 2px;
+  line-height: 1.5;
+}
+
+.video-views {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  color: white;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.up-tag {
-  color: #fb7299;
-  font-weight: bold;
-  font-size: 12px;
 }
 
 /* 添加固定按钮组样式 */
@@ -665,5 +660,22 @@ onUnmounted(() => {
     padding: 8px 12px;
     font-size: 14px;
   }
+}
+
+/* 视频缩略图样式优化 */
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #666;
+  font-size: 12px;
 }
 </style>

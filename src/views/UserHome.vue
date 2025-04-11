@@ -402,7 +402,7 @@ onMounted(() => {
   }
 
   .video-title {
-    font-size: 13px;
+    font-size: 10px;
   }
 
   .video-stats {
