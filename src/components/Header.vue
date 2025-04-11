@@ -267,8 +267,8 @@ const isUploadPage = computed(() => {
   transition: all 0.3s ease;
 }
 
-/* 添加顶部渐变遮罩 */
-.header::before {
+/* 移除顶部渐变遮罩，让背景图来负责这部分效果 */
+/* .header::before {
   content: '';
   position: absolute;
   top: 0;
@@ -282,16 +282,11 @@ const isUploadPage = computed(() => {
   );
   pointer-events: none;
   z-index: -1;
-}
+} */
 
 .header-scrolled {
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-/* 滚动后移除渐变遮罩 */
-.header-scrolled::before {
-  display: none;
 }
 
 .header-content {

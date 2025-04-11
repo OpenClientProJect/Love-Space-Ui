@@ -104,24 +104,23 @@ onUnmounted(() => {
 
 <template>
   <div class="home">
-    <!-- 分类导航 -->
-    <div class="category-nav">
-      <div 
-        class="category-item" 
-        v-for="(category, index) in categories" 
-        :key="index" 
-        @click="handleCategoryClick(category)"
-        :class="{ active: category === activeCategory }"
-      >
-        {{ category }}
-      </div>
-    </div>
-
     <!-- 顶部背景图 -->
     <div class="top-background">
       <img src="../assets/background/background.webp" alt="顶部背景图" class="background-image">
     </div>
 
+    <!-- 分类导航 -->
+    <div class="category-nav">
+      <div
+          class="category-item"
+          v-for="(category, index) in categories"
+          :key="index"
+          @click="handleCategoryClick(category)"
+          :class="{ active: category === activeCategory }"
+      >
+        {{ category }}
+      </div>
+    </div>
     <!-- 新的主要内容区域，左边轮播图，右边视频 -->
     <div class="main-layout">
       <!-- 左侧轮播图区域 -->
@@ -217,12 +216,41 @@ onUnmounted(() => {
   overflow: hidden;
   z-index: 0;
   margin-bottom: 10px;
+  margin-top: -64px; /* 负外边距，使背景图位于导航栏下方 */
 }
 
 .background-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 添加顶部背景图蒙版效果 */
+.top-background::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 20%,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(244, 245, 247, 0) 60%,
+    rgba(244, 245, 247, 0.8) 95%,
+    rgba(244, 245, 247, 1) 100%
+  ),
+  linear-gradient(
+    to right,
+    rgba(244, 245, 247, 0.5) 0%,
+    rgba(244, 245, 247, 0) 10%,
+    rgba(244, 245, 247, 0) 90%,
+    rgba(244, 245, 247, 0.5) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* 分类导航样式 */
@@ -237,7 +265,7 @@ onUnmounted(() => {
   background-color: #fff;
   border-bottom: 1px solid #eee;
   position: relative;
-  z-index: 1;
+  z-index: 2; /* 确保在背景图上方 */
 }
 
 .category-item {
@@ -264,7 +292,7 @@ onUnmounted(() => {
   margin-left: auto;
   margin-right: auto;
   position: relative;
-  z-index: 1;
+  z-index: 2; /* 确保在背景图上方 */
 }
 
 .left-carousel {
