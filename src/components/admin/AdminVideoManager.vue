@@ -3,10 +3,18 @@
     <!-- 顶部操作区域 -->
     <div class="header-actions">
       <h2 class="section-title">视频审核</h2>
-      <el-button type="primary" @click="refreshData" class="refresh-button">
-        <el-icon><Refresh /></el-icon>
-        刷新列表
-      </el-button>
+      <div class="action-group">
+        <el-select v-model="filterStatus" placeholder="筛选状态" class="filter-select">
+          <el-option label="全部视频" :value="-1" />
+          <el-option label="待审核" :value="0" />
+          <el-option label="已发布" :value="1" />
+          <el-option label="已拒绝" :value="2" />
+        </el-select>
+        <el-button type="primary" @click="refreshData" class="refresh-button">
+          <el-icon><Refresh /></el-icon>
+          刷新列表
+        </el-button>
+      </div>
     </div>
 
     <!-- 空状态 -->
@@ -28,50 +36,91 @@
               {{ getStatusText(video.status) }}
             </el-tag>
           </div>
+          <div class="cover-actions" v-if="video.videoUrl">
+            <el-button 
+              size="small" 
+              type="primary" 
+              @click="handlePreview(video)"
+              class="preview-btn"
+            >
+              <img :src="VideoFill" class="preview-icon" alt="预览" />
+              预览
+            </el-button>
+          </div>
         </div>
         <div class="video-info">
-          <div class="video-actions">
-            <el-dropdown trigger="click" @command="command => handleCommand(command, video)">
-              <div class="action-icon">
-                <el-icon><MoreFilled /></el-icon>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="approve" v-if="video.status === 0">
-                    <el-icon><Check /></el-icon>
-                    审核通过
-                  </el-dropdown-item>
-                  <el-dropdown-item command="reject" v-if="video.status === 0">
-                    <el-icon><Close /></el-icon>
-                    拒绝发布
-                  </el-dropdown-item>
-                  <el-dropdown-item command="delete">
-                    <el-icon><Delete /></el-icon>
-                    删除
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+          <!-- 顶部审核按钮区域 -->
+          <div class="top-audit-actions">
+            <h3 class="video-title">{{ video.title }}</h3>
+            <div class="actions-group">
+              <el-button 
+                size="small" 
+                type="success"
+                @click="handleCardAudit(video.id, video.title)"
+                class="top-audit-btn"
+              >
+                <el-icon><Check /></el-icon>
+                通过
+              </el-button>
+              <el-button 
+                size="small" 
+                type="danger"
+                @click="handleCardReject(video.id, video.title)"
+                class="top-audit-btn"
+              >
+                <el-icon><Close /></el-icon>
+                拒绝
+              </el-button>
+<!--              <div class="action-icon">-->
+<!--                <el-dropdown trigger="click" @command="command => handleCommand(command, video)">-->
+<!--                  <el-icon><MoreFilled /></el-icon>-->
+<!--                  <template #dropdown>-->
+<!--                    <el-dropdown-menu>-->
+<!--                      <el-dropdown-item command="approve">-->
+<!--                        <el-icon><Check /></el-icon>-->
+<!--                        审核通过-->
+<!--                      </el-dropdown-item>-->
+<!--                      <el-dropdown-item command="reject">-->
+<!--                        <el-icon><Close /></el-icon>-->
+<!--                        拒绝发布-->
+<!--                      </el-dropdown-item>-->
+<!--                      <el-dropdown-item command="delete">-->
+<!--                        <el-icon><Delete /></el-icon>-->
+<!--                        删除-->
+<!--                      </el-dropdown-item>-->
+<!--                    </el-dropdown-menu>-->
+<!--                  </template>-->
+<!--                </el-dropdown>-->
+<!--              </div>-->
+            </div>
           </div>
-          <h3 class="video-title">{{ video.title }}</h3>
+
           <p class="video-description">{{ video.content || '暂无简介' }}</p>
           <div class="video-meta">
             <span class="uploader">UP主: {{ video.nickname || '未知用户' }}</span>
             <span class="create-time">发布时间: {{ formatDate(video.createTime) }}</span>
           </div>
-          <div class="video-preview-btn">
-            <el-button 
-              size="small" 
-              type="primary" 
-              @click="handlePreview(video)"
-              :disabled="!video.videoUrl"
-            >
-              <el-icon><VideoPlay /></el-icon>
-              预览视频
-            </el-button>
-          </div>
         </div>
       </div>
+
+      <!-- 分页组件 -->
+      <div class="pagination-container" v-if="pagination.total > 0">
+        <el-pagination
+          v-model:current-page="pagination.pageNum"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 30, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          background
+        />
+      </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="loading-container" v-if="loading">
+      <el-skeleton :rows="5" animated />
     </div>
 
     <!-- 视频预览对话框 -->
@@ -130,16 +179,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getVideoDraftListService } from '@/api/admin/adminVideo'
+import { getVideoDraftListService, AuditVideo } from '@/api/admin/adminVideo'
 import { Check, Close, Delete, Refresh, ArrowDown, MoreFilled, VideoPlay } from '@element-plus/icons-vue'
-
+import Video from '@/assets/iconsvg/adminVideo.svg'
+import VideoFill from '@/assets/iconsvg/video_fill.svg'
 // 数据加载状态
 const loading = ref(false)
 
 // 视频列表数据
 const videoList = ref([])
+
+// 筛选状态
+const filterStatus = ref(-1)
 
 // 分页信息
 const pagination = ref({
@@ -210,7 +263,12 @@ const fetchVideoList = async () => {
   try {
     const response = await getVideoDraftListService()
     if (response && response.data) {
-      videoList.value = response.data
+      // 根据筛选状态过滤视频
+      const allVideos = response.data || []
+      videoList.value = filterStatus.value === -1 
+        ? allVideos 
+        : allVideos.filter(video => video.status === filterStatus.value)
+      
       // 如果后端返回了分页信息，则更新
       if (response.pageNum) pagination.value.pageNum = response.pageNum
       if (response.pageSize) pagination.value.pageSize = response.pageSize
@@ -224,6 +282,11 @@ const fetchVideoList = async () => {
   }
 }
 
+// 监听筛选状态变化
+watch(filterStatus, () => {
+  fetchVideoList()
+})
+
 // 刷新数据
 const refreshData = () => {
   fetchVideoList()
@@ -236,9 +299,28 @@ const handlePreview = (video) => {
 }
 
 // 预览对话框中快速审核通过
-const handleQuickApprove = () => {
-  handleCommand('approve', currentVideo.value)
-  previewDialogVisible.value = false
+const handleQuickApprove = async () => {
+  ElMessageBox.confirm(
+    `确定要通过视频 "${currentVideo.value.title}" 的审核吗？`,
+    '审核确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'success'
+    }
+  ).then(async () => {
+    try {
+      await AuditVideo(currentVideo.value.id)
+      ElMessage.success(`已通过视频 "${currentVideo.value.title}" 的审核`)
+      previewDialogVisible.value = false
+      fetchVideoList()
+    } catch (error) {
+      console.error('审核失败:', error)
+      ElMessage.error('审核操作失败，请稍后重试')
+    }
+  }).catch(() => {
+    // 用户取消操作
+  })
 }
 
 // 预览对话框中快速拒绝
@@ -253,10 +335,26 @@ const handleCommand = (command, video) => {
   
   switch (command) {
     case 'approve':
-      confirmDialogTitle.value = '审核通过'
-      confirmDialogMessage.value = `确定要通过视频 "${video.title}" 的审核吗？`
-      currentAction.value = 'approve'
-      confirmDialogVisible.value = true
+      ElMessageBox.confirm(
+        `确定要通过视频 "${video.title}" 的审核吗？`,
+        '审核确认',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'success'
+        }
+      ).then(async () => {
+        try {
+          await AuditVideo(video.id)
+          ElMessage.success(`已通过视频 "${video.title}" 的审核`)
+          fetchVideoList()
+        } catch (error) {
+          console.error('审核失败:', error)
+          ElMessage.error('审核操作失败，请稍后重试')
+        }
+      }).catch(() => {
+        // 用户取消操作
+      })
       break
       
     case 'reject':
@@ -276,31 +374,29 @@ const handleCommand = (command, video) => {
 }
 
 // 处理确认操作
-const handleConfirmAction = () => {
-  // 这里实现对应的操作逻辑，如调用审核API等
-  // 暂时只做模拟，后续需要接入真实的API
+const handleConfirmAction = async () => {
   const video = selectedRow.value
   
-  switch (currentAction.value) {
-    case 'approve':
-      ElMessage.success(`已通过视频 "${video.title}" 的审核`)
-      // 这里调用审核通过API
-      break
-      
-    case 'reject':
-      ElMessage.info(`已拒绝视频 "${video.title}" 的发布申请`)
-      // 这里调用拒绝发布API
-      break
-      
-    case 'delete':
-      ElMessage.success(`已删除视频 "${video.title}"`)
-      // 这里调用删除视频API
-      break
+  try {
+    switch (currentAction.value) {
+      case 'reject':
+        // 这里调用拒绝发布API，如果有专门的API
+        ElMessage.info(`已拒绝视频 "${video.title}" 的发布申请`)
+        break
+        
+      case 'delete':
+        // 这里调用删除视频API，如果有专门的API
+        ElMessage.success(`已删除视频 "${video.title}"`)
+        break
+    }
+    
+    // 关闭对话框并刷新数据
+    confirmDialogVisible.value = false
+    fetchVideoList()
+  } catch (error) {
+    console.error('操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
   }
-  
-  // 关闭对话框并刷新数据
-  confirmDialogVisible.value = false
-  fetchVideoList()
 }
 
 // 处理分页大小变化
@@ -313,6 +409,48 @@ const handleSizeChange = (newSize) => {
 const handleCurrentChange = (newPage) => {
   pagination.value.pageNum = newPage
   fetchVideoList()
+}
+
+// 直接在卡片上审核
+const handleCardAudit = async (id, title) => {
+  ElMessageBox.confirm(
+    `确定要通过视频 "${title}" 的审核吗？`,
+    '审核确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'success'
+    }
+  ).then(async () => {
+    try {
+      await AuditVideo(id)
+      ElMessage.success(`已通过视频 "${title}" 的审核`)
+      fetchVideoList()
+    } catch (error) {
+      console.error('审核失败:', error)
+      ElMessage.error('审核操作失败，请稍后重试')
+    }
+  }).catch(() => {
+    // 用户取消操作
+  })
+}
+
+// 直接在卡片上拒绝
+const handleCardReject = (id, title) => {
+  ElMessageBox.confirm(
+    `确定要拒绝视频 "${title}" 的发布申请吗？`,
+    '拒绝发布',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
+    ElMessage.info(`已拒绝视频 "${title}" 的发布申请`)
+    fetchVideoList()
+  }).catch(() => {
+    // 用户取消操作
+  })
 }
 
 // 组件挂载时获取数据
@@ -348,26 +486,25 @@ onMounted(() => {
 }
 
 .video-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(750px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .video-card {
   display: flex;
-  background: #fff;
-  border-radius: 8px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
-  border: 1px solid #e3e5e7;
-  height: 150px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
 .video-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .video-cover-wrap {
@@ -375,96 +512,158 @@ onMounted(() => {
   height: 150px;
   flex-shrink: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .video-cover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.video-card:hover .video-cover {
+  transform: scale(1.05);
+}
+
+.cover-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.video-card:hover .cover-actions {
+  opacity: 1;
+}
+
+.preview-btn {
+  background-color: rgba(251, 114, 153, 0.85);
+  border-color: transparent;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.preview-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
 }
 
 .video-status {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 10px;
+  right: 10px;
   z-index: 2;
 }
 
 .video-info {
   flex: 1;
-  padding: 12px 16px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   position: relative;
 }
 
-.video-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 0;
-  color: #18191c;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  line-height: 1.4;
+.top-audit-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 10px;
+  width: 100%;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
 }
 
-.video-description {
-  font-size: 14px;
-  color: #61666d;
-  margin: 8px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.video-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  line-height: 1.4;
-  max-height: 2.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 }
 
-.video-meta {
+.actions-group {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
-  color: #9499a0;
-  margin-bottom: 10px;
+  gap: 8px;
 }
 
-.video-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 1;
+.top-audit-btn {
+  font-weight: bold;
+  padding: 8px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.top-audit-btn.el-button--success {
+  background-color: #67c23a;
+  border-color: #67c23a;
+  color: white;
+}
+
+.top-audit-btn.el-button--danger {
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+  color: white;
+}
+
+.top-audit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .action-icon {
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  color: #666;
-  transition: all 0.3s;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
 }
 
 .action-icon:hover {
-  background-color: #f5f5f5;
-  color: #fb7299;
+  background-color: #f5f7fa;
 }
 
-.video-preview-btn {
+.video-description {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+.video-meta {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #909399;
 }
 
+/* 分页器样式 */
 .pagination-container {
+  margin-top: 30px;
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  padding: 10px 0;
 }
 
 /* 视频预览对话框 */
@@ -559,5 +758,41 @@ onMounted(() => {
     align-items: flex-start;
     gap: 5px;
   }
+}
+
+.video-actions-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.audit-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.audit-buttons .el-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.action-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-select {
+  width: 120px;
 }
 </style> 
