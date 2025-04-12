@@ -79,9 +79,14 @@
             </div>
           </template>
 
+          <!-- 视频管理内容 -->
+          <template v-if="currentNav === 'adminVideo'">
+            <admin-video-manager />
+          </template>
+
           <!-- 其他导航内容的空状态 -->
           <div class="empty-state"
-               v-if="currentNav !== 'videos' && currentNav !== 'edit-profile' && currentNav !== 'anime'">
+               v-if="currentNav !== 'videos' && currentNav !== 'edit-profile' && currentNav !== 'anime' && currentNav !== 'adminVideo'">
             <el-empty :description="getEmptyText">
               <template #description>
                 <p class="empty-text">{{ getEmptyText }}</p>
@@ -104,8 +109,7 @@ import {useTokenStore} from "@/stores/token";
 import {deleteVideoService, editVideoService, getUserVideoService, publishVideoService} from "@/api/userVideo";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
-import AnimeManageContent from '@/components/AnimeManageContent.vue'
-import AnimeEpisodeManager from '@/components/anime/AnimeEpisodeManager.vue'
+import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -134,8 +138,7 @@ const navItems = computed(() => {
     // 在视频菜单后插入番剧管理菜单
     return [
       ...baseNavItems.slice(0, 1),// 在视频菜单前插入番剧管理菜单
-      {name: 'anime', label: '番剧管理', icon: 'Film', count: 0},
-      {name: 'adminVideo', label: '视频管理', icon: 'Film', count: 0},
+      {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
       ...baseNavItems.slice(1)
     ]
   }
@@ -189,14 +192,7 @@ const handlePictureCardPreview = (file) => {
   dialogImageUrl.value = file.url || file.response?.data
   dialogVisible.value = true
 }
-//封面文件上传回调
-const uploadSuccess = (result) => {
-  form.value.cover = result.data;
-  fileList.value = [{
-    name: 'cover',
-    url: result.data
-  }]
-}
+
 
 const beforeCoverUpload = (file) => {
   const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png'

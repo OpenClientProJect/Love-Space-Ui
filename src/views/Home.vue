@@ -1,8 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
-import { VideoPlay, CaretTop, ArrowUp, Refresh } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import {VideoPlay, CaretTop, ArrowUp, Refresh} from '@element-plus/icons-vue'
+import {useRouter} from 'vue-router'
 
 // 添加 router 实例
 const router = useRouter()
@@ -80,7 +80,10 @@ const getVideoList = async () => {
   const res = await getVideoListService()
   videos.value = res.data
 }
-getVideoList()
+onMounted(() => {
+  getVideoList()
+
+})
 
 // 添加视频点击处函数
 const handleVideoClick = (video) => {
@@ -106,14 +109,14 @@ const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const windowHeight = window.innerHeight
   const documentHeight = Math.max(
-    document.body.scrollHeight,
-    document.documentElement.scrollHeight,
-    document.body.offsetHeight,
-    document.documentElement.offsetHeight,
-    document.body.clientHeight,
-    document.documentElement.clientHeight
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
   )
-  
+
   // 检查是否滚动到了底部区域附近（距离底部300px）
   isScrolledToBottom.value = scrollTop + windowHeight > documentHeight - 300
 }
@@ -151,16 +154,16 @@ onUnmounted(() => {
         {{ category }}
       </div>
     </div>
-    
+
     <!-- 新的主要内容区域，左边轮播图，右边视频 -->
     <div class="main-layout">
       <!-- 左侧轮播图区域 -->
       <div class="left-carousel">
         <el-carousel
-          :height="carouselHeight"
-          class="carousel-container"
-          :interval="4000"
-          :indicator-position="'none'"
+            :height="carouselHeight"
+            class="carousel-container"
+            :interval="4000"
+            :indicator-position="'none'"
         >
           <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
             <div class="carousel-content">
@@ -170,7 +173,7 @@ onUnmounted(() => {
                 <p class="carousel-description">{{ item.description }}</p>
                 <div class="carousel-info">
                   <span class="play-icon">
-                    <el-icon><VideoPlay /></el-icon>
+                    <el-icon><VideoPlay/></el-icon>
                     立即观看
                   </span>
                 </div>
@@ -194,7 +197,8 @@ onUnmounted(() => {
             <div class="video-info">
               <div class="uploader">
                 <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
-                <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="user-avatar">
+                <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                     class="user-avatar">
                 <span class="username">{{ video.nickname }} </span>
               </div>
             </div>
@@ -219,7 +223,8 @@ onUnmounted(() => {
           <div class="video-info">
             <div class="uploader">
               <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
-              <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="user-avatar">
+              <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                   class="user-avatar">
               <span class="username">{{ video.nickname }} </span>
             </div>
           </div>
@@ -231,18 +236,22 @@ onUnmounted(() => {
     <div class="fixed-buttons">
       <!-- 刷新按钮 -->
       <div class="action-button refresh-btn" @click="handleRefresh">
-        <el-icon><Refresh /></el-icon>
+        <el-icon>
+          <Refresh/>
+        </el-icon>
       </div>
 
       <!-- 返回顶部按钮 -->
       <el-backtop
-        :right="40"
-        :bottom="100"
-        :visibility-height="400"
-        class="back-to-top"
+          :right="40"
+          :bottom="100"
+          :visibility-height="400"
+          class="back-to-top"
       >
         <div class="back-top-content">
-          <el-icon><ArrowUp /></el-icon>
+          <el-icon>
+            <ArrowUp/>
+          </el-icon>
         </div>
       </el-backtop>
     </div>
@@ -287,20 +296,20 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.2) 20%,
-    rgba(0, 0, 0, 0) 40%,
-    rgba(244, 245, 247, 0) 60%,
-    rgba(244, 245, 247, 0.8) 95%,
-    rgba(244, 245, 247, 1) 100%
+      to bottom,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.2) 20%,
+      rgba(0, 0, 0, 0) 40%,
+      rgba(244, 245, 247, 0) 60%,
+      rgba(244, 245, 247, 0.8) 95%,
+      rgba(244, 245, 247, 1) 100%
   ),
   linear-gradient(
-    to right,
-    rgba(244, 245, 247, 0.5) 0%,
-    rgba(244, 245, 247, 0) 10%,
-    rgba(244, 245, 247, 0) 90%,
-    rgba(244, 245, 247, 0.5) 100%
+      to right,
+      rgba(244, 245, 247, 0.5) 0%,
+      rgba(244, 245, 247, 0) 10%,
+      rgba(244, 245, 247, 0) 90%,
+      rgba(244, 245, 247, 0.5) 100%
   );
   pointer-events: none;
   z-index: 1;
@@ -421,9 +430,9 @@ onUnmounted(() => {
   right: 0;
   padding: 16px;
   background: linear-gradient(
-    transparent 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0.8) 100%
+      transparent 0%,
+      rgba(0, 0, 0, 0.6) 50%,
+      rgba(0, 0, 0, 0.8) 100%
   );
   color: #fff;
 }
@@ -657,22 +666,22 @@ onUnmounted(() => {
   .main-layout {
     flex-direction: column;
   }
-  
+
   .left-carousel, .right-videos {
     width: 100%;
     min-width: auto;
   }
-  
+
   /* 当页面变窄时调整轮播图尺寸 */
   .left-carousel {
     max-width: 100%;
   }
-  
+
   .carousel-container {
     width: 100%;
     max-height: 450px;
   }
-  
+
   /* 即使在小屏幕上也保持3×2布局 */
   .video-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -684,28 +693,28 @@ onUnmounted(() => {
   .video-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   /* 调整轮播图高度 */
   .carousel-container {
     max-height: 400px;
   }
-  
+
   .fixed-buttons {
     right: 20px;
     bottom: 20px;
     gap: 12px;
   }
-  
+
   .action-button,
   :deep(.el-backtop) {
     width: 40px;
     height: 40px;
   }
-  
+
   .carousel-title {
     font-size: 20px;
   }
-  
+
   .carousel-description {
     -webkit-line-clamp: 1;
   }
@@ -717,20 +726,20 @@ onUnmounted(() => {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(3, auto);
   }
-  
+
   /* 调整轮播图高度适应小屏幕 */
   .carousel-container {
     max-height: 350px;
   }
-  
+
   .carousel-title {
     font-size: 18px;
   }
-  
+
   .category-nav {
     padding: 0 10px;
   }
-  
+
   .category-item {
     padding: 8px 12px;
     font-size: 14px;
@@ -801,7 +810,7 @@ onUnmounted(() => {
   .bottom-video-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .bottom-section {
     padding: 0 20px;
   }
@@ -818,12 +827,12 @@ onUnmounted(() => {
   .main-layout, .bottom-section {
     max-width: 1500px;
   }
-  
+
   /* 大屏幕上也保持3×2布局 */
   .video-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .bottom-video-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }

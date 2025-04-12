@@ -45,19 +45,6 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/anime/manage/:id',
-    name: 'AnimeEpisodeManager',
-    component: () => import('@/components/anime/AnimeEpisodeManager.vue')
-  },
-  {
-    path: '/anime/episode/:id',
-    name: 'AnimeEpisodeManager',
-    component: () => import('@/components/anime/AnimeEpisodeManager.vue'),
-    meta: {
-      requiresAuth: true
-    }
-  },
-  {
     path: '/user',
     name: 'UserHome',
     component: () => import('@/views/UserHome.vue')

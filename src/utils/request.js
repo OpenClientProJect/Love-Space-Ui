@@ -11,7 +11,6 @@ const instance = axios.create({baseURL})
 //添加请求拦截器
 instance.interceptors.request.use(
     config => {
-        //请求前回调
         //添加token
         const tokenStore = useTokenStore();
         if (tokenStore.token) {
