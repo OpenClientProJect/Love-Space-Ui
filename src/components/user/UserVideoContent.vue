@@ -314,7 +314,6 @@ const submitForm = async () => {
         await getUserVideoInfo()
         resetForm()
       } catch (error) {
-        console.error('发布失败:', error)
         ElMessage.error('发布失败，请稍后重试')
       }
     }

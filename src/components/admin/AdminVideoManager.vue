@@ -10,6 +10,10 @@
           <el-option label="已发布" :value="1" />
           <el-option label="已拒绝" :value="2" />
         </el-select>
+        <el-select v-model="filterCategory" placeholder="筛选分类" class="filter-select">
+          <el-option label="全部分类" :value="-1" />
+          <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
+        </el-select>
         <el-button type="primary" @click="refreshData" class="refresh-button">
           <el-icon><Refresh /></el-icon>
           刷新列表
@@ -95,6 +99,9 @@
           <div class="video-meta">
             <span class="uploader">UP主: {{ video.nickname || '未知用户' }}</span>
             <span class="create-time">发布时间: {{ formatDate(video.createTime) }}</span>
+            <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+              分类: {{ getCategoryName(video.categoryId) }}
+            </span>
           </div>
         </div>
       </div>
@@ -140,6 +147,9 @@
           <div class="video-meta">
             <span>UP主: {{ currentVideo.nickname || '未知用户' }}</span>
             <span>创建时间: {{ formatDate(currentVideo.createTime) }}</span>
+            <span class="category-tag" v-if="getCategoryName(currentVideo.categoryId)">
+              分类: {{ getCategoryName(currentVideo.categoryId) }}
+            </span>
           </div>
           <div class="preview-actions" v-if="currentVideo.status === 0">
             <el-button type="success" @click="handleQuickApprove">
@@ -181,6 +191,33 @@ import { getVideoDraftListService, AuditVideo } from '@/api/admin/adminVideo'
 import { Check, Close, Refresh } from '@element-plus/icons-vue'
 import Video from '@/assets/iconsvg/adminVideo.svg'
 import VideoFill from '@/assets/iconsvg/video_fill.svg'
+
+// 视频分类列表
+const categories = ref([
+  { id: 1, name: '动画' },
+  { id: 2, name: '番剧' },
+  { id: 3, name: '国创' },
+  { id: 4, name: '音乐' },
+  { id: 5, name: '舞蹈' },
+  { id: 6, name: '游戏' },
+  { id: 7, name: '知识' },
+  { id: 8, name: '科技' },
+  { id: 9, name: '运动' },
+  { id: 10, name: '生活' },
+  { id: 11, name: '美食' },
+  { id: 12, name: '动物' },
+  { id: 13, name: '鬼畜' },
+  { id: 14, name: '时尚' },
+  { id: 15, name: '娱乐' }
+])
+
+// 获取分类名称
+const getCategoryName = (categoryId) => {
+  if (!categoryId) return ''
+  const category = categories.value.find(c => c.id == categoryId)
+  return category ? category.name : ''
+}
+
 // 数据加载状态
 const loading = ref(false)
 
@@ -189,6 +226,9 @@ const videoList = ref([])
 
 // 筛选状态
 const filterStatus = ref(-1)
+
+// 筛选分类
+const filterCategory = ref(-1)
 
 // 分页信息
 const pagination = ref({
@@ -251,11 +291,21 @@ const fetchVideoList = async () => {
   try {
     const response = await getVideoDraftListService()
     if (response && response.data) {
-      // 根据筛选状态过滤视频
-      const allVideos = response.data || []
-      videoList.value = filterStatus.value === -1 
-        ? allVideos 
-        : allVideos.filter(video => video.status === filterStatus.value)
+      // 获取所有视频
+      let allVideos = response.data || []
+      
+      // 根据状态筛选
+      if (filterStatus.value !== -1) {
+        allVideos = allVideos.filter(video => video.status === filterStatus.value)
+      }
+      
+      // 根据分类筛选
+      if (filterCategory.value !== -1) {
+        allVideos = allVideos.filter(video => video.categoryId == filterCategory.value)
+      }
+      
+      // 更新视频列表
+      videoList.value = allVideos
       
       // 如果后端返回了分页信息，则更新
       if (response.pageNum) pagination.value.pageNum = response.pageNum
@@ -271,7 +321,7 @@ const fetchVideoList = async () => {
 }
 
 // 监听筛选状态变化
-watch(filterStatus, () => {
+watch([filterStatus, filterCategory], () => {
   fetchVideoList()
 })
 
@@ -643,9 +693,31 @@ onMounted(() => {
 
 .video-meta {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   font-size: 12px;
   color: #909399;
+}
+
+/* 分类标签样式 */
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fb729915;
+  color: #fb7299;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.category-tag::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #fb7299;
+  margin-right: 4px;
 }
 
 /* 分页器样式 */
@@ -783,5 +855,6 @@ onMounted(() => {
 
 .filter-select {
   width: 120px;
+  margin-right: 10px;
 }
 </style> 
