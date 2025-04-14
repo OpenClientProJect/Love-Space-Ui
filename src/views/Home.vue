@@ -44,17 +44,31 @@ const carouselItems = ref([
 
 // 分类导航
 const categories = ref([
-  '沙雕', '恋爱', '校园', '热血', '奇幻', '小说', '漫画', '短剧'
+  { id: 1, name: '动画' },
+  { id: 2, name: '番剧' },
+  { id: 3, name: '国创' },
+  { id: 4, name: '音乐' },
+  { id: 5, name: '舞蹈' },
+  { id: 6, name: '游戏' },
+  { id: 7, name: '知识' },
+  { id: 8, name: '科技' },
+  { id: 9, name: '运动' },
+  { id: 10, name: '生活' },
+  { id: 11, name: '美食' },
+  { id: 12, name: '动物' },
+  { id: 13, name: '鬼畜' },
+  { id: 14, name: '时尚' },
+  { id: 15, name: '娱乐' }
 ])
 
 // 当前激活的分类
-const activeCategory = ref('沙雕')
+const activeCategory = ref(1)
 
 // 分类点击处理
-const handleCategoryClick = (category) => {
-  activeCategory.value = category
+const handleCategoryClick = (categoryId) => {
+  activeCategory.value = categoryId
   // 这里可以添加根据分类筛选内容的逻辑
-  console.log('选择分类:', category)
+  console.log('选择分类ID:', categoryId)
 }
 
 // 更新轮播图高度的函数
@@ -133,6 +147,13 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateCarouselHeight)
   window.removeEventListener('scroll', handleScroll)
 })
+
+// 获取分类名称
+const getCategoryName = (categoryId) => {
+  if (!categoryId) return ''
+  const category = categories.value.find(c => c.id == categoryId)
+  return category ? category.name : ''
+}
 </script>
 
 <template>
@@ -148,10 +169,10 @@ onUnmounted(() => {
           class="category-item"
           v-for="(category, index) in categories"
           :key="index"
-          @click="handleCategoryClick(category)"
-          :class="{ active: category === activeCategory }"
+          @click="handleCategoryClick(category.id)"
+          :class="{ active: category.id === activeCategory }"
       >
-        {{ category }}
+        {{ category.name }}
       </div>
     </div>
 
@@ -201,6 +222,9 @@ onUnmounted(() => {
                      class="user-avatar">
                 <span class="username">{{ video.nickname }} </span>
               </div>
+              <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+                {{ getCategoryName(video.categoryId) }}
+              </span>
             </div>
           </div>
         </div>
@@ -227,6 +251,9 @@ onUnmounted(() => {
                    class="user-avatar">
               <span class="username">{{ video.nickname }} </span>
             </div>
+            <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+              {{ getCategoryName(video.categoryId) }}
+            </span>
           </div>
         </div>
       </div>
@@ -370,6 +397,17 @@ onUnmounted(() => {
   border-radius: 2px;
   /* 确保伪元素不会造成内容溢出 */
   box-sizing: content-box;
+}
+
+/* 添加分类标签样式 */
+.category-tag {
+  background-color: #fb729930;
+  color: #fb7299;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 /* 新的主布局样式 */
@@ -534,7 +572,9 @@ onUnmounted(() => {
   font-size: 12px;
   color: #999;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   padding: 6px 10px;
   text-align: left;
   margin-top: 0;
@@ -545,6 +585,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
+  margin-right: 5px;
 }
 
 .up-tag {

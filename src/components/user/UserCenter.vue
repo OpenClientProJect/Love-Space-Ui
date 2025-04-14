@@ -188,34 +188,9 @@ const handleRemove = (file, fileList) => {
   fileList.value = fileList
 }
 
-const handlePictureCardPreview = (file) => {
-  dialogImageUrl.value = file.url || file.response?.data
-  dialogVisible.value = true
-}
 
 
-const beforeCoverUpload = (file) => {
-  const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt10M = file.size / 1024 / 1024 < 10
 
-  if (!isJPGorPNG) {
-    ElMessage.error('上传封面图片只能是 JPG 或 PNG 格式!')
-  }
-  if (!isLt10M) {
-    ElMessage.error('上传封面图片大小不能超过 10MB!')
-  }
-  return isJPGorPNG && isLt2M
-}
-
-const submitForm = async () => {
-  await publishVideoService(form.value)
-  ElMessage.success('发布成功')
-  currentEditId.value = {}
-  //关闭抽屉
-  drawerVisible.value = false
-  //更新视频列表
-  await getUserVideoInfo()
-}
 
 const resetForm = () => {
   form.value = {
@@ -228,11 +203,6 @@ const resetForm = () => {
   videoFileName.value = ''
   isEdit.value = false
   currentEditId.value = null
-}
-
-const handleDrawerClose = () => {
-  resetForm()
-  drawerVisible.value = false
 }
 
 //视频区域数据模型
@@ -254,112 +224,13 @@ const getUserVideoInfo = async () => {
   pagination.value.total = result.data.total;
 }
 
-// 添加分页改变的处理方法
-const handlePageChange = (newPage) => {
-  pagination.value.pageNum = newPage;
-  getUserVideoInfo();
-}
 
-const handleSizeChange = (newSize) => {
-  pagination.value.pageSize = newSize;
-  pagination.value.pageNum = 1;
-  getUserVideoInfo();
-}
 
-// 处理下拉菜单命令
-const handleCommand = async ({type, id}) => {
-  if (type === 'edit') {
-    const currentVideo = videos.value.find(video => video.id === id)
-    if (currentVideo) {
-      form.value = {
-        title: currentVideo.title,
-        cover: currentVideo.cover,
-        content: currentVideo.content
-      }
-      fileList.value = [{
-        name: 'cover',
-        url: currentVideo.cover
-      }]
-      isEdit.value = true
-      currentEditId.value = id
-      drawerVisible.value = true
-    }
-  } else if (type === 'delete') {
-    // 处理删除逻辑
-    try {
-      await ElMessageBox.confirm(
-          '确定要删除这个视频吗？',
-          '警告',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
-      )
-      // TODO: 调用删除API
-      console.log('删除视频:', id)
-      await deleteVideoService(id)
-      //刷新列表
-      await getUserVideoInfo()
-      await ElMessage.success('删除成功')
-    } catch (error) {
-      console.log('取消删除')
-    }
-  }
-}
-
-// 更新视频信息
-const updateVideo = async () => {
-  await editVideoService({
-    id: currentEditId.value,
-    ...form.value
-  })
-  ElMessage.success('更新成功')
-  //清除数据
-  currentEditId.value = {}
-  //关闭抽屉
-  drawerVisible.value = false
-  //更新视频列表
-  await getUserVideoInfo()
-}
 // 获取用户视频信息
 getUserVideoInfo()
 
 // 添加新的响应式变量
 const videoFileName = ref('')
-
-// 视频上传成功回调
-const handleVideoSuccess = (response) => {
-  form.value.videoUrl = response.data
-  videoFileName.value = response.originalFilename || '已上传视频'
-}
-
-// 视频上传前的验证
-const beforeVideoUpload = (file) => {
-  const isValidFormat = ['video/mp4', 'video/quicktime', 'video/x-msvideo'].includes(file.type)
-  const isLt500M = file.size / 1024 / 1024 < 500
-
-  if (!isValidFormat) {
-    ElMessage.error('请上传正确的视频格式!')
-    return false
-  }
-  if (!isLt500M) {
-    ElMessage.error('视频大小不能超过 500MB!')
-    return false
-  }
-  return true
-}
-
-// 处理超出上传数量限制
-const handleVideoExceed = () => {
-  ElMessage.warning('只能上传一个视频文件')
-}
-
-// 移除视频
-const removeVideo = () => {
-  form.value.videoUrl = ''
-  videoFileName.value = ''
-}
 
 // 添加跳转到编辑资料页面的方法
 const goToEditProfile = () => {
@@ -380,9 +251,6 @@ const handleBackToAnimeList = () => {
   currentAnimeId.value = null
 }
 
-const handleEpisodeUpdate = () => {
-  // Handle episode update logic here
-}
 </script>
 
 <style scoped>

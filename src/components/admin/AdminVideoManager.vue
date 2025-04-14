@@ -37,14 +37,10 @@
             </el-tag>
           </div>
           <div class="cover-actions" v-if="video.videoUrl">
-            <el-button 
-              size="small" 
-              type="primary" 
+            <el-button
               @click="handlePreview(video)"
-              class="preview-btn"
             >
               <img :src="VideoFill" class="preview-icon" alt="预览" />
-              预览
             </el-button>
           </div>
         </div>
@@ -182,7 +178,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getVideoDraftListService, AuditVideo } from '@/api/admin/adminVideo'
-import { Check, Close, Delete, Refresh, ArrowDown, MoreFilled, VideoPlay } from '@element-plus/icons-vue'
+import { Check, Close, Refresh } from '@element-plus/icons-vue'
 import Video from '@/assets/iconsvg/adminVideo.svg'
 import VideoFill from '@/assets/iconsvg/video_fill.svg'
 // 数据加载状态
@@ -226,14 +222,6 @@ const formatDate = (timestamp) => {
   })
 }
 
-// 格式化时长
-const formatDuration = (seconds) => {
-  if (!seconds) return '未知'
-  
-  const min = Math.floor(seconds / 60)
-  const sec = seconds % 60
-  return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
-}
 
 // 获取状态类型
 const getStatusType = (status) => {
@@ -313,7 +301,7 @@ const handleQuickApprove = async () => {
       await AuditVideo(currentVideo.value.id)
       ElMessage.success(`已通过视频 "${currentVideo.value.title}" 的审核`)
       previewDialogVisible.value = false
-      fetchVideoList()
+      await fetchVideoList()
     } catch (error) {
       console.error('审核失败:', error)
       ElMessage.error('审核操作失败，请稍后重试')
@@ -544,19 +532,20 @@ onMounted(() => {
 }
 
 .preview-btn {
-  background-color: rgba(251, 114, 153, 0.85);
+  background-color: rgba(255, 255, 255, 0.7);
   border-color: transparent;
-  color: white;
-  font-weight: bold;
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .preview-icon {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(0.4) sepia(1) saturate(10) hue-rotate(300deg);
 }
 
 .video-status {

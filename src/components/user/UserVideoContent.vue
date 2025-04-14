@@ -50,6 +50,9 @@
           <h3 class="video-title">{{ video.title }}</h3>
           <p class="video-description">简介：{{ video.content }}</p>
           <div class="video-meta">
+            <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+              {{ getCategoryName(video.categoryId) }}
+            </span>
             <span class="update-time">发布时间: {{ formatDate(video.createTime) }}</span>
             <span class="view-count">更新时间: {{ formatDate(video.updateTime) }}</span>
           </div>
@@ -79,13 +82,13 @@
       size="40%"
       @close="handleDrawerClose"
     >
-      <el-form :model="form" label-width="80px">
-        <el-form-item label="标题">
+      <el-form :model="form" label-width="80px" :rules="rules" ref="formRef">
+        <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入视频标题"></el-input>
         </el-form-item>
 
         <!-- 封面上传 -->
-        <el-form-item label="封面">
+        <el-form-item label="封面" prop="cover">
           <el-upload
             class="cover-uploader"
             list-type="picture-card"
@@ -99,10 +102,11 @@
             <img v-if="form.cover" :src="form.cover" class="cover-preview"/>
             <el-icon v-else><Plus /></el-icon>
           </el-upload>
+          <div class="upload-tip" v-if="!form.cover">请上传视频封面图片</div>
         </el-form-item>
 
         <!-- 视频文件上传 -->
-        <el-form-item label="视频文件">
+        <el-form-item label="视频文件" prop="videoUrl">
           <el-upload
             class="video-uploader"
             :auto-upload="true"
@@ -147,6 +151,13 @@
             v-model="form.content"
           />
         </el-form-item>
+
+        <el-form-item label="视频分类" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="请选择视频分类">
+            <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id"></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="isEdit ? updateVideo() : submitForm()">
             {{ isEdit ? '修改' : '发布' }}
@@ -199,11 +210,42 @@ const form = ref({
   title: '',
   cover: '',
   content: '',
-  videoUrl: ''
+  videoUrl: '',
+  categoryId: ''
 })
 const isEdit = ref(false)
 const currentEditId = ref(null)
 const videoFileName = ref('')
+
+// 表单引用
+const formRef = ref(null)
+
+// 表单验证规则
+const rules = {
+  title: [{ required: true, message: '请输入视频标题', trigger: 'blur' }],
+  cover: [{ required: true, message: '请上传视频封面', trigger: 'change' }],
+  videoUrl: [{ required: true, message: '请上传视频文件', trigger: 'change' }],
+  categoryId: [{ required: true, message: '请选择视频分类', trigger: 'change' }]
+}
+
+// 视频分类列表
+const categories = ref([
+  { id: 1, name: '动画' },
+  { id: 2, name: '番剧' },
+  { id: 3, name: '国创' },
+  { id: 4, name: '音乐' },
+  { id: 5, name: '舞蹈' },
+  { id: 6, name: '游戏' },
+  { id: 7, name: '知识' },
+  { id: 8, name: '科技' },
+  { id: 9, name: '运动' },
+  { id: 10, name: '生活' },
+  { id: 11, name: '美食' },
+  { id: 12, name: '动物' },
+  { id: 13, name: '鬼畜' },
+  { id: 14, name: '时尚' },
+  { id: 15, name: '娱乐' }
+])
 
 // 获取用户视频列表
 const getUserVideoInfo = async () => {
@@ -236,7 +278,8 @@ const handleCommand = async ({ type, id }) => {
         title: currentVideo.title,
         cover: currentVideo.cover,
         content: currentVideo.content,
-        videoUrl: currentVideo.videoUrl
+        videoUrl: currentVideo.videoUrl,
+        categoryId: currentVideo.categoryId
       }
       isEdit.value = true
       currentEditId.value = id
@@ -260,22 +303,44 @@ const handleCommand = async ({ type, id }) => {
 
 // 表单处理
 const submitForm = async () => {
-  await publishVideoService(form.value)
-  ElMessage.success('发布成功')
-  drawerVisible.value = false
-  await getUserVideoInfo()
-  resetForm()
+  if (!formRef.value) return
+  
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        await publishVideoService(form.value)
+        ElMessage.success('发布成功')
+        drawerVisible.value = false
+        await getUserVideoInfo()
+        resetForm()
+      } catch (error) {
+        console.error('发布失败:', error)
+        ElMessage.error('发布失败，请稍后重试')
+      }
+    }
+  })
 }
 
 const updateVideo = async () => {
-  await editVideoService({
-    id: currentEditId.value,
-    ...form.value
+  if (!formRef.value) return
+  
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        await editVideoService({
+          id: currentEditId.value,
+          ...form.value
+        })
+        ElMessage.success('更新成功')
+        drawerVisible.value = false
+        await getUserVideoInfo()
+        resetForm()
+      } catch (error) {
+        console.error('更新失败:', error)
+        ElMessage.error('更新失败，请稍后重试')
+      }
+    }
   })
-  ElMessage.success('更新成功')
-  drawerVisible.value = false
-  await getUserVideoInfo()
-  resetForm()
 }
 
 const resetForm = () => {
@@ -283,7 +348,8 @@ const resetForm = () => {
     title: '',
     cover: '',
     content: '',
-    videoUrl: ''
+    videoUrl: '',
+    categoryId: ''
   }
   videoFileName.value = ''
   isEdit.value = false
@@ -337,6 +403,13 @@ onUnmounted(() => {
 
 // 初始化
 getUserVideoInfo()
+
+// 获取分类名称
+const getCategoryName = (categoryId) => {
+  if (!categoryId) return ''
+  const category = categories.value.find(c => c.id == categoryId)
+  return category ? category.name : ''
+}
 </script>
 
 <style scoped>
@@ -509,6 +582,7 @@ getUserVideoInfo()
 .upload-tip {
   font-size: 12px;
   color: #909399;
+  margin-top: 6px;
 }
 
 .video-preview {
@@ -591,5 +665,37 @@ getUserVideoInfo()
     line-height: 1.3;
     max-height: 2.6em;
   }
+}
+
+/* 表单相关样式 */
+.el-form :deep(.el-form-item__label) {
+  font-weight: 500;
+}
+
+/* 分类选择器样式 */
+.el-select {
+  width: 100%;
+}
+
+:deep(.el-select .el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #fb7299 inset;
+}
+
+:deep(.el-select .el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #fb7299 inset;
+}
+
+:deep(.el-select-dropdown__item.selected) {
+  color: #fb7299;
+}
+
+/* 使分类标签更加醒目 */
+.video-meta .category-tag {
+  background-color: #fb729930;
+  color: #fb7299;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 8px;
 }
 </style> 
