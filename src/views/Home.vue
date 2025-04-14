@@ -1,8 +1,9 @@
 <script setup>
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
-import {VideoPlay, CaretTop, ArrowUp, Refresh} from '@element-plus/icons-vue'
+import {VideoPlay, CaretTop, ArrowUp, Refresh, Loading} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
+import {ElMessage} from 'element-plus'
 
 // 添加 router 实例
 const router = useRouter()
@@ -44,6 +45,7 @@ const carouselItems = ref([
 
 // 分类导航
 const categories = ref([
+  { id: 0, name: '全部' },
   { id: 1, name: '动画' },
   { id: 2, name: '番剧' },
   { id: 3, name: '国创' },
@@ -62,13 +64,30 @@ const categories = ref([
 ])
 
 // 当前激活的分类
-const activeCategory = ref(1)
+const activeCategory = ref(0)
+
+// 加载状态
+const loading = ref(false)
 
 // 分类点击处理
-const handleCategoryClick = (categoryId) => {
+const handleCategoryClick = async (categoryId) => {
   activeCategory.value = categoryId
-  // 这里可以添加根据分类筛选内容的逻辑
-  console.log('选择分类ID:', categoryId)
+  // 滚动到页面顶部
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  // 通过分类ID获取对应视频
+  loading.value = true
+  try {
+    // 如果选择的是"全部"分类，则不传递分类ID参数
+    const res = categoryId === 0 
+      ? await getVideoListService() 
+      : await getVideoListService({ categoryId })
+    videos.value = res.data
+  } catch (error) {
+    console.error('获取分类视频失败:', error)
+    ElMessage.error('获取分类视频失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
 }
 
 // 更新轮播图高度的函数
@@ -91,12 +110,41 @@ const bottomVideos = computed(() => {
 
 //调用获取视频列表数据接口
 const getVideoList = async () => {
-  const res = await getVideoListService()
-  videos.value = res.data
+  loading.value = true
+  try {
+    // 根据当前选中的分类获取视频
+    const res = activeCategory.value === 0
+      ? await getVideoListService()
+      : await getVideoListService({ categoryId: activeCategory.value })
+    videos.value = res.data
+  } catch (error) {
+    console.error('获取视频列表失败:', error)
+    ElMessage.error('获取视频列表失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
 }
+
+// 添加刷新方法
+const handleRefresh = async () => {
+  try {
+    loading.value = true
+    // 重新获取当前分类的视频
+    const res = activeCategory.value === 0
+      ? await getVideoListService()
+      : await getVideoListService({ categoryId: activeCategory.value })
+    videos.value = res.data
+    ElMessage.success('刷新成功')
+  } catch (error) {
+    console.error('刷新失败:', error)
+    ElMessage.error('刷新失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
   getVideoList()
-
 })
 
 // 添加视频点击处函数
@@ -109,11 +157,6 @@ const handleVideoClick = (video) => {
       cover: video.cover
     }
   })
-}
-
-// 添加刷新方法
-const handleRefresh = () => {
-  window.location.reload()
 }
 
 // 监听滚动位置，控制轮播图的行为
@@ -206,8 +249,13 @@ const getCategoryName = (categoryId) => {
 
       <!-- 右侧视频区域 -->
       <div class="right-videos">
+        <!-- 加载状态 -->
+        <div class="loading-container" v-if="loading">
+          <el-skeleton :rows="6" animated />
+        </div>
+
         <!-- 视频列表 -->
-        <div class="video-grid">
+        <div class="video-grid" v-else>
           <div v-for="(video, index) in topVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
             <div class="video-thumbnail">
               <img :src="video.cover" :alt="video.title" class="cover-image">
@@ -232,7 +280,7 @@ const getCategoryName = (categoryId) => {
     </div>
 
     <!-- 底部额外内容区域 -->
-    <div class="bottom-section" v-if="bottomVideos.length > 0">
+    <div class="bottom-section" v-if="bottomVideos.length > 0 && !loading">
       <div class="section-title">
         <h2>更多推荐</h2>
       </div>
@@ -263,8 +311,11 @@ const getCategoryName = (categoryId) => {
     <div class="fixed-buttons">
       <!-- 刷新按钮 -->
       <div class="action-button refresh-btn" @click="handleRefresh">
-        <el-icon>
+        <el-icon v-if="!loading">
           <Refresh/>
+        </el-icon>
+        <el-icon v-else class="is-loading">
+          <Loading/>
         </el-icon>
       </div>
 
@@ -383,6 +434,7 @@ const getCategoryName = (categoryId) => {
 .category-item.active {
   color: #fb7299;
   font-weight: bold;
+  position: relative;
 }
 
 .category-item.active::after {
@@ -391,12 +443,18 @@ const getCategoryName = (categoryId) => {
   bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
+  width: 24px;
   height: 3px;
   background-color: #fb7299;
   border-radius: 2px;
   /* 确保伪元素不会造成内容溢出 */
   box-sizing: content-box;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; width: 0; }
+  to { opacity: 1; width: 24px; }
 }
 
 /* 添加分类标签样式 */
@@ -665,6 +723,15 @@ const getCategoryName = (categoryId) => {
   font-size: 20px;
 }
 
+.action-button .el-icon.is-loading {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* 返回顶部按钮样式 */
 .back-to-top {
   --el-backtop-bg-color: #fb7299;
@@ -877,5 +944,11 @@ const getCategoryName = (categoryId) => {
   .bottom-video-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
+}
+
+.loading-container {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 </style>
