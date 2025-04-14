@@ -35,11 +35,6 @@
       <div v-for="video in videoList" :key="video.id" class="video-card">
         <div class="video-cover-wrap">
           <img :src="video.cover" class="video-cover" alt="图片获取失败"/>
-          <div class="video-status">
-            <el-tag :type="getStatusType(video.status)">
-              {{ getStatusText(video.status) }}
-            </el-tag>
-          </div>
           <div class="cover-actions" v-if="video.videoUrl">
             <el-button
               @click="handlePreview(video)"
@@ -71,27 +66,6 @@
                 <el-icon><Close /></el-icon>
                 拒绝
               </el-button>
-<!--              <div class="action-icon">-->
-<!--                <el-dropdown trigger="click" @command="command => handleCommand(command, video)">-->
-<!--                  <el-icon><MoreFilled /></el-icon>-->
-<!--                  <template #dropdown>-->
-<!--                    <el-dropdown-menu>-->
-<!--                      <el-dropdown-item command="approve">-->
-<!--                        <el-icon><Check /></el-icon>-->
-<!--                        审核通过-->
-<!--                      </el-dropdown-item>-->
-<!--                      <el-dropdown-item command="reject">-->
-<!--                        <el-icon><Close /></el-icon>-->
-<!--                        拒绝发布-->
-<!--                      </el-dropdown-item>-->
-<!--                      <el-dropdown-item command="delete">-->
-<!--                        <el-icon><Delete /></el-icon>-->
-<!--                        删除-->
-<!--                      </el-dropdown-item>-->
-<!--                    </el-dropdown-menu>-->
-<!--                  </template>-->
-<!--                </el-dropdown>-->
-<!--              </div>-->
             </div>
           </div>
 
@@ -273,18 +247,6 @@ const getStatusType = (status) => {
   }
   return types[status] || 'info'
 }
-
-// 获取状态文本
-const getStatusText = (status) => {
-  const texts = {
-    0: '待审核',
-    1: '已发布',
-    2: '已拒绝',
-    3: '草稿'
-  }
-  return texts[status] || '未知'
-}
-
 // 获取视频列表数据
 const fetchVideoList = async () => {
   loading.value = true
