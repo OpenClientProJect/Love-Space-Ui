@@ -235,7 +235,7 @@ const getCategoryName = (categoryId) => {
       </div>
       <div class="notice-content">
         <el-carousel 
-          height="24px" 
+          height="36px" 
           direction="vertical" 
           :autoplay="true"
           :interval="3000"
@@ -1017,10 +1017,14 @@ const getCategoryName = (categoryId) => {
   display: flex;
   align-items: center;
   background-color: #fff;
-  padding: 8px 40px;
+  padding: 12px 40px;
   border-top: 1px solid #f0f0f0;
   border-bottom: 1px solid #f0f0f0;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .notice-icon {
@@ -1028,6 +1032,11 @@ const getCategoryName = (categoryId) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(251, 114, 153, 0.1);
+  border-radius: 50%;
 }
 
 .notice-content {
@@ -1036,24 +1045,27 @@ const getCategoryName = (categoryId) => {
 }
 
 .notice-text {
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  color: #555;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0 5px;
+  line-height: 36px;
+  font-weight: 500;
 }
 
 /* 公告栏轮播样式 - 使用非常具体的选择器 */
 .notice-content .el-carousel {
-  height: 24px;
+  height: 36px;
 }
 
 .notice-content :deep(.el-carousel__container) {
-  height: 24px !important;
+  height: 36px !important;
 }
 
 .notice-content :deep(.el-carousel__item) {
-  line-height: 24px;
+  line-height: 36px;
   padding: 0;
 }
 
