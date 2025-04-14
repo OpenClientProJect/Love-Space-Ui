@@ -4,6 +4,7 @@ import {getVideoListService} from "@/api/video";
 import {VideoPlay, CaretTop, ArrowUp, Refresh, Loading} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
+import CategoryContent from '@/components/CategoryContent.vue'
 
 // 添加 router 实例
 const router = useRouter()
@@ -220,67 +221,79 @@ const getCategoryName = (categoryId) => {
     </div>
 
     <!-- 新的主要内容区域，左边轮播图，右边视频 -->
-    <div class="main-layout">
-      <!-- 左侧轮播图区域 -->
-      <div class="left-carousel">
-        <el-carousel
-            :height="carouselHeight"
-            class="carousel-container"
-            :interval="4000"
-            :indicator-position="'none'"
-        >
-          <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
-            <div class="carousel-content">
-              <img :src="item.image" :alt="item.title" class="carousel-image">
-              <div class="carousel-overlay">
-                <h3 class="carousel-title">{{ item.title }}</h3>
-                <p class="carousel-description">{{ item.description }}</p>
-                <div class="carousel-info">
-                  <span class="play-icon">
-                    <el-icon><VideoPlay/></el-icon>
-                    立即观看
-                  </span>
+    <div class="main-layout" :class="{ 'full-width': activeCategory !== 0 }">
+      <!-- 全部分类的内容 -->
+      <template v-if="activeCategory === 0">
+        <!-- 左侧轮播图区域 -->
+        <div class="left-carousel">
+          <el-carousel
+              :height="carouselHeight"
+              class="carousel-container"
+              :interval="4000"
+              :indicator-position="'none'"
+          >
+            <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
+              <div class="carousel-content">
+                <img :src="item.image" :alt="item.title" class="carousel-image">
+                <div class="carousel-overlay">
+                  <h3 class="carousel-title">{{ item.title }}</h3>
+                  <p class="carousel-description">{{ item.description }}</p>
+                  <div class="carousel-info">
+                    <span class="play-icon">
+                      <el-icon><VideoPlay/></el-icon>
+                      立即观看
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </el-carousel-item>
-        </el-carousel>
-      </div>
-
-      <!-- 右侧视频区域 -->
-      <div class="right-videos">
-        <!-- 加载状态 -->
-        <div class="loading-container" v-if="loading">
-          <el-skeleton :rows="6" animated />
+            </el-carousel-item>
+          </el-carousel>
         </div>
 
-        <!-- 视频列表 -->
-        <div class="video-grid" v-else>
-          <div v-for="(video, index) in topVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
-            <div class="video-thumbnail">
-              <img :src="video.cover" :alt="video.title" class="cover-image">
-            </div>
-            <div class="video-title">
-              {{ video.title }}
-            </div>
-            <div class="video-info">
-              <div class="uploader">
-                <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
-                <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
-                     class="user-avatar">
-                <span class="username">{{ video.nickname }} </span>
+        <!-- 右侧视频区域 -->
+        <div class="right-videos">
+          <!-- 加载状态 -->
+          <div class="loading-container" v-if="loading">
+            <el-skeleton :rows="6" animated />
+          </div>
+
+          <!-- 视频列表 -->
+          <div class="video-grid" v-else>
+            <div v-for="(video, index) in topVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
+              <div class="video-thumbnail">
+                <img :src="video.cover" :alt="video.title" class="cover-image">
               </div>
-              <span class="category-tag" v-if="getCategoryName(video.categoryId)">
-                {{ getCategoryName(video.categoryId) }}
-              </span>
+              <div class="video-title">
+                {{ video.title }}
+              </div>
+              <div class="video-info">
+                <div class="uploader">
+                  <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
+                  <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                       class="user-avatar">
+                  <span class="username">{{ video.nickname }}</span>
+                </div>
+                <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+                  {{ getCategoryName(video.categoryId) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <!-- 分类内容 -->
+      <CategoryContent
+          v-else
+          :category-id="activeCategory"
+          :category-name="getCategoryName(activeCategory)"
+          :videos="videos"
+          @video-click="handleVideoClick"
+      />
     </div>
 
     <!-- 底部额外内容区域 -->
-    <div class="bottom-section" v-if="bottomVideos.length > 0 && !loading">
+    <div class="bottom-section" v-if="bottomVideos.length > 0 && !loading && activeCategory === 0">
       <div class="section-title">
         <h2>更多推荐</h2>
       </div>
@@ -773,9 +786,15 @@ const getCategoryName = (categoryId) => {
 @media screen and (max-width: 1200px) {
   .main-layout {
     flex-direction: column;
+    padding: 0 20px;
   }
 
-  .left-carousel, .right-videos {
+  .main-layout.full-width {
+    padding: 0 20px;
+  }
+
+  .left-carousel,
+  .right-videos {
     width: 100%;
     min-width: auto;
   }
@@ -950,5 +969,18 @@ const getCategoryName = (categoryId) => {
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
+}
+
+/* 添加新的样式 */
+.main-layout.full-width {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media screen and (max-width: 1200px) {
+  .main-layout.full-width {
+    max-width: 100%;
+  }
 }
 </style>
