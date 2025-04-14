@@ -305,7 +305,6 @@ const videoInfo = ref({
   title: '',//视频标题
   cover: '',//封面地址
   videoUrl: '',//视频地址
-  viewCount: '',// 播放量
   createTime: '',//创建时间
   content: '',//视频简介
   likesCount: 0,// 视频点赞数

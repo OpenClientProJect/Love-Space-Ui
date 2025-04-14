@@ -149,7 +149,6 @@ const userStats = [
   {num: userInfo.value.followCount, label: '关注'},
   {num: userInfo.value.fansCount, label: '粉丝'},
   {num: 1, label: '获赞'},
-  {num: 0, label: '播放量'}
 ]
 
 const getEmptyText = computed(() => {
