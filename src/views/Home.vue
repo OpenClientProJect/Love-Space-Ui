@@ -1,7 +1,7 @@
 <script setup>
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
-import {VideoPlay, CaretTop, ArrowUp, Refresh, Loading} from '@element-plus/icons-vue'
+import {VideoPlay, CaretTop, ArrowUp, Refresh, Loading, Bell} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
@@ -69,6 +69,14 @@ const activeCategory = ref(0)
 
 // 加载状态
 const loading = ref(false)
+
+// 公告数据
+const announcements = ref([
+  { id: 1, text: '欢迎来到Love Space，这里有最新最全的动漫资源！' },
+  { id: 2, text: '公告栏 1' },
+  { id: 3, text: '公告栏 2' },
+  { id: 4, text: '公告栏 3' }
+])
 
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
@@ -220,6 +228,26 @@ const getCategoryName = (categoryId) => {
       </div>
     </div>
 
+    <!-- 公告栏 -->
+    <div class="notice-bar">
+      <div class="notice-icon">
+        <el-icon><Bell /></el-icon>
+      </div>
+      <div class="notice-content">
+        <el-carousel 
+          height="24px" 
+          direction="vertical" 
+          :autoplay="true"
+          :interval="3000"
+          indicator-position="none"
+        >
+          <el-carousel-item v-for="item in announcements" :key="item.id">
+            <div class="notice-text">{{ item.text }}</div>
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+    </div>
+
     <!-- 新的主要内容区域，左边轮播图，右边视频 -->
     <div class="main-layout" :class="{ 'full-width': activeCategory !== 0 }">
       <!-- 全部分类的内容 -->
@@ -228,7 +256,7 @@ const getCategoryName = (categoryId) => {
         <div class="left-carousel">
           <el-carousel
               :height="carouselHeight"
-              class="carousel-container"
+              class="carousel-container main-carousel"
               :interval="4000"
               :indicator-position="'none'"
           >
@@ -981,6 +1009,81 @@ const getCategoryName = (categoryId) => {
 @media screen and (max-width: 1200px) {
   .main-layout.full-width {
     max-width: 100%;
+  }
+}
+
+/* 公告栏样式 */
+.notice-bar {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 8px 40px;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+}
+
+.notice-icon {
+  color: #fb7299;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notice-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.notice-text {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 公告栏轮播样式 - 使用非常具体的选择器 */
+.notice-content .el-carousel {
+  height: 24px;
+}
+
+.notice-content :deep(.el-carousel__container) {
+  height: 24px !important;
+}
+
+.notice-content :deep(.el-carousel__item) {
+  line-height: 24px;
+  padding: 0;
+}
+
+/* 主轮播图样式 - 使用非常具体的选择器 */
+.main-carousel {
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.main-carousel :deep(.el-carousel__container) {
+  height: 480px !important;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 1200px) {
+  .main-carousel :deep(.el-carousel__container) {
+    height: 400px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .main-carousel :deep(.el-carousel__container) {
+    height: 350px !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .main-carousel :deep(.el-carousel__container) {
+    height: 250px !important;
   }
 }
 </style>
