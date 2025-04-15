@@ -84,9 +84,14 @@
             <admin-video-manager />
           </template>
 
+          <!-- 公告管理内容 -->
+          <template v-if="currentNav === 'announcement'">
+            <announcement-manager />
+          </template>
+
           <!-- 其他导航内容的空状态 -->
           <div class="empty-state"
-               v-if="currentNav !== 'videos' && currentNav !== 'edit-profile' && currentNav !== 'anime' && currentNav !== 'adminVideo'">
+               v-if="currentNav !== 'videos' && currentNav !== 'edit-profile' && currentNav !== 'anime' && currentNav !== 'adminVideo' && currentNav !== 'announcement'">
             <el-empty :description="getEmptyText">
               <template #description>
                 <p class="empty-text">{{ getEmptyText }}</p>
@@ -100,7 +105,6 @@
     <!-- 关注列表弹窗 -->
     <el-dialog
       v-model="followDialogVisible"
-      :title="activeTab === 'follow' ? '关注列表' : '粉丝列表'"
       width="500px"
       :close-on-click-modal="true"
       class="follow-dialog"
@@ -153,7 +157,7 @@
 <script setup>
 import {ref, computed, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {Edit, Close, User, ChatDotRound} from '@element-plus/icons-vue'
+import {Edit, Close, User, ChatDotRound, Bell} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {useTokenStore} from "@/stores/token";
@@ -162,6 +166,7 @@ import {getFollowListService, getFansListService} from "@/api/follow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
 import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
+import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -183,10 +188,11 @@ const baseNavItems = [
 // 根据用户角色动态计算导航项
 const navItems = computed(() => {
   if (userInfo.value?.role === 'admin') {
-    // 在视频菜单后插入番剧管理菜单
+    // 在视频菜单后插入管理员特有菜单项
     return [
-      ...baseNavItems.slice(0, 1),// 在视频菜单前插入番剧管理菜单
+      ...baseNavItems.slice(0, 1),// 在视频菜单前插入管理员菜单项
       {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
+      {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
       ...baseNavItems.slice(1)
     ]
   }
@@ -269,7 +275,6 @@ watch(activeTab, (newTab) => {
 const userStats = [
   {num: userInfo.value.followCount, label: '关注', action: openFollowDialog},
   {num: userInfo.value.fansCount, label: '粉丝', action: openFansDialog},
-  {num: 1, label: '获赞'},
 ]
 
 const getEmptyText = computed(() => {
