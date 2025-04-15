@@ -27,7 +27,7 @@
         </div>
         <div class="user-stats">
           <div class="stat-group">
-            <div class="stat-item" v-for="stat in userStats" :key="stat.label">
+            <div class="stat-item" v-for="stat in userStats" :key="stat.label" @click="stat.action && stat.action()">
               <div class="num">{{ stat.num }}</div>
               <div class="label">{{ stat.label }}</div>
             </div>
@@ -96,17 +96,69 @@
         </div>
       </div>
     </div>
+
+    <!-- 关注列表弹窗 -->
+    <el-dialog
+      v-model="followDialogVisible"
+      :title="activeTab === 'follow' ? '关注列表' : '粉丝列表'"
+      width="500px"
+      :close-on-click-modal="true"
+      class="follow-dialog"
+      center
+    >
+      <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+        <el-tab-pane label="关注" name="follow">
+          <div v-loading="followLoading" class="follow-list">
+            <template v-if="followList.length > 0">
+              <div v-for="user in followList" :key="user.id" class="follow-item">
+                <div class="follow-avatar">
+                  <el-avatar :size="50" :src="user.userPic || defaultAvatar" />
+                </div>
+                <div class="follow-info">
+                  <div class="follow-name">{{ user.nickname }}</div>
+                  <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
+                </div>
+                <div class="follow-action">
+                  <el-button size="small" type="primary" plain>已关注</el-button>
+                </div>
+              </div>
+            </template>
+            <el-empty v-else description="暂无关注" />
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="粉丝" name="fans">
+          <div v-loading="fansLoading" class="follow-list">
+            <template v-if="fansList.length > 0">
+              <div v-for="user in fansList" :key="user.id" class="follow-item">
+                <div class="follow-avatar">
+                  <el-avatar :size="50" :src="user.userPic || defaultAvatar" />
+                </div>
+                <div class="follow-info">
+                  <div class="follow-name">{{ user.nickname }}</div>
+                  <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
+                </div>
+                <div class="follow-action">
+                  <el-button size="small" type="primary">关注</el-button>
+                </div>
+              </div>
+            </template>
+            <el-empty v-else description="暂无粉丝" />
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {Edit,} from '@element-plus/icons-vue'
+import {Edit, Close, User, ChatDotRound} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {useTokenStore} from "@/stores/token";
 import {deleteVideoService, editVideoService, getUserVideoService, publishVideoService} from "@/api/userVideo";
+import {getFollowListService, getFansListService} from "@/api/follow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
 import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
@@ -125,10 +177,6 @@ const hasContent = computed(() => {
 
 const baseNavItems = [
   {name: 'videos', label: '视频', icon: 'VideoCamera', count: 0},
-  {name: 'favorites', label: '收藏', icon: 'Collection', count: 0},
-  {name: 'likes', label: '点赞', icon: 'Star', count: 0},
-  {name: 'articles', label: '专栏', icon: 'Document', count: 0},
-  {name: 'comments', label: '评论', icon: 'ChatDotRound', count: 0},
   {name: 'edit-profile', label: '编辑资料', icon: 'Edit'}
 ]
 
@@ -145,9 +193,82 @@ const navItems = computed(() => {
   return baseNavItems
 })
 
+// 关注列表相关数据
+const followDialogVisible = ref(false)
+const followList = ref([])
+const followLoading = ref(false)
+const fansList = ref([])
+const fansLoading = ref(false)
+const activeTab = ref('follow')
+
+// 打开关注/粉丝列表弹窗
+const openFollowDialog = () => {
+  activeTab.value = 'follow'
+  followDialogVisible.value = true
+  if (followList.value.length === 0) {
+    getFollowList()
+  }
+}
+
+const openFansDialog = () => {
+  activeTab.value = 'fans'
+  followDialogVisible.value = true
+  if (fansList.value.length === 0) {
+    getFansList()
+  }
+}
+
+// 获取关注列表
+const getFollowList = async () => {
+  followLoading.value = true
+  try {
+    const result = await getFollowListService(userInfo.value.id)
+    followList.value = result.data
+  } catch (error) {
+    console.error('获取关注列表失败:', error)
+    ElMessage.error('获取关注列表失败，请稍后重试')
+  } finally {
+    followLoading.value = false
+  }
+}
+
+// 获取粉丝列表
+const getFansList = async () => {
+  fansLoading.value = true
+  try {
+    const result = await getFansListService(userInfo.value.id)
+    fansList.value = result.data
+  } catch (error) {
+    console.error('获取粉丝列表失败:', error)
+    ElMessage.error('获取粉丝列表失败，请稍后重试')
+  } finally {
+    fansLoading.value = false
+  }
+}
+
+// 处理Tab切换
+const handleTabChange = (tab) => {
+  // tab参数是el-tabs的事件对象，需要获取tab.props.name
+  const tabName = tab.props.name;
+  if (tabName === 'follow' && followList.value.length === 0) {
+    getFollowList()
+  } else if (tabName === 'fans' && fansList.value.length === 0) {
+    getFansList()
+  }
+}
+
+// 监听标签页变化，自动加载数据
+watch(activeTab, (newTab) => {
+  if (newTab === 'follow' && followList.value.length === 0) {
+    getFollowList();
+  } else if (newTab === 'fans' && fansList.value.length === 0) {
+    getFansList();
+  }
+});
+
 const userStats = [
-  {num: userInfo.value.followCount, label: '关注'},
-  {num: userInfo.value.fansCount, label: '粉丝'},
+  {num: userInfo.value.followCount, label: '关注', action: openFollowDialog},
+  {num: userInfo.value.fansCount, label: '粉丝', action: openFansDialog},
   {num: 1, label: '获赞'},
 ]
 
@@ -162,47 +283,6 @@ const getEmptyText = computed(() => {
   }
   return texts[currentNav.value]
 })
-
-const drawerVisible = ref(false)
-const form = ref({
-  title: '',
-  cover: '',
-  content: '',
-  videoUrl: ''
-})
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const currentEditId = ref(null)
-
-const openDrawer = () => {
-  isEdit.value = false
-  drawerVisible.value = true
-}
-
-const fileList = ref([])
-
-const handleRemove = (file, fileList) => {
-  form.value.cover = ''
-  fileList.value = fileList
-}
-
-
-
-
-
-const resetForm = () => {
-  form.value = {
-    title: '',
-    cover: '',
-    content: '',
-    videoUrl: ''
-  }
-  fileList.value = []
-  videoFileName.value = ''
-  isEdit.value = false
-  currentEditId.value = null
-}
 
 //视频区域数据模型
 const videos = ref([]);
@@ -222,8 +302,6 @@ const getUserVideoInfo = async () => {
   videos.value = result.data.items;
   pagination.value.total = result.data.total;
 }
-
-
 
 // 获取用户视频信息
 getUserVideoInfo()
@@ -409,6 +487,7 @@ const handleBackToAnimeList = () => {
   flex-direction: column;
   align-items: center;
   animation: fadeIn 1s ease-in-out;
+  cursor: pointer;
 }
 
 .stat-item .num {
@@ -641,6 +720,110 @@ const handleBackToAnimeList = () => {
   .cover-uploader :deep(.el-upload:hover) {
     border-color: #fb7299;
   }
+}
+
+/* 关注/粉丝列表弹窗样式 */
+.follow-dialog :deep(.el-dialog__header) {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  margin-right: 0;
+  text-align: center;
+}
+
+.follow-dialog :deep(.el-dialog__headerbtn) {
+  top: 16px;
+}
+
+.follow-dialog :deep(.el-dialog__body) {
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.follow-dialog :deep(.el-tabs__header) {
+  margin-bottom: 0;
+  padding: 0 20px;
+  background-color: #f9f9f9;
+}
+
+.follow-dialog :deep(.el-tabs__nav-wrap::after) {
+  height: 1px;
+  background-color: #f0f0f0;
+}
+
+.follow-dialog :deep(.el-tabs__item) {
+  font-size: 15px;
+  height: 50px;
+  line-height: 50px;
+  color: #666;
+}
+
+.follow-dialog :deep(.el-tabs__item.is-active) {
+  color: #fb7299;
+  font-weight: bold;
+}
+
+.follow-dialog :deep(.el-tabs__active-bar) {
+  background-color: #fb7299;
+}
+
+.follow-list {
+  padding: 0;
+  min-height: 200px;
+}
+
+.follow-item {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.follow-item:hover {
+  background-color: #f9f9f9;
+}
+
+.follow-avatar {
+  margin-right: 16px;
+}
+
+.follow-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.follow-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.follow-intro {
+  font-size: 13px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.follow-action {
+  margin-left: 16px;
+}
+
+.follow-action .el-button--primary {
+  background-color: #fff;
+  color: #fb7299;
+  border-color: #fb7299;
+}
+
+.follow-action .el-button--primary:hover {
+  background-color: #fb7299;
+  color: #fff;
 }
 
 </style>

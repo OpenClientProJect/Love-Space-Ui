@@ -236,17 +236,6 @@ const formatDate = (timestamp) => {
   })
 }
 
-
-// 获取状态类型
-const getStatusType = (status) => {
-  const types = {
-    0: 'warning',  // 待审核
-    1: 'success',  // 已发布
-    2: 'danger',   // 已拒绝
-    3: 'info'      // 草稿
-  }
-  return types[status] || 'info'
-}
 // 获取视频列表数据
 const fetchVideoList = async () => {
   loading.value = true
@@ -263,7 +252,7 @@ const fetchVideoList = async () => {
       
       // 根据分类筛选
       if (filterCategory.value !== -1) {
-        allVideos = allVideos.filter(video => video.categoryId == filterCategory.value)
+        allVideos = allVideos.filter(video => video.categoryId === filterCategory.value)
       }
       
       // 更新视频列表
@@ -543,16 +532,7 @@ onMounted(() => {
   opacity: 1;
 }
 
-.preview-btn {
-  background-color: rgba(255, 255, 255, 0.7);
-  border-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
+
 
 .preview-icon {
   width: 20px;
@@ -560,12 +540,7 @@ onMounted(() => {
   filter: brightness(0) invert(0.4) sepia(1) saturate(10) hue-rotate(300deg);
 }
 
-.video-status {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-}
+
 
 .video-info {
   flex: 1;
@@ -629,16 +604,6 @@ onMounted(() => {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
-.action-icon {
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.3s;
-}
-
-.action-icon:hover {
-  background-color: #f5f7fa;
-}
 
 .video-description {
   margin: 0 0 15px 0;
@@ -783,17 +748,6 @@ onMounted(() => {
   }
 }
 
-.video-actions-btn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.audit-buttons {
-  display: flex;
-  gap: 10px;
-}
 
 .audit-buttons .el-button {
   padding: 8px 16px;

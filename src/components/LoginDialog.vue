@@ -313,8 +313,8 @@ const handleLogin = async () => {
     return ElMessage.warning('请输入账号和密码')
 
   //判断是否符合5~15字符
-  if (loginForm.value.account.length < 6 || loginForm.value.account.length > 20 ||
-      loginForm.value.password.length < 6 || loginForm.value.password.length > 20) {
+  if (loginForm.value.account.length < 6 || loginForm.value.account.length > 30 ||
+      loginForm.value.password.length < 6 || loginForm.value.password.length > 30) {
     return ElMessage.error('账号或密码长度在5-20个字符')
   }
   let result = await userLoginService(loginForm.value)
