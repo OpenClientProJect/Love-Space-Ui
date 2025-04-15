@@ -1,48 +1,124 @@
 <template>
   <div class="announcement-manager">
+    <!-- 顶部操作区域 -->
     <div class="header-actions">
       <h2 class="section-title">公告管理</h2>
-      <el-button type="primary" @click="openAnnouncementDialog(false)">
-        <el-icon><Plus /></el-icon>发布公告
-      </el-button>
+      <div class="action-group">
+        <el-button type="primary" @click="openAnnouncementDialog(false)">
+          <el-icon><Plus /></el-icon>
+          发布公告
+        </el-button>
+        <el-button @click="loadAnnouncements" class="refresh-button">
+          <el-icon><Refresh /></el-icon>
+          刷新列表
+        </el-button>
+      </div>
     </div>
     
-    <div v-loading="loading" class="announcement-list">
-      <el-empty v-if="announcements.length === 0" description="暂无公告" />
-      <el-card v-else v-for="item in announcements" :key="item.id" class="announcement-card" shadow="hover">
-        <div class="announcement-header">
-          <div class="announcement-title">
-            <span class="title-text">{{ item.title }}</span>
+    <!-- 空状态 -->
+    <div class="empty-state" v-if="announcements.length === 0 && !loading">
+      <el-empty description="暂无公告内容">
+        <template #description>
+          <p class="empty-text">暂无已发布的公告</p>
+        </template>
+      </el-empty>
+    </div>
+    
+    <!-- 公告列表 -->
+    <div class="announcement-list" v-if="announcements.length > 0">
+      <div v-for="item in announcements" :key="item.id" class="announcement-card">
+        <div class="announcement-media">
+          <div class="media-content" v-if="item.imageUrl || item.videoUrl">
+            <!-- 图片点击可预览视频 -->
+            <div 
+              v-if="item.imageUrl" 
+              class="image-preview"
+              :class="{'has-video': item.videoUrl, 'image-only': !item.videoUrl}"
+              @click="item.videoUrl ? toggleVideo(item.id) : null"
+            >
+              <el-image 
+                v-show="!activeVideos[item.id]"
+                :src="item.imageUrl" 
+                :preview-src-list="[]"
+                fit="cover"
+                class="content-image"
+                :style="item.videoUrl ? 'cursor: pointer' : ''"
+                @click.stop
+              />
+              <video 
+                v-show="activeVideos[item.id]"
+                :id="`video-${item.id}`"
+                :src="item.videoUrl"
+                class="content-video"
+                controls
+                @ended="activeVideos[item.id] = false"
+              ></video>
+              <div v-if="item.videoUrl && !activeVideos[item.id]" class="video-indicator">
+                <el-icon><VideoPlay /></el-icon>
+                <span>点击播放视频</span>
+              </div>
+            </div>
+            <!-- 视频缩略图 -->
+            <div v-else-if="item.videoUrl" class="video-thumbnail" @click="toggleVideo(item.id)">
+              <div class="play-icon">
+                <el-icon><VideoPlay /></el-icon>
+              </div>
+              <div class="view-video">
+                点击播放视频
+              </div>
+            </div>
           </div>
-          <div class="announcement-actions">
-            <el-button type="primary" link @click="openAnnouncementDialog(true, item)">
-              <el-icon><Edit /></el-icon>
-            </el-button>
-            <el-button type="danger" link @click="deleteAnnouncement(item.id)">
-              <el-icon><Delete /></el-icon>
+          <!-- 视频预览按钮 -->
+          <div class="cover-actions" v-if="item.videoUrl && !item.imageUrl">
+            <el-button @click="previewVideo(item)">
+              <img :src="VideoFill" class="preview-icon" alt="预览" />
             </el-button>
           </div>
         </div>
-        <div class="announcement-content">{{ item.text }}</div>
-        <div class="announcement-image" v-if="item.imageUrl">
-          <el-image 
-            :src="item.imageUrl" 
-            :preview-src-list="[item.imageUrl]"
-            fit="cover"
-            class="content-image"
-          />
+        
+        <div class="announcement-info">
+          <!-- 顶部标题和操作按钮 -->
+          <div class="top-actions">
+            <h3 class="announcement-title">{{ item.title }}</h3>
+            <div class="actions-group">
+              <el-button 
+                size="small" 
+                type="primary"
+                @click="openAnnouncementDialog(true, item)"
+                class="top-action-btn"
+              >
+                <el-icon><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button 
+                size="small" 
+                type="danger"
+                @click="deleteAnnouncement(item.id)"
+                class="top-action-btn"
+              >
+                <el-icon><Delete /></el-icon>
+                删除
+              </el-button>
+            </div>
+          </div>
+          
+          <p class="announcement-content">{{ item.text }}</p>
+          <div class="announcement-meta">
+            <span class="create-time">发布时间: {{ formatDate(item.createTime) }}</span>
+            <span class="media-tag video-tag" v-if="item.videoUrl">
+              包含视频
+            </span>
+            <span class="media-tag" v-if="item.imageUrl">
+              包含图片
+            </span>
+          </div>
         </div>
-        <div class="announcement-video" v-if="item.videoUrl">
-          <video 
-            :src="item.videoUrl" 
-            controls
-            class="content-video"
-          />
-        </div>
-        <div class="announcement-footer">
-          <span class="announcement-time">发布时间: {{ formatDate(item.createTime) }}</span>
-        </div>
-      </el-card>
+      </div>
+    </div>
+    
+    <!-- 加载状态 -->
+    <div class="loading-container" v-if="loading">
+      <el-skeleton :rows="5" animated />
     </div>
 
     <!-- 公告表单对话框 -->
@@ -87,7 +163,7 @@
             <el-icon><Plus /></el-icon>
             <template #tip>
               <div class="el-upload__tip">
-                只能上传jpg/png文件，且不超过2MB
+                只能上传jpg/png文件，且不超过20MB
               </div>
             </template>
           </el-upload>
@@ -122,13 +198,38 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 视频预览对话框 -->
+    <el-dialog
+      v-model="videoPreviewVisible"
+      title="视频预览"
+      width="70%"
+      class="preview-dialog"
+      destroy-on-close
+    >
+      <div class="video-preview-container">
+        <video 
+          v-if="currentAnnouncement.videoUrl" 
+          controls 
+          class="preview-video" 
+          :src="currentAnnouncement.videoUrl"
+        ></video>
+        <div class="video-preview-info">
+          <h3>{{ currentAnnouncement.title }}</h3>
+          <p class="video-description">{{ currentAnnouncement.text || '暂无简介' }}</p>
+          <div class="video-meta">
+            <span>发布时间: {{ formatDate(currentAnnouncement.createTime) }}</span>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Plus, Delete } from '@element-plus/icons-vue'
+import { Edit, Plus, Delete, Refresh, VideoPlay } from '@element-plus/icons-vue'
 import { 
   publishAnnouncementService, 
   getAnnouncementListService, 
@@ -136,6 +237,7 @@ import {
   updateAnnouncementService
 } from '@/api/Announcement'
 import { useTokenStore } from '@/stores/token'
+import VideoFill from '@/assets/iconsvg/video_fill.svg'
 
 // 公告列表数据
 const announcements = ref([])
@@ -253,7 +355,6 @@ const openAnnouncementDialog = (editMode, announcement = null) => {
       title: '',
       text: '',
       type: 'normal',
-      status: 'active',
       imageUrl: '',
       videoUrl: ''
     };
@@ -305,7 +406,6 @@ const submitForm = () => {
           ElMessage.error(result.message || '操作失败');
         }
       } catch (error) {
-        console.error('公告操作失败:', error);
         ElMessage.error('操作失败，请稍后重试');
       } finally {
         formLoading.value = false;
@@ -359,6 +459,49 @@ const loadAnnouncements = async () => {
   }
 };
 
+// 添加视频预览方法
+const previewVideo = (announcement) => {
+  currentAnnouncement.value = announcement
+  videoPreviewVisible.value = true
+}
+
+// 添加视频预览状态
+const videoPreviewVisible = ref(false)
+const currentAnnouncement = ref({})
+
+// 添加视频播放状态管理
+const activeVideos = reactive({})
+
+// 添加切换视频显示方法
+const toggleVideo = (id) => {
+  // 停止所有其他视频播放
+  Object.keys(activeVideos).forEach(key => {
+    if (key !== id.toString() && activeVideos[key]) {
+      activeVideos[key] = false
+      const video = document.getElementById(`video-${key}`)
+      if (video) {
+        video.pause()
+        video.currentTime = 0
+      }
+    }
+  })
+  
+  // 切换当前视频状态
+  activeVideos[id] = !activeVideos[id]
+  
+  // 如果激活了视频，就自动播放
+  if (activeVideos[id]) {
+    setTimeout(() => {
+      const video = document.getElementById(`video-${id}`)
+      if (video) {
+        video.play().catch(e => {
+          console.log('自动播放失败，需要用户交互', e)
+        })
+      }
+    }, 100)
+  }
+}
+
 // 初始化加载数据
 onMounted(() => {
   loadAnnouncements();
@@ -368,6 +511,7 @@ onMounted(() => {
 <style scoped>
 .announcement-manager {
   width: 100%;
+  padding: 10px;
 }
 
 .header-actions {
@@ -378,97 +522,344 @@ onMounted(() => {
 }
 
 .section-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
   color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.action-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .announcement-list {
-  min-height: 300px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(750px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .announcement-card {
-  margin-bottom: 16px;
+  display: flex;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .announcement-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
-.announcement-header {
+.announcement-media {
+  width: 240px;
+  height: 150px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.media-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.announcement-card:hover .content-image {
+  transform: scale(1.05);
+}
+
+.video-thumbnail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: white;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.video-thumbnail:hover {
+  background-color: #111;
+}
+
+.video-thumbnail:hover .play-icon {
+  transform: scale(1.1);
+}
+
+.play-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.view-video {
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cover-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.announcement-card:hover .cover-actions {
+  opacity: 1;
+}
+
+.preview-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(0.4) sepia(1) saturate(10) hue-rotate(300deg);
+}
+
+.announcement-info {
+  flex: 1;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.top-actions {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 12px;
+  gap: 10px;
+  width: 100%;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
 }
 
 .announcement-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.actions-group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.title-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
+.top-action-btn {
+  font-weight: bold;
+  padding: 8px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.top-action-btn.el-button--primary {
+  background-color: #67c23a;
+  border-color: #67c23a;
+  color: white;
+}
+
+.top-action-btn.el-button--danger {
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+  color: white;
+}
+
+.top-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .announcement-content {
+  margin: 0 0 15px 0;
   font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 16px;
-  white-space: pre-line;
+  color: #606266;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
 }
 
-.announcement-footer {
+.announcement-meta {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #999;
+  flex-wrap: wrap;
+  gap: 12px;
   font-size: 12px;
+  color: #909399;
 }
 
-.announcement-time {
-  color: #999;
+.media-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fb729915;
+  color: #fb7299;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
-/* 公告表单对话框样式 */
-.announcement-dialog :deep(.el-dialog__body) {
+.media-tag::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #fb7299;
+  margin-right: 4px;
+}
+
+/* 空状态样式 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.empty-text {
+  color: #666;
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
 }
 
-.dialog-footer {
+/* 视频预览对话框 */
+.preview-dialog :deep(.el-dialog__body) {
+  padding: 0;
+}
+
+.video-preview-container {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
 }
 
-.announcement-image {
-  margin-top: 10px;
-  margin-bottom: 16px;
+.preview-video {
+  width: 100%;
+  max-height: 500px;
+  background: #000;
 }
 
-.content-image {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 4px;
+.video-preview-info {
+  padding: 20px;
 }
 
-.announcement-video {
-  margin-top: 10px;
-  margin-bottom: 16px;
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .announcement-card {
+    flex-direction: column;
+  }
+
+  .announcement-media {
+    width: 100%;
+    height: 180px;
+  }
+
+  .announcement-info {
+    padding: 12px;
+  }
+}
+
+/* 添加相关样式 */
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview.has-video:hover .video-indicator {
+  opacity: 1;
+}
+
+.video-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
 }
 
 .content-video {
-  max-width: 100%;
-  max-height: 400px;
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
 }
 
-.upload-container {
-  width: 100%;
+/* 为视频标签添加特殊样式 */
+.media-tag.video-tag {
+  background-color: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+}
+
+.media-tag.video-tag::before {
+  background-color: #409eff;
+}
+
+/* 添加仅图片样式 */
+.image-preview.image-only {
+  cursor: default;
 }
 </style> 
