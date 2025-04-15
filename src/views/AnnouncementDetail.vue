@@ -94,6 +94,8 @@ const fetchAnnouncementDetail = async () => {
       // 找到当前公告 - 使用announcementId作为正确的属性名
       const found = res.data.find(item => item.announcementId == announcementId.value)
       console.log('找到的公告详情:', found)
+      console.log('当前查找的announcementId:', announcementId.value, '类型:', typeof announcementId.value)
+      console.log('所有公告的ID:', res.data.map(item => ({id: item.announcementId, type: typeof item.announcementId})))
       
       if (found) {
         announcement.value = found
@@ -139,6 +141,7 @@ const goBack = () => {
 
 // 查看其他公告
 const viewAnnouncement = (id) => {
+  console.log('查看公告，ID:', id, '类型:', typeof id)
   router.push(`/announcement/${id}`)
   // 刷新当前页面数据
   announcementId.value = id
@@ -149,7 +152,7 @@ const viewAnnouncement = (id) => {
 
 // 组件挂载时获取数据
 onMounted(() => {
-  // 从路由参数获取公告ID
+  // 从路由参数获取公告ID - 使用announcementId
   announcementId.value = route.params.id
   console.log('公告ID:', announcementId.value)
   

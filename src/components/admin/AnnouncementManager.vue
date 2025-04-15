@@ -26,7 +26,7 @@
     
     <!-- 公告列表 -->
     <div class="announcement-list" v-if="announcements.length > 0">
-      <div v-for="item in announcements" :key="item.id" class="announcement-card">
+      <div v-for="item in announcements" :key="item.announcementId" class="announcement-card">
         <div class="announcement-media">
           <div class="media-content" v-if="item.imageUrl || item.videoUrl">
             <!-- 图片点击可预览视频 -->
@@ -34,10 +34,10 @@
               v-if="item.imageUrl" 
               class="image-preview"
               :class="{'has-video': item.videoUrl, 'image-only': !item.videoUrl}"
-              @click="item.videoUrl ? toggleVideo(item.id) : null"
+              @click="item.videoUrl ? toggleVideo(item.announcementId) : null"
             >
               <el-image 
-                v-show="!activeVideos[item.id]"
+                v-show="!activeVideos[item.announcementId]"
                 :src="item.imageUrl" 
                 :preview-src-list="[]"
                 fit="cover"
@@ -46,20 +46,20 @@
                 @click.stop
               />
               <video 
-                v-show="activeVideos[item.id]"
-                :id="`video-${item.id}`"
+                v-show="activeVideos[item.announcementId]"
+                :id="`video-${item.announcementId}`"
                 :src="item.videoUrl"
                 class="content-video"
                 controls
-                @ended="activeVideos[item.id] = false"
+                @ended="activeVideos[item.announcementId] = false"
               ></video>
-              <div v-if="item.videoUrl && !activeVideos[item.id]" class="video-indicator">
+              <div v-if="item.videoUrl && !activeVideos[item.announcementId]" class="video-indicator">
                 <el-icon><VideoPlay /></el-icon>
                 <span>点击播放视频</span>
               </div>
             </div>
             <!-- 视频缩略图 -->
-            <div v-else-if="item.videoUrl" class="video-thumbnail" @click="toggleVideo(item.id)">
+            <div v-else-if="item.videoUrl" class="video-thumbnail" @click="toggleVideo(item.announcementId)">
               <div class="play-icon">
                 <el-icon><VideoPlay /></el-icon>
               </div>
@@ -81,19 +81,10 @@
           <div class="top-actions">
             <h3 class="announcement-title">{{ item.title }}</h3>
             <div class="actions-group">
-              <el-button 
-                size="small" 
-                type="primary"
-                @click="openAnnouncementDialog(true, item)"
-                class="top-action-btn"
-              >
-                <el-icon><Edit /></el-icon>
-                编辑
-              </el-button>
-              <el-button 
+              <el-button
                 size="small" 
                 type="danger"
-                @click="deleteAnnouncement(item.id)"
+                @click="deleteAnnouncement(item.announcementId)"
                 class="top-action-btn"
               >
                 <el-icon><Delete /></el-icon>
@@ -229,12 +220,11 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Plus, Delete, Refresh, VideoPlay } from '@element-plus/icons-vue'
+import {  Plus, Delete, Refresh, VideoPlay } from '@element-plus/icons-vue'
 import { 
   publishAnnouncementService, 
   getAnnouncementListService, 
   deleteAnnouncementService,
-  updateAnnouncementService
 } from '@/api/Announcement'
 import { useTokenStore } from '@/stores/token'
 import VideoFill from '@/assets/iconsvg/video_fill.svg'
@@ -416,6 +406,15 @@ const submitForm = () => {
 
 // 删除公告
 const deleteAnnouncement = (id) => {
+  // 检查ID是否有效
+  if (!id || id === 'undefined' || typeof id === 'undefined') {
+    console.error('尝试删除公告时ID无效:', id);
+    ElMessage.error('公告ID无效，无法删除');
+    return;
+  }
+  
+  console.log('准备删除公告，ID:', id);
+  
   ElMessageBox.confirm('确认删除该公告吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -425,13 +424,14 @@ const deleteAnnouncement = (id) => {
     try {
       const result = await deleteAnnouncementService(id);
       if (result.code === 200) {
-        announcements.value = announcements.value.filter(item => item.id !== id);
+        // 注意：这里要使用相同的属性名称进行过滤
+        announcements.value = announcements.value.filter(item => item.announcementId !== id);
         ElMessage.success('公告删除成功');
       } else {
         ElMessage.error(result.message || '删除失败');
       }
     } catch (error) {
-      console.error('删除公告失败:', error);
+      console.error('删除公告失败:', error, '删除的ID:', id);
       ElMessage.error('删除失败，请稍后重试');
     } finally {
       loading.value = false;

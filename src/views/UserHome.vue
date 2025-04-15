@@ -36,37 +36,81 @@
     <!-- 用户内容区域 -->
     <div class="user-content">
       <div class="content-tabs">
-        <div class="tab active"><img :src="videoIcon" alt="视频">Ta发布的视频</div>
-        <div class="tab"><img :src="dynamicIcon" alt="动态">动态</div>
-        <div class="tab"><img :src="starIcon" alt="收藏">收藏</div>
+        <div 
+          class="tab" 
+          :class="{ active: activeTab === 'videos' }"
+          @click="switchTab('videos')"
+        >
+          <img :src="videoIcon" alt="视频">Ta发布的视频
+        </div>
+        <div
+          class="tab" 
+          :class="{ active: activeTab === 'favorites' }"
+          @click="switchTab('favorites')"
+        >
+          <img :src="starIcon" alt="收藏">收藏
+        </div>
       </div>
       <!-- 视频列表 -->
-      <div class="video-list" v-if="userHomeInfo.videos && userHomeInfo.videos.length > 0">
-        <div v-for="video in userHomeInfo.videos" 
-             :key="video.id" 
-             class="video-item"
-             @click="goToVideo(video.id)">
-          <div class="video-cover">
-            <img :src="video.cover" :alt="video.title">
-            <span class="duration">{{ video.duration }}</span>
-          </div>
-          <div class="video-info">
-            <div class="video-title">{{ video.title }}</div>
-            <div class="video-stats">
-              <span>{{ video.viewCount }}播放</span>
-              <span class="dot">·</span>
-              <span>{{ video.createTime }}</span>
+      <div v-if="activeTab === 'videos'">
+        <div class="video-list" v-if="userHomeInfo.videos && userHomeInfo.videos.length > 0">
+          <div v-for="video in userHomeInfo.videos" 
+                :key="video.id" 
+                class="video-item"
+                @click="goToVideo(video.id)">
+            <div class="video-cover">
+              <img :src="video.cover" :alt="video.title">
+              <span class="duration">{{ video.duration }}</span>
+            </div>
+            <div class="video-info">
+              <div class="video-title">{{ video.title }}</div>
+              <div class="video-stats">
+                <span>{{ video.viewCount }}播放</span>
+                <span class="dot">·</span>
+                <span>{{ video.createTime }}</span>
+              </div>
             </div>
           </div>
         </div>
+        <el-empty v-else description="暂无视频"/>
       </div>
-      <el-empty v-else description="暂无视频"/>
+      <!-- 动态列表 -->
+      <div v-if="activeTab === 'dynamics'">
+        <el-empty description="暂无动态" />
+      </div>
+      <!-- 收藏列表 -->
+      <div v-if="activeTab === 'favorites'">
+        <div v-loading="loadingCollections">
+          <div class="video-list" v-if="collectionList.length > 0">
+            <div v-for="video in collectionList" 
+                  :key="video.id" 
+                  class="video-item"
+                  @click="goToVideo(video.id)">
+              <div class="video-cover">
+                <img :src="video.cover" :alt="video.title">
+                <!-- 播放时长暂时不显示，因为API没有返回该字段 -->
+              </div>
+              <div class="video-info">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="video-stats">
+                  <span>{{ video.likesCount || 0 }}点赞</span>
+                  <span class="dot">·</span>
+                  <span>{{ video.favoriteCount || 0 }}收藏</span>
+                  <span class="dot">·</span>
+                  <span>{{ formatDate(video.createTime) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <el-empty v-else description="暂无收藏视频" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import {userHomeService} from '@/api/user/user'
 import {useRouter, useRoute} from 'vue-router'
 import bgImage from '@/assets/background/background.webp' // 导入背景图片
@@ -75,6 +119,8 @@ import videoIcon from '@/assets/iconsvg/video.svg'
 import starIcon from '@/assets/iconsvg/userstar.svg'
 import dynamicIcon from '@/assets/iconsvg/dynamic.svg'
 import useUserInfoStore from '@/stores/userInfo'
+import { getUserCollectionService } from '@/api/user/uservideo'
+import { ElMessage } from 'element-plus'
 
 const userHomeInfo = ref({})
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
@@ -82,16 +128,28 @@ const router = useRouter()
 const route = useRoute()
 const userInfoStore = useUserInfoStore()
 
+// 添加收藏相关的状态
+const activeTab = ref('videos') // 当前激活的标签：videos, dynamics, favorites
+const collectionList = ref([]) // 收藏列表
+const loadingCollections = ref(false) // 加载状态
+
 // 获取用户首页信息
 const getUserHomeInfo = async () => {
-  // 如果有 username 查询参数，说明是查看其他用户的主页
-  if (route.query.username) {
-    const res = await userHomeService({ username: route.query.username })
-    userHomeInfo.value = res.data
-  } else {
-    // 否则获取当前登录用户的信息
-    const res = await userHomeService(null)
-    userHomeInfo.value = res.data
+  try {
+    // 如果有 username 查询参数，说明是查看其他用户的主页
+    if (route.query.username) {
+      console.log('正在查看其他用户的主页:', route.query.username)
+      const res = await userHomeService({ username: route.query.username })
+      userHomeInfo.value = res.data
+    } else {
+      // 否则获取当前登录用户的信息
+      console.log('正在查看自己的主页，store中的用户信息:', userInfoStore.info)
+      const res = await userHomeService(null)
+      userHomeInfo.value = res.data
+    }
+  } catch (error) {
+    console.error('获取用户主页信息失败:', error)
+    ElMessage.error('获取用户信息失败，请稍后重试')
   }
 }
 
@@ -100,9 +158,95 @@ const goToVideo = (videoId) => {
   router.push(`/video/${videoId}`)
 }
 
+// 获取收藏列表
+const getCollectionList = async () => {
+  loadingCollections.value = true
+  try {
+    // 判断是否查看的是自己的主页
+    const isOwnProfile = !route.query.username
+    let userId = null
+    
+    // 如果是查看自己的主页，优先使用store中的用户ID
+    if (isOwnProfile && userInfoStore.info && userInfoStore.info.id) {
+      userId = userInfoStore.info.id
+      console.log('从store获取当前用户ID:', userId)
+    } else {
+      // 否则使用页面上的用户信息或路由参数
+      userId = userHomeInfo.value.id || route.query.username
+      console.log('使用页面用户ID或路由参数:', userId)
+    }
+    
+    if (!userId) {
+      ElMessage.warning('无法获取用户ID')
+      collectionList.value = []
+      return
+    }
+    
+    const res = await getUserCollectionService(userId)
+    console.log('收藏列表API返回数据:', res)
+    
+    if (res && res.code === 200 && res.data) {
+      collectionList.value = res.data
+    } else {
+      collectionList.value = []
+      // 只在主动切换到收藏标签时显示提示
+      if (activeTab.value === 'favorites') {
+        ElMessage.info(res?.message || '暂无收藏内容')
+      }
+    }
+  } catch (error) {
+    console.error('获取收藏列表失败:', error)
+    ElMessage.error('获取收藏列表失败，请稍后重试')
+    collectionList.value = []
+  } finally {
+    loadingCollections.value = false
+  }
+}
+
+// 切换标签的方法
+const switchTab = (tabName) => {
+  activeTab.value = tabName
+  
+  // 如果切换到收藏标签，则获取收藏列表
+  if (tabName === 'favorites') {
+    // 判断是否需要重新加载
+    if (collectionList.value.length === 0 || (!route.query.username && userInfoStore.info.id)) {
+      getCollectionList()
+    }
+  }
+}
+
 onMounted(() => {
   getUserHomeInfo()
+  
+  // 默认加载视频标签内容
+  activeTab.value = 'videos'
 })
+
+// 添加日期格式化方法
+// 格式化日期，将ISO格式转为易读的短格式
+const formatDate = (dateStr) => {
+  if (!dateStr) return '未知时间'
+  
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diff = now - date
+  
+  // 小于1天，显示几小时前
+  if (diff < 24 * 60 * 60 * 1000) {
+    const hours = Math.floor(diff / (60 * 60 * 1000))
+    return hours > 0 ? `${hours}小时前` : '刚刚'
+  }
+  // 小于1周，显示几天前
+  else if (diff < 7 * 24 * 60 * 60 * 1000) {
+    const days = Math.floor(diff / (24 * 60 * 60 * 1000))
+    return `${days}天前`
+  }
+  // 否则显示年月日
+  else {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  }
+}
 </script>
 
 <style scoped>

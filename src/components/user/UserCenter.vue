@@ -122,9 +122,7 @@
                   <div class="follow-name">{{ user.nickname }}</div>
                   <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
                 </div>
-                <div class="follow-action">
-                  <el-button size="small" type="primary" plain>已关注</el-button>
-                </div>
+
               </div>
             </template>
             <el-empty v-else description="暂无关注" />
@@ -140,9 +138,6 @@
                 <div class="follow-info">
                   <div class="follow-name">{{ user.nickname }}</div>
                   <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
-                </div>
-                <div class="follow-action">
-                  <el-button size="small" type="primary">关注</el-button>
                 </div>
               </div>
             </template>

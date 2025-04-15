@@ -9,3 +9,8 @@ export const getVideoLikeService = (videoId,action) => {
 export const userActionService = (videoId, action) => {
   return request.put(`/user/video/${videoId}/doAction?action=${action}`);
 };
+
+//用户收藏列表
+export const getUserCollectionService = (userId) => {
+  return request.get(`/video/collectList?userId=${userId}`);
+};

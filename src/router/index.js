@@ -1,21 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Anime from '@/views/Anime.vue'
 import UserCenter from '@/components/user/UserCenter.vue'
 import SearchResult from '@/views/SearchResult.vue'
 import { useTokenStore } from '@/stores/token'
-import Live from '@/views/Live.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home
-  },
-  {
-    path: '/anime',
-    name: 'Anime',
-    component: Anime
   },
   {
     path: '/search',
@@ -48,15 +41,6 @@ const routes = [
     path: '/user',
     name: 'UserHome',
     component: () => import('@/views/UserHome.vue')
-  },
-  {
-    path: '/live',
-    name: 'Live',
-    component: Live,
-    meta: {
-      title: '直播-蒔饭动漫',
-      keepAlive: true
-    }
   },
   {
     path: '/announcement/:id',

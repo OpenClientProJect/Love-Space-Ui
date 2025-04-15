@@ -314,20 +314,6 @@ const videoInfo = ref({
   username: '',//作者用户名
 })
 
-// 设置页面标题
-const title = useTitle()
-watch(() => videoInfo.value, (newVideo) => {
-  if (newVideo && newVideo.title) {
-    title.value = `${newVideo.title} - 哔哩哔哩` // 设置标题格式：视频标题 - 网站名
-  } else {
-    title.value = '哔哩哔哩' // 如果没有视频信息则显示默认标题
-  }
-}, {immediate: true})
-
-// 组件卸载时恢复默认标题
-onUnmounted(() => {
-  title.value = '哔哩哔哩'
-})
 // 获取视频详情
 const getVideoDetail = async () => {
   try {

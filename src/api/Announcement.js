@@ -17,13 +17,6 @@ export const getAnnouncementListService = () =>{
 /**
  * 删除公告
  */
-export const deleteAnnouncementService = (id) =>{
-    return request.delete(`/announcement/${id}`);
-}
-
-/**
- * 更新公告
- */
-export const updateAnnouncementService = (id, data) =>{
-    return request.put(`/announcement/${id}`, data);
+export const deleteAnnouncementService = (announcementId) =>{
+    return request.delete(`/announcement?announcementId=` + announcementId);
 }
