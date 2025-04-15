@@ -57,6 +57,11 @@ const routes = [
       title: '直播-蒔饭动漫',
       keepAlive: true
     }
+  },
+  {
+    path: '/announcement/:id',
+    name: 'AnnouncementDetail',
+    component: () => import('@/views/AnnouncementDetail.vue')
   }
 ]
 

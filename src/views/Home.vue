@@ -1,7 +1,8 @@
 <script setup>
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
-import {VideoPlay, CaretTop, ArrowUp, Refresh, Loading, Bell} from '@element-plus/icons-vue'
+import {getAnnouncementListService} from "@/api/Announcement";
+import {VideoPlay, ArrowUp, Refresh, Loading, Bell} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
@@ -71,12 +72,8 @@ const activeCategory = ref(0)
 const loading = ref(false)
 
 // 公告数据
-const announcements = ref([
-  { id: 1, text: '欢迎来到Love Space，这里有最新最全的动漫资源！' },
-  { id: 2, text: '公告栏 1' },
-  { id: 3, text: '公告栏 2' },
-  { id: 4, text: '公告栏 3' }
-])
+const announcements = ref([])
+const loadingAnnouncements = ref(false)
 
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
@@ -152,8 +149,31 @@ const handleRefresh = async () => {
   }
 }
 
+// 获取公告列表
+const getAnnouncementList = async () => {
+  loadingAnnouncements.value = true
+  try {
+    const res = await getAnnouncementListService()
+    if (res.code === 200 && res.data) {
+      announcements.value = res.data
+    } else {
+      console.error('获取公告列表失败:', res.message)
+    }
+  } catch (error) {
+    console.error('获取公告列表失败:', error)
+  } finally {
+    loadingAnnouncements.value = false
+  }
+}
+
+// 显示公告详情
+const showAnnouncementDetails = (announcement) => {
+  router.push(`/announcement/${announcement.announcementId}`)
+}
+
 onMounted(() => {
   getVideoList()
+  getAnnouncementList()
 })
 
 // 添加视频点击处函数
@@ -233,18 +253,31 @@ const getCategoryName = (categoryId) => {
       <div class="notice-icon">
         <el-icon><Bell /></el-icon>
       </div>
-      <div class="notice-content">
+      <div class="notice-content" v-loading="loadingAnnouncements">
         <el-carousel 
+          v-if="announcements.length > 0"
           height="36px" 
           direction="vertical" 
           :autoplay="true"
           :interval="3000"
           indicator-position="none"
         >
-          <el-carousel-item v-for="item in announcements" :key="item.id">
-            <div class="notice-text">{{ item.text }}</div>
+          <el-carousel-item v-for="item in announcements" :key="item.announcementId">
+            <div class="notice-container">
+              <div class="notice-text">{{ item.title }}</div>
+              <el-button 
+                class="notice-detail-btn" 
+                type="primary" 
+                size="small" 
+                link
+                @click.stop="showAnnouncementDetails(item)"
+              >
+                详情
+              </el-button>
+            </div>
           </el-carousel-item>
         </el-carousel>
+        <div v-else class="empty-notice">暂无公告信息</div>
       </div>
     </div>
 
@@ -1042,6 +1075,16 @@ const getCategoryName = (categoryId) => {
 .notice-content {
   flex: 1;
   overflow: hidden;
+  position: relative;
+  min-height: 36px;
+}
+
+.notice-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 10px;
 }
 
 .notice-text {
@@ -1053,6 +1096,24 @@ const getCategoryName = (categoryId) => {
   padding: 0 5px;
   line-height: 36px;
   font-weight: 500;
+  flex: 1;
+}
+
+.notice-detail-btn {
+  font-size: 12px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.empty-notice {
+  font-size: 14px;
+  color: #999;
+  line-height: 36px;
+  text-align: center;
 }
 
 /* 公告栏轮播样式 - 使用非常具体的选择器 */
