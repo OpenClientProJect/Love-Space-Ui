@@ -1,5 +1,5 @@
 <template>
-  <div class="user-center">
+  <div class="user-center" id="user-center">
     <!-- 顶部背景和用户信息 -->
     <div class="user-header">
       <div class="header-bg">
@@ -150,8 +150,8 @@
 </template>
 
 <script setup>
-import {ref, computed, watch} from 'vue'
-import {useRouter} from 'vue-router'
+import {ref, computed, watch, defineExpose, onMounted} from 'vue'
+import {useRouter, useRoute} from 'vue-router'
 import {Edit, Close, User, ChatDotRound, Bell} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import {ElMessage, ElMessageBox} from "element-plus";
@@ -164,6 +164,7 @@ import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
 
 const router = useRouter()
+const route = useRoute()
 const userInfoStore = useUserInfoStore()
 const currentNav = ref('videos')
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
@@ -309,13 +310,25 @@ getUserVideoInfo()
 // 添加新的响应式变量
 const videoFileName = ref('')
 
-// 添加跳转到编辑资料页面的方法
+// 修改"编辑资料"按钮的点击处理方法
 const goToEditProfile = () => {
   currentNav.value = 'edit-profile'
+  router.replace({
+    query: { ...route.query, tab: 'edit-profile' }
+  }).catch(err => {
+    console.error('更新URL参数失败:', err)
+  })
 }
 
+// 修改导航项点击处理方法，使其也更新URL参数
 const handleNavClick = (item) => {
   currentNav.value = item.name
+  
+  router.replace({
+    query: { ...route.query, tab: item.name }
+  }).catch(err => {
+    console.error('更新URL参数失败:', err)
+  })
 }
 
 const currentAnimeId = ref(null)
@@ -328,6 +341,40 @@ const handleBackToAnimeList = () => {
   currentAnimeId.value = null
 }
 
+// 添加defineExpose，暴露currentNav
+defineExpose({
+  currentNav
+})
+
+// 添加onMounted钩子，在组件挂载后打印调试信息
+onMounted(() => {
+  console.log('UserCenter组件已挂载')
+  const userCenterEl = document.querySelector('#user-center')
+  console.log('UserCenter DOM元素:', userCenterEl)
+  
+  // 从URL查询参数中读取tab
+  const tabParam = route.query.tab
+  if (tabParam) {
+    // 验证tab参数是否有效
+    const validTabs = navItems.value.map(item => item.name)
+    if (validTabs.includes(tabParam)) {
+      currentNav.value = tabParam
+    } else {
+      console.warn('无效的tab参数:', tabParam)
+    }
+  }
+})
+
+// 监听路由变化，以便在URL参数改变时更新导航
+watch(() => route.query.tab, (newTab) => {
+  if (newTab) {
+    const validTabs = navItems.value.map(item => item.name)
+    if (validTabs.includes(newTab)) {
+      console.log('路由参数变化，设置currentNav为:', newTab)
+      currentNav.value = newTab
+    }
+  }
+})
 </script>
 
 <style scoped>

@@ -67,13 +67,9 @@
             <el-icon><Edit /></el-icon>
             编辑资料
           </div>
-          <div class="menu-item">
+          <div class="menu-item" @click="goToVideoManage">
             <el-icon><VideoCamera /></el-icon>
             投稿管理
-          </div>
-          <div class="menu-item">
-            <el-icon><Star /></el-icon>
-            推荐服务
           </div>
         </div>
 
@@ -153,15 +149,18 @@ const goToUserCenter = () => {
 
 const goToEditProfile = () => {
   visible.value = false // 关闭弹窗
-  router.push('/user-center').then(() => {
-    // 使用 nextTick 确保导航完成后再设置 currentNav
-    nextTick(() => {
-      const userCenterComponent = document.querySelector('#user-center')?.__vueParent$
-      if (userCenterComponent) {
-        userCenterComponent.currentNav = 'edit-profile'
-      }
-    })
-  })
+  console.log('正在跳转到编辑资料页面...')
+  
+  // 通过URL参数直接指定要显示的页面
+  router.push('/user-center?tab=edit-profile')
+}
+
+const goToVideoManage = () => {
+  visible.value = false // 关闭弹窗
+  console.log('正在跳转到投稿管理页面...')
+  
+  // 通过URL参数直接指定要显示的页面
+  router.push('/user-center?tab=videos')
 }
 
 // 跳转到用户首页
