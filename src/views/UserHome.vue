@@ -93,10 +93,6 @@
               <div class="video-info">
                 <div class="video-title">{{ video.title }}</div>
                 <div class="video-stats">
-                  <span>{{ video.likesCount || 0 }}点赞</span>
-                  <span class="dot">·</span>
-                  <span>{{ video.favoriteCount || 0 }}收藏</span>
-                  <span class="dot">·</span>
                   <span>{{ formatDate(video.createTime) }}</span>
                 </div>
               </div>

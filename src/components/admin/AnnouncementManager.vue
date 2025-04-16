@@ -323,7 +323,7 @@ const openAnnouncementDialog = (editMode, announcement = null) => {
   
   if (editMode && announcement) {
     form.value = { ...announcement };
-    currentId.value = announcement.id;
+    currentId.value = announcement.announcementId;
     
     // 如果有图片，添加到预览列表
     if (announcement.imageUrl) {
@@ -357,8 +357,8 @@ const openAnnouncementDialog = (editMode, announcement = null) => {
 const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      formLoading.value = true;
       try {
+        formLoading.value = true;
         let result;
         
         if (isEdit.value) {
@@ -371,11 +371,11 @@ const submitForm = () => {
         
         if (result.code === 200) {
           if (isEdit.value) {
-            const index = announcements.value.findIndex(item => item.id === currentId.value);
+            const index = announcements.value.findIndex(item => item.announcementId === currentId.value);
             if (index !== -1) {
               announcements.value[index] = {
                 ...form.value,
-                id: currentId.value,
+                announcementId: currentId.value,
                 updateTime: new Date().toISOString()
               };
             }
@@ -384,18 +384,20 @@ const submitForm = () => {
             // 添加新发布的公告到列表
             const newAnnouncement = {
               ...form.value,
-              id: result.data.id || Date.now(),
-              createTime: result.data.createTime || new Date().toISOString(),
-              updateTime: result.data.updateTime || new Date().toISOString()
+              announcementId: result.data?.announcementId || Date.now(),
+              createTime: result.data?.createTime || new Date().toISOString(),
+              updateTime: result.data?.updateTime || new Date().toISOString()
             };
             announcements.value.unshift(newAnnouncement);
             ElMessage.success('公告发布成功');
           }
+          // 关闭弹窗
           dialogVisible.value = false;
         } else {
           ElMessage.error(result.message || '操作失败');
         }
       } catch (error) {
+        console.error('提交公告失败:', error);
         ElMessage.error('操作失败，请稍后重试');
       } finally {
         formLoading.value = false;
