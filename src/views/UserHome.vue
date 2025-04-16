@@ -50,6 +50,13 @@
         >
           <img :src="starIcon" alt="收藏">收藏
         </div>
+        <div
+          class="tab" 
+          :class="{ active: activeTab === 'likes' }"
+          @click="switchTab('likes')"
+        >
+          <img :src="likeIcon" alt="点赞">点赞
+        </div>
       </div>
       <!-- 视频列表 -->
       <div v-if="activeTab === 'videos'">
@@ -67,7 +74,7 @@
               <div class="video-stats">
                 <span>{{ video.viewCount }}播放</span>
                 <span class="dot">·</span>
-                <span>{{ video.createTime }}</span>
+                <span>{{ formatDate(video.createTime)}}</span>
               </div>
             </div>
           </div>
@@ -101,22 +108,47 @@
           <el-empty v-else description="暂无收藏视频" />
         </div>
       </div>
+      <!-- 点赞列表 -->
+      <div v-if="activeTab === 'likes'">
+        <div v-loading="loadingLikes">
+          <div class="video-list" v-if="likeList.length > 0">
+            <div v-for="video in likeList" 
+                  :key="video.id" 
+                  class="video-item"
+                  @click="goToVideo(video.id)">
+              <div class="video-cover">
+                <img :src="video.cover" :alt="video.title">
+              </div>
+              <div class="video-info">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="video-stats">
+                  <span>{{ formatDate(video.createTime) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <el-empty v-else description="暂无点赞视频" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, onMounted, computed} from 'vue'
+import {ref, onMounted, computed, watch} from 'vue'
 import {userHomeService} from '@/api/user/user'
 import {useRouter, useRoute} from 'vue-router'
 import bgImage from '@/assets/background/background.webp' // 导入背景图片
 //图标
 import videoIcon from '@/assets/iconsvg/video.svg'
 import starIcon from '@/assets/iconsvg/userstar.svg'
+import likeIcon from '@/assets/iconsvg/点赞.svg'
 import dynamicIcon from '@/assets/iconsvg/dynamic.svg'
 import useUserInfoStore from '@/stores/userInfo'
 import { getUserCollectionService } from '@/api/user/uservideo'
+import { getUserLikeService } from '@/api/vidoelike'
 import { ElMessage } from 'element-plus'
+import {formatDate} from "@/utils/format";
 
 const userHomeInfo = ref({})
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
@@ -128,6 +160,10 @@ const userInfoStore = useUserInfoStore()
 const activeTab = ref('videos') // 当前激活的标签：videos, dynamics, favorites
 const collectionList = ref([]) // 收藏列表
 const loadingCollections = ref(false) // 加载状态
+
+// 添加点赞相关的状态
+const likeList = ref([])
+const loadingLikes = ref(false)
 
 // 获取用户首页信息
 const getUserHomeInfo = async () => {
@@ -199,15 +235,63 @@ const getCollectionList = async () => {
   }
 }
 
-// 切换标签的方法
+// 获取点赞列表
+const getLikeList = async () => {
+  loadingLikes.value = true
+  try {
+    // 判断是否查看的是自己的主页
+    const isOwnProfile = !route.query.username
+    let userId = null
+    
+    // 如果是查看自己的主页，优先使用store中的用户ID
+    if (isOwnProfile && userInfoStore.info && userInfoStore.info.id) {
+      userId = userInfoStore.info.id
+      console.log('从store获取当前用户ID:', userId)
+    } else {
+      // 否则使用页面上的用户信息或路由参数
+      userId = userHomeInfo.value.id || route.query.username
+      console.log('使用页面用户ID或路由参数:', userId)
+    }
+    
+    if (!userId) {
+      ElMessage.warning('无法获取用户ID')
+      likeList.value = []
+      return
+    }
+    
+    const res = await getUserLikeService(userId)
+    console.log('点赞列表API返回数据:', res)
+    
+    if (res && res.code === 200 && res.data) {
+      likeList.value = res.data
+    } else {
+      likeList.value = []
+      // 只在主动切换到点赞标签时显示提示
+      if (activeTab.value === 'likes') {
+        ElMessage.info(res?.message || '暂无点赞内容')
+      }
+    }
+  } catch (error) {
+    console.error('获取点赞列表失败:', error)
+    ElMessage.error('获取点赞列表失败，请稍后重试')
+    likeList.value = []
+  } finally {
+    loadingLikes.value = false
+  }
+}
+
+// 修改切换标签的方法
 const switchTab = (tabName) => {
   activeTab.value = tabName
   
-  // 如果切换到收藏标签，则获取收藏列表
+  // 根据不同的标签加载相应的数据
   if (tabName === 'favorites') {
-    // 判断是否需要重新加载
     if (collectionList.value.length === 0 || (!route.query.username && userInfoStore.info.id)) {
       getCollectionList()
+    }
+  } else if (tabName === 'likes') {
+    if (likeList.value.length === 0 || (!route.query.username && userInfoStore.info.id)) {
+      getLikeList()
     }
   }
 }
@@ -219,30 +303,13 @@ onMounted(() => {
   activeTab.value = 'videos'
 })
 
-// 添加日期格式化方法
-// 格式化日期，将ISO格式转为易读的短格式
-const formatDate = (dateStr) => {
-  if (!dateStr) return '未知时间'
-  
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diff = now - date
-  
-  // 小于1天，显示几小时前
-  if (diff < 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diff / (60 * 60 * 1000))
-    return hours > 0 ? `${hours}小时前` : '刚刚'
+// 监听路由参数变化
+watch(() => route.query.username, (newUsername) => {
+  if (newUsername) {
+    getUserHomeInfo()
   }
-  // 小于1周，显示几天前
-  else if (diff < 7 * 24 * 60 * 60 * 1000) {
-    const days = Math.floor(diff / (24 * 60 * 60 * 1000))
-    return `${days}天前`
-  }
-  // 否则显示年月日
-  else {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  }
-}
+}, { immediate: true })
+
 </script>
 
 <style scoped>

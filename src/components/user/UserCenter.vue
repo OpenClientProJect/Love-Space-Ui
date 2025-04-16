@@ -115,14 +115,13 @@
           <div v-loading="followLoading" class="follow-list">
             <template v-if="followList.length > 0">
               <div v-for="user in followList" :key="user.id" class="follow-item">
-                <div class="follow-avatar">
+                <div class="follow-avatar" @click="goToUserHome(user.username)" style="cursor: pointer;">
                   <el-avatar :size="50" :src="user.userPic || defaultAvatar" />
                 </div>
-                <div class="follow-info">
+                <div class="follow-info" @click="goToUserHome(user.username)" style="cursor: pointer;">
                   <div class="follow-name">{{ user.nickname }}</div>
                   <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
                 </div>
-
               </div>
             </template>
             <el-empty v-else description="暂无关注" />
@@ -132,10 +131,10 @@
           <div v-loading="fansLoading" class="follow-list">
             <template v-if="fansList.length > 0">
               <div v-for="user in fansList" :key="user.id" class="follow-item">
-                <div class="follow-avatar">
+                <div class="follow-avatar" @click="goToUserHome(user.username)" style="cursor: pointer;">
                   <el-avatar :size="50" :src="user.userPic || defaultAvatar" />
                 </div>
-                <div class="follow-info">
+                <div class="follow-info" @click="goToUserHome(user.username)" style="cursor: pointer;">
                   <div class="follow-name">{{ user.nickname }}</div>
                   <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
                 </div>
@@ -375,6 +374,15 @@ watch(() => route.query.tab, (newTab) => {
     }
   }
 })
+
+// 添加跳转方法
+const goToUserHome = (username) => {
+  followDialogVisible.value = false // 关闭弹窗
+  router.push({
+    path: '/user',
+    query: { username }
+  })
+}
 </script>
 
 <style scoped>
