@@ -122,7 +122,7 @@ const getVideoList = async () => {
     const res = activeCategory.value === 0
       ? await getVideoListService()
       : await getVideoListService({ categoryId: activeCategory.value })
-    videos.value = res.data
+  videos.value = res.data
   } catch (error) {
     console.error('获取视频列表失败:', error)
     ElMessage.error('获取视频列表失败，请稍后重试')
@@ -172,7 +172,7 @@ const showAnnouncementDetails = (announcement) => {
 }
 
 onMounted(() => {
-  getVideoList()
+getVideoList()
   getAnnouncementList()
 })
 
@@ -287,47 +287,47 @@ const getCategoryName = (categoryId) => {
       <template v-if="activeCategory === 0">
         <!-- 左侧轮播图区域 -->
         <div class="left-carousel">
-          <el-carousel
-              :height="carouselHeight"
+      <el-carousel
+        :height="carouselHeight"
               class="carousel-container main-carousel"
-              :interval="4000"
-              :indicator-position="'none'"
-          >
-            <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
-              <div class="carousel-content">
-                <img :src="item.image" :alt="item.title" class="carousel-image">
-                <div class="carousel-overlay">
-                  <h3 class="carousel-title">{{ item.title }}</h3>
-                  <p class="carousel-description">{{ item.description }}</p>
-                  <div class="carousel-info">
-                    <span class="play-icon">
+        :interval="4000"
+        :indicator-position="'none'"
+      >
+        <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
+          <div class="carousel-content">
+            <img :src="item.image" :alt="item.title" class="carousel-image">
+            <div class="carousel-overlay">
+              <h3 class="carousel-title">{{ item.title }}</h3>
+              <p class="carousel-description">{{ item.description }}</p>
+              <div class="carousel-info">
+                <span class="play-icon">
                       <el-icon><VideoPlay/></el-icon>
-                      立即观看
-                    </span>
-                  </div>
-                </div>
+                  立即观看
+                </span>
               </div>
-            </el-carousel-item>
-          </el-carousel>
-        </div>
+            </div>
+          </div>
+        </el-carousel-item>
+      </el-carousel>
+    </div>
 
         <!-- 右侧视频区域 -->
         <div class="right-videos">
           <!-- 加载状态 -->
           <div class="loading-container" v-if="loading">
             <el-skeleton :rows="6" animated />
-          </div>
+        </div>
 
-          <!-- 视频列表 -->
+        <!-- 视频列表 -->
           <div class="video-grid" v-else>
             <div v-for="(video, index) in topVideos" :key="index" class="video-card" @click="handleVideoClick(video)">
-              <div class="video-thumbnail">
-                <img :src="video.cover" :alt="video.title" class="cover-image">
-              </div>
+            <div class="video-thumbnail">
+              <img :src="video.cover" :alt="video.title" class="cover-image">
+            </div>
               <div class="video-title">
                 {{ video.title }}
               </div>
-              <div class="video-info">
+            <div class="video-info">
                 <div class="uploader">
                   <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
                   <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
@@ -336,8 +336,8 @@ const getCategoryName = (categoryId) => {
                 </div>
                 <span class="category-tag" v-if="getCategoryName(video.categoryId)">
                   {{ getCategoryName(video.categoryId) }}
-                </span>
-              </div>
+              </span>
+            </div>
             </div>
           </div>
         </div>
@@ -395,10 +395,10 @@ const getCategoryName = (categoryId) => {
 
       <!-- 返回顶部按钮 -->
       <el-backtop
-          :right="40"
-          :bottom="100"
-          :visibility-height="400"
-          class="back-to-top"
+        :right="40"
+        :bottom="100"
+        :visibility-height="400"
+        class="back-to-top"
       >
         <div class="back-top-content">
           <el-icon>
@@ -600,7 +600,7 @@ const getCategoryName = (categoryId) => {
   right: 0;
   padding: 16px;
   background: linear-gradient(
-      transparent 0%,
+    transparent 0%,
       rgba(0, 0, 0, 0.6) 50%,
       rgba(0, 0, 0, 0.8) 100%
   );
@@ -768,7 +768,7 @@ const getCategoryName = (categoryId) => {
   bottom: 40px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+    gap: 16px;
   z-index: 999;
 }
 
@@ -901,9 +901,9 @@ const getCategoryName = (categoryId) => {
 
   .carousel-title {
     font-size: 20px;
-  }
+}
 
-  .carousel-description {
+.carousel-description {
     -webkit-line-clamp: 1;
   }
 }

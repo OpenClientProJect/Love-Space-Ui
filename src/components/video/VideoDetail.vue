@@ -46,12 +46,6 @@
                     {{ videoInfo.favoriteCount || 0 }}
                   </el-button>
                 </div>
-                <div class="action-item">
-                  <el-button class="action-btn">
-                    <img :src="CoinIcon" class="action-icon" alt="投币"/>
-                    <span>投币</span>
-                  </el-button>
-                </div>
               </div>
 
               <!-- 添加视频简介区域 -->
@@ -283,10 +277,8 @@ import eventBus from '@/utils/eventBus'
 import DanmakuList from '@/components/video/DanmakuList.vue'
 import {formatDate} from "@/utils/format";
 import {followUserService, getUserFollowService} from '@/api/user/userfollow'
-import {useTitle} from '@vueuse/core' // 如果没有安装这个库，也可以直接操作 document.title
 import LikeIcon from '@/assets/iconsvg/like.svg'
 import StarIcon from '@/assets/iconsvg/star.svg'
-import CoinIcon from '@/assets/iconsvg/投币.svg'
 import concernIcon from '@/assets/iconsvg/关注.svg'
 import Unfollow from '@/assets/iconsvg/我的关注.svg'
 import {userActionService, getVideoLikeService} from "@/api/user/uservideo";

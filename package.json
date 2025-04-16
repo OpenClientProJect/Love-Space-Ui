@@ -10,6 +10,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.0",
     "artplayer": "^5.2.1",
+    "artplayer-plugin-danmuku": "^3.5.31",
     "axios": "^1.7.9",
     "bilibili-clone": "file:",
     "dayjs": "^1.11.13",
@@ -18,8 +19,7 @@
     "pinia": "^2.3.0",
     "pinia-persistedstate-plugin": "^0.1.0",
     "vue": "^3.3.0",
-    "vue-router": "^4.0.0",
-    "artplayer-plugin-danmuku": "^3.5.31"
+    "vue-router": "^4.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
