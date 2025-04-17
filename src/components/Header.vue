@@ -52,10 +52,7 @@
             <el-avatar :size="42" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
           </div>
           <div v-if="!isMobile" class="user-icons">
-            <el-icon @click="goToMessages"><img src="@/assets/iconsvg/message.svg" style="width: 22px; "></el-icon>
-            <el-icon><Star /></el-icon>
-            <el-icon><Collection /></el-icon>
-            <el-icon><Clock /></el-icon>
+            <el-icon @click="goToMessages"><img src="@/assets/iconsvg/message.svg" style="width: 20px; "></el-icon>
           </div>
         </div>
         <div class="upload-section" v-if="!isMobile && !isUploadPage">
