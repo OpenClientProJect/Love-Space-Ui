@@ -39,8 +39,8 @@
                   </button>
                 </div>
                 <div class="action-item">
-                  <el-button class="action-btn" 
-                             :class="{ 'is-active': interactionStates.favorite }" 
+                  <el-button class="action-btn"
+                             :class="{ 'is-active': interactionStates.favorite }"
                              @click="handleInteraction('favorite', 'favoriteCount')">
                     <img :src="StarIcon" class="action-icon" alt="收藏"/>
                     {{ videoInfo.favoriteCount || 0 }}
@@ -167,10 +167,71 @@
                       <el-icon><Thumb/></el-icon>
                       {{ comment.likeCount }}
                     </span>
-                    <span class="action-item">
+                    <span class="action-item" @click="handleReply(comment)">
                       <el-icon><ChatDotRound/></el-icon>
                       回复
                     </span>
+                  </div>
+                </div>
+
+                <!-- 回复输入框 -->
+                <div v-if="replyingTo && replyingTo.id === comment.id" class="reply-input-area">
+                  <div class="reply-header">
+                    回复 @{{ replyToUser ? replyToUser.nickname : comment.nickname }}:
+                    <el-icon class="close-reply" @click="cancelReply"><Close/></el-icon>
+                  </div>
+                  <div class="reply-input-wrapper">
+                    <el-input
+                      v-model="replyContent"
+                      type="textarea"
+                      :rows="2"
+                      placeholder="发一条友善的回复"
+                      resize="none"
+                      maxlength="300"
+                      show-word-limit
+                    />
+                    <div class="reply-tools">
+                      <div class="emoji-picker" @click="handleReplyEmojiClick($event)">
+                        <el-icon><ChatRound/></el-icon>
+                        表情
+                        <EmojiPicker
+                          :visible="showReplyEmojiPicker"
+                          :position="replyEmojiPosition"
+                          @select="insertReplyEmoji"
+                          @close="showReplyEmojiPicker = false"
+                        />
+                      </div>
+                      <el-button type="primary" :disabled="!replyContent.trim()" @click="submitReply">
+                        发布回复
+                      </el-button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 回复列表 -->
+                <div v-if="comment.replies && comment.replies.length > 0" class="reply-list">
+                  <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
+                    <el-avatar :size="32" :src="reply.userPic" class="reply-avatar"/>
+                    <div class="reply-content">
+                      <div class="reply-user">
+                        {{ reply.nickname }}
+                        <UploaderIcon v-if="reply.userId === videoInfo.id"/>
+                      </div>
+                      <div class="reply-text">{{ reply.content }}</div>
+                      <div class="reply-info">
+                        <span class="reply-time">{{ formatDate(reply.createTime) }}</span>
+                        <div class="reply-actions">
+                          <span class="action-item">
+                            <el-icon><Thumb/></el-icon>
+                            {{ reply.likeCount || 0 }}
+                          </span>
+                          <span class="action-item" @click="handleReply(comment, reply)">
+                            <el-icon><ChatDotRound/></el-icon>
+                            回复
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,6 +435,12 @@ const userInfoStore = useUserInfoStore()
 const userInfo = computed(() => userInfoStore.info)
 const commentContent = ref('')  // 评论内容
 
+// 回复相关状态
+const replyingTo = ref(null)  // 当前正在回复的评论
+const replyContent = ref('')  // 回复内容
+const showReplyEmojiPicker = ref(false)
+const replyEmojiPosition = ref({top: '40px', left: '0px'})
+
 // 提交评论方法
 const submitComment = async () => {
   // 检查评论内容是否为空
@@ -392,15 +459,129 @@ const submitComment = async () => {
 
   // 重新获取视频详情（更新评论数）
   await gteComment()
-
-  // TODO: 重新获取评论列表（如果有分页获取评论列表的接口）
 }
+
+// 当前回复的目标评论和目标用户
+// replyingTo保存父评论，即要回复到哪个评论下
+// replyToUser保存要回复的用户信息，可能是父评论的用户或者回复中的用户
+const replyToUser = ref(null)
+
+// 处理回复点击
+const handleReply = (comment, replyComment = null) => {
+  if (!isLogin.value) {
+    eventBus.emit('showLogin')
+    return
+  }
+
+  // 设置父评论
+  replyingTo.value = comment
+
+  // 如果是回复某个回复，则设置回复的用户
+  if (replyComment) {
+    replyToUser.value = {
+      userId: replyComment.userId,
+      nickname: replyComment.nickname
+    }
+  } else {
+    // 如果是直接回复主评论，则设置主评论的用户
+    replyToUser.value = {
+      userId: comment.userId,
+      nickname: comment.nickname
+    }
+  }
+
+  replyContent.value = ''
+}
+
+// 取消回复
+const cancelReply = () => {
+  replyingTo.value = null
+  replyToUser.value = null
+  replyContent.value = ''
+}
+
+// 提交回复
+const submitReply = async () => {
+  if (!replyContent.value.trim()) {
+    return ElMessage.warning('回复内容不能为空')
+  }
+
+  // 从路由中获取当前视频ID
+  const id = route.params.id
+
+  // 构建回复内容，如果是回复某个用户，则添加@用户名
+  let content = replyContent.value.trim()
+  if (replyToUser.value && replyToUser.value.userId !== replyingTo.value.userId) {
+    content = `@${replyToUser.value.nickname} ${content}`
+  }
+
+  // 调用添加评论接口，带上父评论id
+  await addCommentService(id, content, replyingTo.value.id)
+
+  // 提示成功
+  ElMessage.success('回复成功')
+
+  // 清空回复内容并重置状态
+  replyContent.value = ''
+  replyingTo.value = null
+  replyToUser.value = null
+
+  // 重新获取评论列表
+  await gteComment()
+}
+
 //获取评论内容
 const gteComment = async () => {
   // 从路由中获取当前视频ID
   const id = route.params.id
   const res = await getCommentsService(id)
-  comments.value = res.data
+
+  // 处理评论数据，组织成父子结构
+  const commentList = res.data || []
+  const parentComments = []
+  const replyMap = {}
+
+  // 先遍历一遍，将所有评论按ID分类
+  commentList.forEach(comment => {
+    // 确保comment有id属性
+    if (comment.id) {
+      replyMap[comment.id] = { ...comment, replies: [] }
+    }
+  })
+
+  // 再次遍历，构建父子关系
+  commentList.forEach(comment => {
+    if (!comment.parentId) {
+      // 这是一个主评论
+      parentComments.push(replyMap[comment.id] || { ...comment, replies: [] })
+    } else {
+      // 这是一个回复评论
+      const parentComment = replyMap[comment.parentId]
+      if (parentComment) {
+        parentComment.replies.push(comment)
+      } else {
+        // 如果找不到父评论，就作为主评论处理
+        parentComments.push(replyMap[comment.id] || { ...comment, replies: [] })
+      }
+    }
+  })
+
+  // 按时间排序主评论，最新的在前
+  parentComments.sort((a, b) => {
+    return new Date(b.createTime) - new Date(a.createTime)
+  })
+
+  // 对每个主评论的回复也按时间排序，最新的在前
+  parentComments.forEach(comment => {
+    if (comment.replies && comment.replies.length > 0) {
+      comment.replies.sort((a, b) => {
+        return new Date(b.createTime) - new Date(a.createTime)
+      })
+    }
+  })
+
+  // 更新评论列表
+  comments.value = parentComments
 }
 gteComment()
 
@@ -422,10 +603,31 @@ const handleEmojiClick = (event) => {
   }
 }
 
+// 处理回复表情点击
+const handleReplyEmojiClick = (event) => {
+  event.stopPropagation()  // 阻止事件冒泡
+  showReplyEmojiPicker.value = !showReplyEmojiPicker.value
+  if (showReplyEmojiPicker.value) {
+    // 计算弹窗位置
+    const emojiButton = event.currentTarget
+    const rect = emojiButton.getBoundingClientRect()
+    replyEmojiPosition.value = {
+      top: rect.height + 'px',  // 位于按钮正下方
+      left: '0px'
+    }
+  }
+}
+
 // 插入表情
 const insertEmoji = (emoji) => {
   commentContent.value += emoji
   showEmojiPicker.value = false
+}
+
+// 插入回复表情
+const insertReplyEmoji = (emoji) => {
+  replyContent.value += emoji
+  showReplyEmojiPicker.value = false
 }
 
 // 点击其他地方关闭表情选择器
@@ -434,6 +636,9 @@ const handleClickOutside = (event) => {
   const emojiButton = event.target.closest('.emoji-picker')
   if (showEmojiPicker.value && !emojiPicker && !emojiButton) {
     showEmojiPicker.value = false
+  }
+  if (showReplyEmojiPicker.value && !emojiPicker && !emojiButton) {
+    showReplyEmojiPicker.value = false
   }
 }
 
@@ -520,7 +725,7 @@ const interactionStates = ref({
 const checkInteractionStatus = async (action) => {
   try {
     if (!videoInfo.value.id) return
-    
+
     const result = await getVideoLikeService(videoInfo.value.id, action)
     if (result.code === 200) {
       interactionStates.value[action] = result.data === true
@@ -536,19 +741,19 @@ const handleInteraction = async (action, countField) => {
     eventBus.emit('showLogin')
     return
   }
-  
+
   try {
     const result = await userActionService(videoInfo.value.id, action)
     if (result.code === 200) {
       interactionStates.value[action] = !interactionStates.value[action]
-      
+
       // 如果需要更新计数
       if (countField) {
         videoInfo.value[countField] = interactionStates.value[action]
           ? (videoInfo.value[countField] || 0) + 1
           : (videoInfo.value[countField] || 1) - 1
       }
-      
+
       ElMessage.success(result.data)
     }
   } catch (error) {
@@ -1031,6 +1236,134 @@ watch(isLogin, async (newVal) => {
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid #f1f2f3;
+}
+
+/* 回复输入区域样式 */
+.reply-input-area {
+  margin-top: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #61666d;
+}
+
+.close-reply {
+  cursor: pointer;
+  font-size: 16px;
+  color: #9499a0;
+  transition: all 0.3s;
+}
+
+.close-reply:hover {
+  color: #fb7299;
+}
+
+.reply-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reply-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* 回复列表样式 */
+.reply-list {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.reply-item {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(238, 238, 238, 0.5);
+}
+
+.reply-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.reply-avatar {
+  flex-shrink: 0;
+  border: 1px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reply-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.reply-user {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fb7299;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reply-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #18191c;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.reply-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #9499a0;
+}
+
+.reply-time {
+  color: #9499a0;
+}
+
+.reply-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .reply-list {
+    background-color: #2c2d30;
+  }
+
+  .reply-item {
+    border-bottom-color: rgba(51, 51, 51, 0.5);
+  }
+
+  .reply-text {
+    color: #e5e7eb;
+  }
+
+  .reply-input-area {
+    background: #2c2d30;
+  }
 }
 
 .input-avatar {
