@@ -161,8 +161,6 @@ const initPlayer = () => {
     },
     plugins: [
       artplayerPluginDanmuku({
-        container: '.artplayer-app',
-        showInput: true,
         // 获取弹幕数据
         danmuku: async () => {
           try {
@@ -268,7 +266,7 @@ const initPlayer = () => {
   })
 
   art.value.on('artplayerPluginDanmuku:loaded', (danmus) => {
-    console.log('弹幕加载完成, 总数:', danmus?.length || 0)
+    console.log('弹幕加载完成, 总数:', danmus.length)
   })
 
   art.value.on('artplayerPluginDanmuku:error', (error) => {
@@ -562,7 +560,7 @@ onUnmounted(() => {
     top: 16px;
     left: 16px;
   }
-  
+
   :deep(.art-fullscreen-web .art-controls) {
     padding-bottom: 16px;
   }
