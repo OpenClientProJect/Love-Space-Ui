@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import UserCenter from '@/components/user/UserCenter.vue'
 import SearchResult from '@/views/SearchResult.vue'
+import MessageCenter from '@/views/MessageCenter.vue'
 import { useTokenStore } from '@/stores/token'
 
 const routes = [
@@ -46,6 +47,12 @@ const routes = [
     path: '/announcement/:id',
     name: 'AnnouncementDetail',
     component: () => import('@/views/AnnouncementDetail.vue')
+  },
+  {
+    path: '/messages',
+    name: 'MessageCenter',
+    component: MessageCenter,
+    meta: { requiresAuth: true }
   }
 ]
 

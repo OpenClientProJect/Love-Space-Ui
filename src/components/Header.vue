@@ -4,8 +4,8 @@
     <div class="mobile-search" v-if="showMobileSearch && isMobile">
       <div class="mobile-search-header">
         <el-icon class="back-icon" @click="showMobileSearch = false"><ArrowLeft /></el-icon>
-        <SearchBar 
-          @search="handleMobileSearch" 
+        <SearchBar
+          @search="handleMobileSearch"
           v-model="searchText"
           :is-mobile="true"
           ref="mobileSearchBarRef"
@@ -33,9 +33,9 @@
 
       <!-- 中间搜索框 -->
       <div v-if="!isMobile" class="center-section">
-        <SearchBar 
-          @search="handleSearch" 
-          v-model="searchText" 
+        <SearchBar
+          @search="handleSearch"
+          v-model="searchText"
           ref="searchBarRef"
         />
       </div>
@@ -52,7 +52,7 @@
             <el-avatar :size="42" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
           </div>
           <div v-if="!isMobile" class="user-icons">
-            <el-icon><Message /></el-icon>
+            <el-icon @click="goToMessages"><Message /></el-icon>
             <el-icon><Star /></el-icon>
             <el-icon><Collection /></el-icon>
             <el-icon><Clock /></el-icon>
@@ -88,11 +88,11 @@
           <span>点击登录</span>
         </div>
         <div class="mobile-nav-links">
-          <router-link 
-            v-for="(item, index) in mobileNavItems" 
+          <router-link
+            v-for="(item, index) in mobileNavItems"
             :key="index"
-            :to="item.path" 
-            class="mobile-nav-item" 
+            :to="item.path"
+            class="mobile-nav-item"
             @click="showMobileMenu = false"
           >
             <el-icon><component :is="item.icon" /></el-icon>
@@ -115,11 +115,11 @@ import UserPopover from '@/components/user/UserPopover.vue'
 import { useTokenStore } from '@/stores/token'
 import useUserInfoStore  from '@/stores/userInfo'
 import { getUserInfoService } from '@/api/user/user'
-import { 
-  VideoCamera, 
-  Message, 
-  Star, 
-  Collection, 
+import {
+  VideoCamera,
+  Message,
+  Star,
+  Collection,
   Clock,
   Monitor,
   Menu,
@@ -197,7 +197,7 @@ const searchBarRef = ref(null)
 
 const handleSearch = () => {
   if (!searchText.value.trim()) return
-  
+
   // 跳转到搜索页面
   router.push({
     path: '/search',
@@ -242,6 +242,18 @@ const goToUpload = () => {
   router.push('/user-center')
   // 通过 eventBus 发送事件，通知 UserCenter 组件打开视频发布抽屉
   eventBus.emit('openUploadDrawer')
+}
+
+// 跳转到消息中心
+const goToMessages = () => {
+  if (!isLogin.value) {
+    // 如果未登录，显示登录对话框
+    ElMessage.error('请先登录')
+    loginDialogVisible.value = true
+    return
+  }
+  // 跳转到消息中心页面
+  router.push('/messages')
 }
 
 // 在 script setup 部分添加路由相关的计算属性
@@ -761,19 +773,19 @@ const isUploadPage = computed(() => {
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.3s;
-  
+
   .el-icon {
     font-size: 20px;
   }
-  
+
   &:hover {
     background-color: #f6f7f8;
   }
-  
+
   &.router-link-active {
     color: #fb7299;
     background-color: #fff1f5;
-    
+
     .el-icon {
       color: #fb7299;
     }
@@ -785,7 +797,7 @@ const isUploadPage = computed(() => {
     display: block;
     margin-left: 16px;
   }
-  
+
   :deep(.el-drawer) {
     background-color: #fff;
   }
