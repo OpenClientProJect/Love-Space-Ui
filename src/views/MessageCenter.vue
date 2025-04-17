@@ -19,6 +19,12 @@
             <el-badge v-if="replies.length > 0" :value="replies.length" class="message-badge" />
           </template>
         </el-menu-item>
+        <el-menu-item index="comments">
+          <template #title>
+            <span>评论消息</span>
+            <el-badge v-if="comments.length > 0" :value="comments.length" class="message-badge" />
+          </template>
+        </el-menu-item>
         <el-menu-item index="system">
           <template #title>
             <span>系统通知</span>
@@ -48,6 +54,25 @@
             <div v-if="message.isChat" class="message-text chat-message" @click="goToChat(message.chatUsername)" :class="{ 'clickable': message.isChat }">
               {{ message.content }}
             </div>
+
+            <!-- 评论消息显示 -->
+            <template v-else-if="message.isComment">
+              <div class="message-text comment-message">
+                <span class="comment-content">{{ message.content }}</span>
+              </div>
+              <div class="message-source" v-if="message.source" @click="message.videoId && goToVideo(message.videoId)">
+                <el-card shadow="hover" class="message-source-card" :class="{ 'clickable': message.videoId }">
+                  <div class="source-content-wrapper">
+                    <div class="source-image" v-if="message.source.cover">
+                      <img :src="message.source.cover" alt="视频封面" />
+                    </div>
+                    <div class="source-text">
+                      <div class="source-title">{{ message.source.title }}</div>
+                    </div>
+                  </div>
+                </el-card>
+              </div>
+            </template>
 
             <!-- 点赞消息显示 -->
             <template v-else>
@@ -81,6 +106,7 @@ import { useRouter } from 'vue-router'
 import { getUserMessageListService } from '@/api/user/usermessage'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import {formatDate} from "@/utils/format";
 
 const router = useRouter()
 const tokenStore = useTokenStore()
@@ -101,6 +127,8 @@ const likes = ref([])
 
 const replies = ref([])
 
+const comments = ref([])
+
 const systemNotices = ref([
   {
     id: 1,
@@ -119,6 +147,8 @@ const currentMessages = computed(() => {
   switch (activeTab.value) {
     case 'likes':
       return likes.value
+    case 'comments':
+      return comments.value
     case 'replies':
       return replies.value
     case 'system':
@@ -127,29 +157,6 @@ const currentMessages = computed(() => {
       return []
   }
 })
-
-// 格式化日期
-const formatDate = (dateString) => {
-  const date = dayjs(dateString)
-  const now = dayjs()
-
-  // 如果是今天
-  if (date.format('YYYY-MM-DD') === now.format('YYYY-MM-DD')) {
-    return date.format('HH:mm')
-  }
-  // 如果是昨天
-  else if (date.format('YYYY-MM-DD') === now.subtract(1, 'day').format('YYYY-MM-DD')) {
-    return '昨天 ' + date.format('HH:mm')
-  }
-  // 如果是今年
-  else if (date.format('YYYY') === now.format('YYYY')) {
-    return date.format('MM-DD HH:mm')
-  }
-  // 其他情况
-  else {
-    return date.format('YYYY-MM-DD HH:mm')
-  }
-}
 
 // 获取用户消息
 const getUserMessages = async () => {
@@ -188,6 +195,24 @@ const getUserMessages = async () => {
           time: formatDate(item.sendTime),
           content: item.content,
           isChat: true
+        }))
+      }
+
+      // 处理评论消息数据
+      if (messageData.commentsMessage && messageData.commentsMessage.length > 0) {
+        comments.value = messageData.commentsMessage.map(item => ({
+          id: item.id,
+          username: item.nickname,
+          avatar: item.userPic,
+          time: formatDate(item.createTime),
+          content: item.content,
+          videoId: item.videoId,
+          source: {
+            title: item.title,
+            content: '',
+            cover: item.videoCover
+          },
+          isComment: true
         }))
       }
     } else {
@@ -378,6 +403,19 @@ const handleMenuSelect = (key) => {
   border-radius: 8px;
   margin-bottom: 0;
   line-height: 1.6;
+}
+
+.comment-message {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.comment-content {
+  background-color: #f6f7f8;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: inline-block;
+  color: #18191c;
 }
 
 .message-badge :deep(.el-badge__content) {
