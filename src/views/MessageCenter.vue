@@ -7,19 +7,16 @@
         class="message-menu"
         @select="handleMenuSelect"
       >
-        <el-menu-item index="mentions">
-          <template #title>
-            <span>@我的</span>
-          </template>
-        </el-menu-item>
         <el-menu-item index="likes">
           <template #title>
-            <span>点赞</span>
+            <span>点赞消息</span>
+            <el-badge v-if="likes.length > 0" :value="likes.length" class="message-badge" />
           </template>
         </el-menu-item>
         <el-menu-item index="replies">
           <template #title>
-            <span>回复</span>
+            <span>聊天消息</span>
+            <el-badge v-if="replies.length > 0" :value="replies.length" class="message-badge" />
           </template>
         </el-menu-item>
         <el-menu-item index="system">
@@ -47,20 +44,28 @@
               <span class="message-username">{{ message.username }}</span>
               <span class="message-time">{{ message.time }}</span>
             </div>
-            <div class="message-text">{{ message.content }}</div>
-            <div class="message-source" v-if="message.source" @click="message.videoId && goToVideo(message.videoId)">
-              <el-card shadow="hover" class="message-source-card" :class="{ 'clickable': message.videoId }">
-                <div class="source-content-wrapper">
-                  <div class="source-image" v-if="message.source.cover">
-                    <img :src="message.source.cover" alt="视频封面" />
-                  </div>
-                  <div class="source-text">
-                    <div class="source-title">{{ message.source.title }}</div>
-                    <div class="source-content" v-if="message.source.content">{{ message.source.content }}</div>
-                  </div>
-                </div>
-              </el-card>
+            <!-- 聊天消息显示 -->
+            <div v-if="message.isChat" class="message-text chat-message" @click="goToChat(message.chatUsername)" :class="{ 'clickable': message.isChat }">
+              {{ message.content }}
             </div>
+
+            <!-- 点赞消息显示 -->
+            <template v-else>
+              <div class="message-text">{{ message.content }}</div>
+              <div class="message-source" v-if="message.source" @click="message.videoId && goToVideo(message.videoId)">
+                <el-card shadow="hover" class="message-source-card" :class="{ 'clickable': message.videoId }">
+                  <div class="source-content-wrapper">
+                    <div class="source-image" v-if="message.source.cover">
+                      <img :src="message.source.cover" alt="视频封面" />
+                    </div>
+                    <div class="source-text">
+                      <div class="source-title">{{ message.source.title }}</div>
+                      <div class="source-content" v-if="message.source.content">{{ message.source.content }}</div>
+                    </div>
+                  </div>
+                </el-card>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -71,7 +76,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Bell } from '@element-plus/icons-vue'
 import { useTokenStore } from '@/stores/token'
 import { useRouter } from 'vue-router'
 import { getUserMessageListService } from '@/api/user/usermessage'
@@ -91,57 +95,11 @@ if (!isLogin.value) {
 }
 
 // 模拟数据 - 实际项目中应该从API获取
-const mentions = ref([
-  {
-    id: 1,
-    username: '用户A',
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    time: '2小时前',
-    content: '@你 这个视频真不错！',
-    source: {
-      title: '如何学习前端开发',
-      content: '前端开发是一个不断学习的过程...'
-    }
-  },
-  {
-    id: 2,
-    username: '用户B',
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    time: '昨天',
-    content: '@你 能分享一下学习资料吗？',
-    source: {
-      title: 'Vue.js实战教程',
-      content: 'Vue.js是一个流行的前端框架...'
-    }
-  }
-])
+// 初始化消息数组
 
 const likes = ref([])
 
-const replies = ref([
-  {
-    id: 1,
-    username: '用户D',
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    time: '1天前',
-    content: '这个教程非常有帮助，谢谢分享！',
-    source: {
-      title: 'CSS布局技巧',
-      content: 'CSS布局是前端开发的重要部分...'
-    }
-  },
-  {
-    id: 2,
-    username: '用户E',
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    time: '2天前',
-    content: '我按照教程做了，但遇到了一些问题，能帮我看看吗？',
-    source: {
-      title: 'Vue组件通信',
-      content: 'Vue组件之间的通信方式有多种...'
-    }
-  }
-])
+const replies = ref([])
 
 const systemNotices = ref([
   {
@@ -159,8 +117,6 @@ const systemNotices = ref([
 // 根据当前选中的标签动态获取消息
 const currentMessages = computed(() => {
   switch (activeTab.value) {
-    case 'mentions':
-      return mentions.value
     case 'likes':
       return likes.value
     case 'replies':
@@ -195,28 +151,45 @@ const formatDate = (dateString) => {
   }
 }
 
-// 获取用户视频点赞消息
+// 获取用户消息
 const getUserMessages = async () => {
   if (!isLogin.value) return
 
   loading.value = true
   try {
     const res = await getUserMessageListService()
-    if (res.code === 200 && res.data) {
+    if (res.code === 200 && res.data && res.data.length > 0) {
+      const messageData = res.data[0] // 获取第一个数据对象
+
       // 处理点赞消息数据
-      likes.value = res.data.map(item => ({
-        id: item.id,
-        username: item.nickname,
-        avatar: item.userPic,
-        time: formatDate(item.likedAt),
-        content: '赞了你的视频',
-        videoId: item.videoId,
-        source: {
-          title: item.title,
-          content: '',
-          cover: item.cover
-        }
-      }))
+      if (messageData.videoLike && messageData.videoLike.length > 0) {
+        likes.value = messageData.videoLike.map(item => ({
+          id: item.id,
+          username: item.nickname,
+          avatar: item.userPic,
+          time: formatDate(item.likedAt),
+          content: '赞了你的视频',
+          videoId: item.videoId,
+          source: {
+            title: item.title,
+            content: '',
+            cover: item.cover
+          }
+        }))
+      }
+
+      // 处理聊天消息数据
+      if (messageData.userChatMessageDto && messageData.userChatMessageDto.length > 0) {
+        replies.value = messageData.userChatMessageDto.map(item => ({
+          id: item.id,
+          username: item.nickname,
+          chatUsername: item.username, // 保存用户名以便跳转到聊天页面
+          avatar: item.userPic,
+          time: formatDate(item.sendTime),
+          content: item.content,
+          isChat: true
+        }))
+      }
     } else {
       ElMessage.error('获取消息失败：' + res.message)
     }
@@ -231,6 +204,17 @@ const getUserMessages = async () => {
 // 跳转到视频详情页
 const goToVideo = (videoId) => {
   router.push(`/video/${videoId}`)
+}
+
+// 跳转到聊天页面
+const goToChat = (username) => {
+  if (username) {
+    // 如果有用户名，则传递给聊天页面
+    router.push(`/chat?username=${encodeURIComponent(username)}`)
+  } else {
+    // 如果没有用户名，则直接跳转到聊天页面
+    router.push('/chat')
+  }
 }
 
 // 组件挂载时获取消息
@@ -386,6 +370,19 @@ const handleMenuSelect = (key) => {
 
 .clickable:hover {
   background-color: #f0f1f2;
+}
+
+.chat-message {
+  background-color: #f6f7f8;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+
+.message-badge :deep(.el-badge__content) {
+  background-color: #fb7299;
+  border: none;
 }
 
 .system-message .message-username {

@@ -52,7 +52,7 @@
             <el-avatar :size="42" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
           </div>
           <div v-if="!isMobile" class="user-icons">
-            <el-icon @click="goToMessages"><Message /></el-icon>
+            <el-icon @click="goToMessages"><img src="@/assets/iconsvg/message.svg" style="width: 22px; "></el-icon>
             <el-icon><Star /></el-icon>
             <el-icon><Collection /></el-icon>
             <el-icon><Clock /></el-icon>
@@ -117,7 +117,6 @@ import useUserInfoStore  from '@/stores/userInfo'
 import { getUserInfoService } from '@/api/user/user'
 import {
   VideoCamera,
-  Message,
   Star,
   Collection,
   Clock,
@@ -132,6 +131,7 @@ import {
 import { useRouter } from 'vue-router'
 import eventBus from '@/utils/eventBus'
 import {ElMessage} from "element-plus";
+import Message from '@/assets/iconsvg/message.svg'
 //路由
 const router = useRouter()
 const isScrolled = ref(false)
