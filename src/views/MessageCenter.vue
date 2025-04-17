@@ -10,24 +10,16 @@
         <el-menu-item index="likes">
           <template #title>
             <span>点赞消息</span>
-            <el-badge v-if="likes.length > 0" :value="likes.length" class="message-badge" />
           </template>
         </el-menu-item>
         <el-menu-item index="replies">
           <template #title>
             <span>聊天消息</span>
-            <el-badge v-if="replies.length > 0" :value="replies.length" class="message-badge" />
           </template>
         </el-menu-item>
         <el-menu-item index="comments">
           <template #title>
             <span>评论消息</span>
-            <el-badge v-if="comments.length > 0" :value="comments.length" class="message-badge" />
-          </template>
-        </el-menu-item>
-        <el-menu-item index="system">
-          <template #title>
-            <span>系统通知</span>
           </template>
         </el-menu-item>
       </el-menu>
@@ -100,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useTokenStore } from '@/stores/token'
 import { useRouter } from 'vue-router'
 import { getUserMessageListService } from '@/api/user/usermessage'
@@ -129,19 +121,6 @@ const replies = ref([])
 
 const comments = ref([])
 
-const systemNotices = ref([
-  {
-    id: 1,
-    time: '2023-04-15',
-    content: '您的账号已完成实名认证，感谢您的配合。'
-  },
-  {
-    id: 2,
-    time: '2023-04-10',
-    content: '系统将于4月20日进行维护升级，届时可能会影响部分功能的使用。'
-  }
-])
-
 // 根据当前选中的标签动态获取消息
 const currentMessages = computed(() => {
   switch (activeTab.value) {
@@ -151,12 +130,13 @@ const currentMessages = computed(() => {
       return comments.value
     case 'replies':
       return replies.value
-    case 'system':
-      return systemNotices.value
     default:
       return []
   }
 })
+
+// 轮询定时器
+const pollInterval = ref(null)
 
 // 获取用户消息
 const getUserMessages = async () => {
@@ -226,6 +206,41 @@ const getUserMessages = async () => {
   }
 }
 
+// 开始轮询
+const startPolling = () => {
+  // 清除可能存在的定时器
+  stopPolling()
+  
+  // 设置新的定时器，每5秒获取一次消息
+  pollInterval.value = setInterval(() => {
+    console.log('轮询获取消息...')
+    getUserMessages()
+  }, 3000)
+}
+
+// 停止轮询
+const stopPolling = () => {
+  if (pollInterval.value) {
+    clearInterval(pollInterval.value)
+    pollInterval.value = null
+  }
+}
+
+// 组件挂载时获取消息并开始轮询
+onMounted(() => {
+  if (isLogin.value) {
+    getUserMessages().then(() => {
+      // 初次获取消息成功后开始轮询
+      startPolling()
+    })
+  }
+})
+
+// 组件卸载时清除轮询
+onUnmounted(() => {
+  stopPolling()
+})
+
 // 跳转到视频详情页
 const goToVideo = (videoId) => {
   router.push(`/video/${videoId}`)
@@ -241,13 +256,6 @@ const goToChat = (username) => {
     router.push('/chat')
   }
 }
-
-// 组件挂载时获取消息
-onMounted(() => {
-  if (isLogin.value) {
-    getUserMessages()
-  }
-})
 
 // 菜单切换事件
 const handleMenuSelect = (key) => {
