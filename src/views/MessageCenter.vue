@@ -36,6 +36,7 @@
         <h2>消息中心</h2>
       </div>
 
+      <el-loading :visible="loading" fullscreen />
       <div class="message-list" v-if="currentMessages.length > 0">
         <div v-for="(message, index) in currentMessages" :key="index" class="message-item">
           <div class="message-avatar">
@@ -47,10 +48,17 @@
               <span class="message-time">{{ message.time }}</span>
             </div>
             <div class="message-text">{{ message.content }}</div>
-            <div class="message-source" v-if="message.source">
-              <el-card shadow="hover" class="message-source-card">
-                <div class="source-title">{{ message.source.title }}</div>
-                <div class="source-content">{{ message.source.content }}</div>
+            <div class="message-source" v-if="message.source" @click="message.videoId && goToVideo(message.videoId)">
+              <el-card shadow="hover" class="message-source-card" :class="{ 'clickable': message.videoId }">
+                <div class="source-content-wrapper">
+                  <div class="source-image" v-if="message.source.cover">
+                    <img :src="message.source.cover" alt="视频封面" />
+                  </div>
+                  <div class="source-text">
+                    <div class="source-title">{{ message.source.title }}</div>
+                    <div class="source-content" v-if="message.source.content">{{ message.source.content }}</div>
+                  </div>
+                </div>
               </el-card>
             </div>
           </div>
@@ -62,14 +70,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Bell } from '@element-plus/icons-vue'
 import { useTokenStore } from '@/stores/token'
 import { useRouter } from 'vue-router'
+import { getUserMessageListService } from '@/api/user/usermessage'
+import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 
 const router = useRouter()
 const tokenStore = useTokenStore()
-const activeTab = ref('mentions')
+const activeTab = ref('likes') // 默认显示点赞消息标签页
+const loading = ref(false) // 加载状态
 
 // 检查用户是否登录
 const isLogin = ref(!!tokenStore.token)
@@ -104,19 +116,7 @@ const mentions = ref([
   }
 ])
 
-const likes = ref([
-  {
-    id: 1,
-    username: '用户C',
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    time: '3小时前',
-    content: '赞了你的视频',
-    source: {
-      title: 'JavaScript基础教程',
-      content: 'JavaScript是网页开发的基础...'
-    }
-  }
-])
+const likes = ref([])
 
 const replies = ref([
   {
@@ -169,6 +169,74 @@ const currentMessages = computed(() => {
       return systemNotices.value
     default:
       return []
+  }
+})
+
+// 格式化日期
+const formatDate = (dateString) => {
+  const date = dayjs(dateString)
+  const now = dayjs()
+
+  // 如果是今天
+  if (date.format('YYYY-MM-DD') === now.format('YYYY-MM-DD')) {
+    return date.format('HH:mm')
+  }
+  // 如果是昨天
+  else if (date.format('YYYY-MM-DD') === now.subtract(1, 'day').format('YYYY-MM-DD')) {
+    return '昨天 ' + date.format('HH:mm')
+  }
+  // 如果是今年
+  else if (date.format('YYYY') === now.format('YYYY')) {
+    return date.format('MM-DD HH:mm')
+  }
+  // 其他情况
+  else {
+    return date.format('YYYY-MM-DD HH:mm')
+  }
+}
+
+// 获取用户视频点赞消息
+const getUserMessages = async () => {
+  if (!isLogin.value) return
+
+  loading.value = true
+  try {
+    const res = await getUserMessageListService()
+    if (res.code === 200 && res.data) {
+      // 处理点赞消息数据
+      likes.value = res.data.map(item => ({
+        id: item.id,
+        username: item.nickname,
+        avatar: item.userPic,
+        time: formatDate(item.likedAt),
+        content: '赞了你的视频',
+        videoId: item.videoId,
+        source: {
+          title: item.title,
+          content: '',
+          cover: item.cover
+        }
+      }))
+    } else {
+      ElMessage.error('获取消息失败：' + res.message)
+    }
+  } catch (error) {
+    console.error('获取消息出错：', error)
+    ElMessage.error('获取消息出错，请稍后重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 跳转到视频详情页
+const goToVideo = (videoId) => {
+  router.push(`/video/${videoId}`)
+}
+
+// 组件挂载时获取消息
+onMounted(() => {
+  if (isLogin.value) {
+    getUserMessages()
   }
 })
 
@@ -284,6 +352,40 @@ const handleMenuSelect = (key) => {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.source-content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.source-image {
+  width: 120px;
+  height: 70px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.source-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.source-text {
+  flex: 1;
+  overflow: hidden;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clickable:hover {
+  background-color: #f0f1f2;
 }
 
 .system-message .message-username {
