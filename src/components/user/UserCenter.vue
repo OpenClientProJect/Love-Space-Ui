@@ -362,6 +362,21 @@ onMounted(() => {
       console.warn('无效的tab参数:', tabParam)
     }
   }
+  
+  // 检查localStorage中是否有打开关注/粉丝列表的标记
+  const openFollowDialogType = localStorage.getItem('openFollowDialog')
+  if (openFollowDialogType) {
+    // 根据标记类型打开对应弹窗
+    if (openFollowDialogType === 'follow') {
+      openFollowDialog()
+      activeTab.value = 'follow'
+    } else if (openFollowDialogType === 'fans') {
+      openFansDialog()
+      activeTab.value = 'fans'
+    }
+    // 清除标记，防止重复触发
+    localStorage.removeItem('openFollowDialog')
+  }
 })
 
 // 监听路由变化，以便在URL参数改变时更新导航

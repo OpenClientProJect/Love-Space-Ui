@@ -36,17 +36,13 @@
             </div>
           </div>
           <div class="user-stats">
-            <div class="stat-item">
+            <div class="stat-item" @click="goToFollowList('follow')">
               <span class="num">{{ userInfo.followCount }}</span>
               <span class="label">关注</span>
             </div>
-            <div class="stat-item">
+            <div class="stat-item" @click="goToFollowList('fans')">
               <span class="num">{{ userInfo.fansCount }}</span>
               <span class="label">粉丝</span>
-            </div>
-            <div class="stat-item">
-              <span class="num">1</span>
-              <span class="label">动态</span>
             </div>
           </div>
         </div>
@@ -144,6 +140,17 @@ const handleLogout = async () => {
 
 const goToUserCenter = () => {
   visible.value = false // 关闭弹窗
+  router.push('/user-center')
+}
+
+// 添加跳转到关注和粉丝列表的方法
+const goToFollowList = (type) => {
+  visible.value = false // 关闭弹窗
+  
+  // 创建自定义事件来传递额外参数
+  localStorage.setItem('openFollowDialog', type)
+  
+  // 跳转到个人中心
   router.push('/user-center')
 }
 
@@ -262,6 +269,32 @@ getUserInfo()
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item:hover {
+  background-color: #f9f9f9;
+  transform: translateY(-2px);
+}
+
+.stat-item:hover:before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #fb7299;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.stat-item:active {
+  transform: scale(0.95);
 }
 
 .stat-item .num {
@@ -273,6 +306,20 @@ getUserInfo()
 .stat-item .label {
   font-size: 12px;
   color: #61666d;
+}
+
+.stat-item:hover .num,
+.stat-item:hover .label {
+  color: #fb7299;
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .vip-section {
