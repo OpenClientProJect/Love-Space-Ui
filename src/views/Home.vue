@@ -2,7 +2,7 @@
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
 import {getAnnouncementListService} from "@/api/Announcement";
-import {VideoPlay, ArrowUp, Refresh, Loading, Bell} from '@element-plus/icons-vue'
+import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
@@ -20,6 +20,7 @@ const carouselItems = ref([
     title: '我推的孩子',
     description: '16岁的天才少女星野爱久爱海梦想成为偶像，但在甄选会上却屡屡受挫...',
     image: 'https://play.xfvod.pro/images/hb/wtdhz.png',
+    video: 'https://hydownload.pan.wo.cn/openapi/download?fid=wTbXk_kRq0NKsFelRGRstdjDMR/fEyQrMMRTbxIRvDvWfwStrRKqUxUwjmBEYYK7rnZA0ZXLTZtTX4zwcoayAgVQk2dA==',
     link: '/video/1'
   },
   {
@@ -27,6 +28,7 @@ const carouselItems = ref([
     title: '败犬女主太多了',
     description: '这是一段视频介绍文字，简单描述视频的主要内容...',
     image: 'https://play.xfvod.pro/images/hb/baiquan.jpg',
+    video: 'https://tgh0tsm6ca.senhewenhua.com:8080/cache/6LSl54qs5aWz5Li75aSq5aSa5LqG77yBLUVQMS5tcDQ=.mp4?verify=1745028270-gqi6GLPClU8iQx7vnIuWhl%2F5HtFDtbnq7O1trk3vMMc%3D',
     link: '/video/2'
   },
   {
@@ -34,6 +36,7 @@ const carouselItems = ref([
     title: '青之箱',
     description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
     image: 'https://play.xfvod.pro/images/hb/lx.jpg',
+    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=11ZdW_3bp%2B4AeSsrwwrgRwvyMqP/CbTvxB/MojZMWZIkEEfNe7RFDpbiRit6qT2JiXZ%2BbQrgxEbx3kwQn8jpZ9AGGhMg==',
     link: '/video/3'
   },
   {
@@ -41,6 +44,7 @@ const carouselItems = ref([
     title: '缘结甘神家',
     description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
     image: 'https://picgg.cycimg.me/banner/GXehBtTbYAALPbN-up2x.webp',
+    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=cxHot_0WTDoRp%2BfdPpcnDVyNxk5CufKuJyv8GjprsE2lW4%2BKK5xyLGeeJJR7nYipRubIzDydsXcaguR6JyWTgFrzqvQA==',
     link: '/video/4'
   }
 ])
@@ -74,6 +78,10 @@ const loading = ref(false)
 // 公告数据
 const announcements = ref([])
 const loadingAnnouncements = ref(false)
+
+// 添加播放视频相关状态
+const videoPlayerVisible = ref(false)
+const currentPlayingVideo = ref(null)
 
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
@@ -218,6 +226,9 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateCarouselHeight)
   window.removeEventListener('scroll', handleScroll)
+  
+  // 移除键盘事件监听
+  document.removeEventListener('keydown', handleKeyDown)
 })
 
 // 获取分类名称
@@ -225,6 +236,43 @@ const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
   const category = categories.value.find(c => c.id == categoryId)
   return category ? category.name : ''
+}
+
+// 处理播放视频点击
+const handlePlayVideo = (item) => {
+  currentPlayingVideo.value = item
+  videoPlayerVisible.value = true
+  
+  // 添加键盘事件监听，按ESC键关闭视频播放器
+  document.addEventListener('keydown', handleKeyDown)
+}
+
+// 关闭视频播放器
+const closeVideoPlayer = () => {
+  videoPlayerVisible.value = false
+  
+  // 移除键盘事件监听
+  document.removeEventListener('keydown', handleKeyDown)
+  
+  // 延迟重置当前播放视频，避免关闭动画过程中视频内容突然消失
+  setTimeout(() => {
+    currentPlayingVideo.value = null
+  }, 300)
+}
+
+// 处理键盘按下事件
+const handleKeyDown = (event) => {
+  // 如果按下ESC键，关闭视频播放器
+  if (event.key === 'Escape') {
+    closeVideoPlayer()
+  }
+}
+
+// 视频加载完成处理
+const videoLoaded = (event) => {
+  const video = event.target
+  // 添加加载完成样式类
+  video.classList.add('video-loaded')
 }
 </script>
 
@@ -300,7 +348,7 @@ const getCategoryName = (categoryId) => {
               <h3 class="carousel-title">{{ item.title }}</h3>
               <p class="carousel-description">{{ item.description }}</p>
               <div class="carousel-info">
-                <span class="play-icon">
+                <span class="play-icon" @click.stop="handlePlayVideo(item)">
                       <el-icon><VideoPlay/></el-icon>
                   立即观看
                 </span>
@@ -406,6 +454,25 @@ const getCategoryName = (categoryId) => {
           </el-icon>
         </div>
       </el-backtop>
+    </div>
+
+    <!-- 添加视频播放器弹窗 -->
+    <div class="video-player-overlay" v-if="videoPlayerVisible" @click="closeVideoPlayer">
+      <div class="video-player-container" @click.stop>
+        <div class="video-player-header">
+          <div class="close-btn" @click="closeVideoPlayer">
+            <el-icon><Close /></el-icon>
+          </div>
+        </div>
+        <video 
+          v-if="currentPlayingVideo"
+          class="video-player"
+          :src="currentPlayingVideo.video"
+          controls
+          autoplay
+          @loadedmetadata="videoLoaded"
+        ></video>
+      </div>
     </div>
   </div>
 </template>
@@ -1158,5 +1225,92 @@ const getCategoryName = (categoryId) => {
   .main-carousel :deep(.el-carousel__container) {
     height: 250px !important;
   }
+}
+
+/* 添加视频播放器弹窗样式 */
+.video-player-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.video-player-container {
+  background-color: #000;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 1200px;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.video-player-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+  z-index: 1;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+
+.video-player-container:hover .video-player-header {
+  opacity: 1;
+}
+
+.video-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
+}
+
+.video-loaded {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>
