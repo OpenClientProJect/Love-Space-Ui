@@ -1,6 +1,5 @@
 //导入request.js请求工具
 import request from "@/utils/request";
-import {useTokenStore} from "@/stores/token";
 //注册接口
 export const userRegisterService = (registerData) => {
     //借助于UrlSearchParams将数据转换为url参数，完成传递
