@@ -122,11 +122,11 @@
 <script setup>
 import {ref, computed, watch, defineExpose, onMounted} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
-import {Edit, Close, User, ChatDotRound, Bell, Film, PictureFilled} from '@element-plus/icons-vue'
+import {Edit} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage} from "element-plus";
 import {useTokenStore} from "@/stores/token";
-import {deleteVideoService, editVideoService, getUserVideoService, publishVideoService} from "@/api/userVideo";
+import {getUserVideoService} from "@/api/userVideo";
 import {getFollowListService, getFansListService} from "@/api/follow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
@@ -489,7 +489,7 @@ const goToUserHome = (username) => {
   color: #fff;
 }
 
-.edit-btn .el-icon {
+.edit-btn  {
   font-size: 14px;
 }
 
@@ -854,9 +854,6 @@ const goToUserHome = (username) => {
   text-overflow: ellipsis;
 }
 
-.follow-action {
-  margin-left: 16px;
-}
 
 .follow-action .el-button--primary {
   background-color: #fff;
