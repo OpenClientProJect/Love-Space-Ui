@@ -57,41 +57,12 @@
         <!-- 右侧内容 -->
         <div class="main-content">
           <!-- 视频列表相关内容 -->
-          <template v-if="currentNav === 'videos'">
-            <user-video-content/>
-          </template>
-
-          <!-- 编辑资料内容 -->
-          <template v-if="currentNav === 'edit-profile'">
-            <edit-profile-content/>
-          </template>
-
-          <!-- 番剧管理内容 -->
-          <template v-if="currentNav === 'anime'">
-            <div v-if="!currentAnimeId">
-              <anime-manage-content @select-anime="handleAnimeSelect"/>
-            </div>
-            <div v-else>
-              <anime-episode-manager
-                  :anime-id="currentAnimeId"
-                  @update="handleBackToAnimeList"
-              />
-            </div>
-          </template>
-
-          <!-- 视频管理内容 -->
-          <template v-if="currentNav === 'adminVideo'">
-            <admin-video-manager />
-          </template>
-
-          <!-- 公告管理内容 -->
-          <template v-if="currentNav === 'announcement'">
-            <announcement-manager />
-          </template>
-
-          <!-- 其他导航内容的空状态 -->
-          <div class="empty-state"
-               v-if="currentNav !== 'videos' && currentNav !== 'edit-profile' && currentNav !== 'anime' && currentNav !== 'adminVideo' && currentNav !== 'announcement'">
+          <UserVideoContent v-if="currentNav === 'videos'" :videos="videos" @refresh="getUserVideos" />
+          <EditProfileContent v-else-if="currentNav === 'edit-profile'" />
+          <AdminVideoManager v-else-if="currentNav === 'adminVideo'" />
+          <AnnouncementManager v-else-if="currentNav === 'announcement'" />
+          <HomeImageManager v-else-if="currentNav === 'HomeImg'" />
+          <div v-else class="empty-state">
             <el-empty :description="getEmptyText">
               <template #description>
                 <p class="empty-text">{{ getEmptyText }}</p>
@@ -151,7 +122,7 @@
 <script setup>
 import {ref, computed, watch, defineExpose, onMounted} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
-import {Edit, Close, User, ChatDotRound, Bell} from '@element-plus/icons-vue'
+import {Edit, Close, User, ChatDotRound, Bell, Film, PictureFilled} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {useTokenStore} from "@/stores/token";
@@ -161,6 +132,7 @@ import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
 import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
+import HomeImageManager from '@/components/admin/HomeImageManager.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -188,6 +160,7 @@ const navItems = computed(() => {
       ...baseNavItems.slice(0, 1),// 在视频菜单前插入管理员菜单项
       {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
       {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
+      {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0},
       ...baseNavItems.slice(1)
     ]
   }
