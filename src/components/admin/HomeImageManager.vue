@@ -123,18 +123,10 @@
                 />
               </el-form-item>
               <el-form-item label="图片" prop="image" required>
-                <el-upload
-                  class="carousel-image-uploader"
-                  :action="uploadAction"
-                  :headers="uploadHeaders"
-                  :show-file-list="false"
-                  :on-success="handleCarouselImageSuccess"
-                  :before-upload="beforeImageUpload"
-                  :on-error="handleUploadError"
-                >
-                  <img v-if="carouselForm.image" :src="carouselForm.image" class="upload-preview" />
-                  <el-icon v-else class="upload-icon"><Plus /></el-icon>
-                </el-upload>
+                <el-input 
+                  v-model="carouselForm.image" 
+                  placeholder="请输入图片URL地址" 
+                />
                 <div class="upload-tip">
                   * 推荐尺寸: 960×480px，JPG或PNG格式
                 </div>
@@ -143,12 +135,6 @@
                 <el-input v-model="carouselForm.video" placeholder="请输入视频URL地址（可选）" />
                 <div class="upload-tip">
                   * 视频格式需为mp4，建议使用直链
-                </div>
-              </el-form-item>
-              <el-form-item label="链接地址" prop="link">
-                <el-input v-model="carouselForm.link" placeholder="请输入点击轮播图跳转的链接（可选）" />
-                <div class="upload-tip">
-                  * 例如: /video/1（站内链接）或 https://example.com（外部链接）
                 </div>
               </el-form-item>
             </el-form>
@@ -176,7 +162,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Plus, Upload, Picture } from '@element-plus/icons-vue'
 import { useTokenStore } from '@/stores/token'
-import defaultBackground from '@/assets/background/background.webp'
+import {getBackgroundImageService, getHomeImageService, uploadHomeImageService, editHomeImageService, deleteHomeImageService} from '@/api/admin/adminhomeimage'
 
 // 创建状态变量
 const activeTab = ref('background')
@@ -188,7 +174,7 @@ const backgroundImageUrl = ref('')
 const editingCarousel = ref(null)
 
 // 当前背景图
-const currentBackgroundImage = ref(defaultBackground)
+const currentBackgroundImage = ref()
 
 // Token相关
 const tokenStore = useTokenStore()
@@ -202,40 +188,7 @@ const uploadHeaders = computed(() => {
 const uploadAction = '/api/upload/image' // 修改为你的实际上传接口
 
 // 轮播图列表
-const carouselItems = ref([
-  {
-    id: 1,
-    title: '我推的孩子',
-    description: '16岁的天才少女星野爱久爱海梦想成为偶像，但在甄选会上却屡屡受挫...',
-    image: 'https://play.xfvod.pro/images/hb/wtdhz.png',
-    video: 'https://hydownload.pan.wo.cn/openapi/download?fid=wTbXk_kRq0NKsFelRGRstdjDMR/fEyQrMMRTbxIRvDvWfwStrRKqUxUwjmBEYYK7rnZA0ZXLTZtTX4zwcoayAgVQk2dA==',
-    link: '/video/1'
-  },
-  {
-    id: 2,
-    title: '败犬女主太多了',
-    description: '这是一段视频介绍文字，简单描述视频的主要内容...',
-    image: 'https://play.xfvod.pro/images/hb/baiquan.jpg',
-    video: 'https://tgh0tsm6ca.senhewenhua.com:8080/cache/6LSl54qs5aWz5Li75aSq5aSa5LqG77yBLUVQMS5tcDQ=.mp4?verify=1745028270-gqi6GLPClU8iQx7vnIuWhl%2F5HtFDtbnq7O1trk3vMMc%3D',
-    link: '/video/2'
-  },
-  {
-    id: 3,
-    title: '青之箱',
-    description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
-    image: 'https://play.xfvod.pro/images/hb/lx.jpg',
-    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=11ZdW_3bp%2B4AeSsrwwrgRwvyMqP/CbTvxB/MojZMWZIkEEfNe7RFDpbiRit6qT2JiXZ%2BbQrgxEbx3kwQn8jpZ9AGGhMg==',
-    link: '/video/3'
-  },
-  {
-    id: 4,
-    title: '缘结甘神家',
-    description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
-    image: 'https://picgg.cycimg.me/banner/GXehBtTbYAALPbN-up2x.webp',
-    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=cxHot_0WTDoRp%2BfdPpcnDVyNxk5CufKuJyv8GjprsE2lW4%2BKK5xyLGeeJJR7nYipRubIzDydsXcaguR6JyWTgFrzqvQA==',
-    link: '/video/4'
-  }
-])
+const carouselItems = ref([])
 
 // 轮播图表单
 const carouselForm = reactive({
@@ -251,20 +204,31 @@ const carouselForm = reactive({
 const initData = async () => {
   loading.value = true
   try {
-    // 这里应该调用API获取背景图和轮播图数据
-    // const result = await getHomeImagesService()
-    // carouselItems.value = result.data.carousel || []
-    // if (result.data.background) {
-    //   currentBackgroundImage.value = result.data.background
-    // }
+    // 获取轮播图数据
+    const result = await getHomeImageService()
+    if (result.code === 200) {
+      // 适配API返回的轮播图数据格式
+      carouselItems.value = result.data.map(item => ({
+        id: item.homeImgId,
+        title: item.title,
+        description: item.description,
+        image: item.image,
+        video: item.video,
+        createTime: item.createTime
+      }))
+    }
     
-    // 目前使用模拟数据
-    setTimeout(() => {
-      loading.value = false
-    }, 500)
+    // 获取背景图数据
+    const bgResult = await getBackgroundImageService()
+    if (bgResult.code === 200 && bgResult.data && bgResult.data.length > 0) {
+      // 适配背景图数据格式，取数组中的第一个对象的img属性
+      currentBackgroundImage.value = bgResult.data[0].img
+      backgroundImageUrl.value = bgResult.data[0].img
+    }
+    
+    loading.value = false
   } catch (error) {
     console.error('获取首页图片失败:', error)
-    ElMessage.error('获取首页图片失败，请稍后重试')
     loading.value = false
   }
 }
@@ -297,16 +261,6 @@ const handleBackgroundSuccess = (response) => {
   }
 }
 
-// 处理轮播图上传成功
-const handleCarouselImageSuccess = (response) => {
-  if (response.code === 200 && response.data) {
-    carouselForm.image = response.data
-    ElMessage.success('图片上传成功')
-  } else {
-    ElMessage.error('图片上传失败: ' + (response.message || '未知错误'))
-  }
-}
-
 // 处理上传错误
 const handleUploadError = (error) => {
   console.error('上传失败:', error)
@@ -328,19 +282,23 @@ const confirmUpdateBackground = async () => {
   
   submitting.value = true
   try {
-    // 调用API更新背景图
-    // await updateBackgroundImageService(backgroundImageUrl.value)
+    // 调用API更新背景图，传递符合后端要求的数据格式
+    const data = {
+      img: backgroundImageUrl.value
+    }
+    const result = await uploadHomeImageService(data)
     
-    // 模拟API调用
-    setTimeout(() => {
+    if (result.code === 200) {
       currentBackgroundImage.value = backgroundImageUrl.value
       ElMessage.success('背景图更新成功')
       backgroundUploadVisible.value = false
-      submitting.value = false
-    }, 500)
+    } else {
+      ElMessage.error(result.message || '更新背景图失败')
+    }
   } catch (error) {
     console.error('更新背景图失败:', error)
     ElMessage.error('更新背景图失败，请稍后重试')
+  } finally {
     submitting.value = false
   }
 }
@@ -377,25 +335,27 @@ const handleDeleteCarousel = (item) => {
     loading.value = true
     try {
       // 调用API删除轮播图
-      // await deleteCarouselItemService(item.id)
+      const result = await deleteHomeImageService(item.id);
       
-      // 模拟API调用
-      setTimeout(() => {
-        const index = carouselItems.value.findIndex(i => i.id === item.id)
+      if (result.code === 200) {
+        // 删除成功后从列表中移除该项
+        const index = carouselItems.value.findIndex(i => i.id === item.id);
         if (index !== -1) {
-          carouselItems.value.splice(index, 1)
+          carouselItems.value.splice(index, 1);
         }
-        ElMessage.success('删除成功')
-        loading.value = false
-      }, 500)
+        ElMessage.success('删除成功');
+      } else {
+        ElMessage.error(result.message || '删除失败');
+      }
     } catch (error) {
-      console.error('删除轮播图失败:', error)
-      ElMessage.error('删除轮播图失败，请稍后重试')
-      loading.value = false
+      console.error('删除轮播图失败:', error);
+      ElMessage.error('删除轮播图失败，请稍后重试');
+    } finally {
+      loading.value = false;
     }
   }).catch(() => {
     // 用户取消删除
-  })
+  });
 }
 
 // 提交轮播图表单
@@ -405,45 +365,43 @@ const submitCarouselForm = async () => {
     return ElMessage.warning('请输入轮播图标题')
   }
   if (!carouselForm.image) {
-    return ElMessage.warning('请上传轮播图图片')
+    return ElMessage.warning('请输入轮播图图片链接')
   }
   
   submitting.value = true
   try {
+    // 准备请求数据
+    const carouselData = {
+      title: carouselForm.title,
+      description: carouselForm.description,
+      image: carouselForm.image,
+      video: carouselForm.video
+    };
+    
+    let result;
+    
+    // 如果是编辑模式，使用editHomeImageService更新轮播图
     if (editingCarousel.value) {
-      // 更新已有轮播图
-      // await updateCarouselItemService(carouselForm)
-      
-      // 模拟API调用
-      setTimeout(() => {
-        const index = carouselItems.value.findIndex(i => i.id === carouselForm.id)
-        if (index !== -1) {
-          carouselItems.value[index] = { ...carouselForm }
-        }
-        ElMessage.success('轮播图更新成功')
-        carouselDialogVisible.value = false
-        submitting.value = false
-      }, 500)
+      carouselData.homeImgId = carouselForm.id;
+      result = await editHomeImageService(carouselData);
     } else {
-      // 添加新轮播图
-      // const result = await addCarouselItemService(carouselForm)
-      
-      // 模拟API调用
-      setTimeout(() => {
-        const newItem = { 
-          ...carouselForm, 
-          id: Date.now() // 模拟生成ID
-        }
-        carouselItems.value.push(newItem)
-        ElMessage.success('轮播图添加成功')
-        carouselDialogVisible.value = false
-        submitting.value = false
-      }, 500)
+      // 新增轮播图使用uploadHomeImageService
+      result = await uploadHomeImageService(carouselData);
+    }
+    
+    if (result.code === 200) {
+      // 保存成功后重新获取最新数据
+      await initData();
+      ElMessage.success(editingCarousel.value ? '轮播图更新成功' : '轮播图添加成功');
+      carouselDialogVisible.value = false;
+    } else {
+      ElMessage.error(result.message || '保存轮播图失败');
     }
   } catch (error) {
-    console.error('保存轮播图失败:', error)
-    ElMessage.error('保存轮播图失败，请稍后重试')
-    submitting.value = false
+    console.error('保存轮播图失败:', error);
+    ElMessage.error('保存轮播图失败，请稍后重试');
+  } finally {
+    submitting.value = false;
   }
 }
 
