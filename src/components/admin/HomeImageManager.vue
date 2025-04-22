@@ -11,7 +11,9 @@
         <div class="tab-content">
           <div class="background-image-section">
             <h3 class="subsection-title">当前背景图</h3>
-            <div class="current-image-container">
+            
+            <!-- 有背景图时显示 -->
+            <div class="current-image-container" v-if="currentBackgroundImage">
               <img :src="currentBackgroundImage" alt="当前背景图" class="preview-image">
               <div class="image-overlay">
                 <el-button type="primary" @click="handleUpdateBackgroundClick">
@@ -20,18 +22,29 @@
                 </el-button>
               </div>
             </div>
+            
+            <!-- 没有背景图时显示添加按钮 -->
+            <div class="empty-background" v-else>
+              <el-empty description="暂无背景图">
+                <el-button type="primary" @click="handleUpdateBackgroundClick">
+                  <el-icon><Plus /></el-icon>
+                  添加背景图
+                </el-button>
+              </el-empty>
+            </div>
           </div>
           
           <!-- 上传新背景图 -->
           <el-dialog
             v-model="backgroundUploadVisible"
-            title="上传新背景图"
+            :title="currentBackgroundImage ? '更换背景图' : '添加背景图'"
             width="500px"
           >
             <el-upload
               class="image-uploader"
               :action="uploadAction"
               :headers="uploadHeaders"
+              name="image"
               :show-file-list="false"
               :on-success="handleBackgroundSuccess"
               :before-upload="beforeImageUpload"
@@ -41,7 +54,7 @@
               <el-icon v-else class="upload-icon"><Plus /></el-icon>
             </el-upload>
             <div class="upload-tip">
-              * 推荐尺寸: 1920×300px，JPG或PNG格式，文件大小不超过2MB
+              * 推荐尺寸: 1920×300px，JPG或PNG格式，文件大小不超过20MB
             </div>
             <template #footer>
               <span class="dialog-footer">
@@ -162,7 +175,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Plus, Upload, Picture } from '@element-plus/icons-vue'
 import { useTokenStore } from '@/stores/token'
-import {getBackgroundImageService, getHomeImageService, uploadHomeImageService, editHomeImageService, deleteHomeImageService} from '@/api/admin/adminhomeimage'
+import {getBackgroundImageService, getHomeImageService, uploadHomeImageService, editHomeImageService, deleteHomeImageService, updateHomeImageService, addHomeImageService} from '@/api/admin/adminhomeimage'
 
 // 创建状态变量
 const activeTab = ref('background')
@@ -175,6 +188,8 @@ const editingCarousel = ref(null)
 
 // 当前背景图
 const currentBackgroundImage = ref()
+// 背景图ID
+const backgroundImageId = ref(null)
 
 // Token相关
 const tokenStore = useTokenStore()
@@ -185,7 +200,7 @@ const uploadHeaders = computed(() => {
 })
 
 // 上传接口地址
-const uploadAction = '/api/upload/image' // 修改为你的实际上传接口
+const uploadAction = '/api/file/uploadImage' // 修改为你的实际上传接口
 
 // 轮播图列表
 const carouselItems = ref([])
@@ -220,10 +235,11 @@ const initData = async () => {
     
     // 获取背景图数据
     const bgResult = await getBackgroundImageService()
-    if (bgResult.code === 200 && bgResult.data && bgResult.data.length > 0) {
-      // 适配背景图数据格式，取数组中的第一个对象的img属性
-      currentBackgroundImage.value = bgResult.data[0].img
-      backgroundImageUrl.value = bgResult.data[0].img
+    if (bgResult.code === 200 && bgResult.data) {
+      // 适配新的背景图数据格式
+      currentBackgroundImage.value = bgResult.data.img
+      backgroundImageUrl.value = bgResult.data.img
+      backgroundImageId.value = bgResult.data.id
     }
     
     loading.value = false
@@ -238,7 +254,7 @@ const beforeImageUpload = (file) => {
   const isJPG = file.type === 'image/jpeg'
   const isPNG = file.type === 'image/png'
   const isWebP = file.type === 'image/webp'
-  const isLt2M = file.size / 1024 / 1024 < 2
+  const isLt2M = file.size / 1024 / 1024 < 20
 
   if (!isJPG && !isPNG && !isWebP) {
     ElMessage.error('上传图片只能是 JPG/PNG/WebP 格式!')
@@ -282,22 +298,38 @@ const confirmUpdateBackground = async () => {
   
   submitting.value = true
   try {
-    // 调用API更新背景图，传递符合后端要求的数据格式
-    const data = {
-      img: backgroundImageUrl.value
+    let result;
+    
+    // 判断是添加还是更新背景图
+    if (backgroundImageId.value) {
+      // 更新背景图，传递id和img参数
+      const updateData = {
+        id: backgroundImageId.value,
+        img: backgroundImageUrl.value
+      }
+      result = await updateHomeImageService(updateData)
+    } else {
+      // 添加背景图，只传递img参数
+      const addData = {
+        img: backgroundImageUrl.value
+      }
+      result = await addHomeImageService(addData)
     }
-    const result = await uploadHomeImageService(data)
     
     if (result.code === 200) {
       currentBackgroundImage.value = backgroundImageUrl.value
-      ElMessage.success('背景图更新成功')
+      // 如果是添加操作，保存返回的ID
+      if (!backgroundImageId.value && result.data && result.data.id) {
+        backgroundImageId.value = result.data.id
+      }
+      ElMessage.success(backgroundImageId.value ? '背景图更新成功' : '背景图添加成功')
       backgroundUploadVisible.value = false
     } else {
-      ElMessage.error(result.message || '更新背景图失败')
+      ElMessage.error(result.message || '操作失败')
     }
   } catch (error) {
-    console.error('更新背景图失败:', error)
-    ElMessage.error('更新背景图失败，请稍后重试')
+    console.error('背景图操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
   } finally {
     submitting.value = false
   }
@@ -541,5 +573,13 @@ onMounted(() => {
     width: 100%;
     max-width: 300px;
   }
+}
+
+.empty-background {
+  padding: 40px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 24px;
 }
 </style> 

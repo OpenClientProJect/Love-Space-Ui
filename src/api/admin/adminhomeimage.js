@@ -20,3 +20,12 @@ export const editHomeImageService = (data) => {
 export const deleteHomeImageService = (id) => {
   return request.delete(`/admin/homeImage/${id}`);
 };
+//更新轮播图
+export const updateHomeImageService = (data) => {
+  return request.put("/admin/homeImage/background", data);
+};
+
+//添加
+export const addHomeImageService = (data) => {
+  return request.post("/admin/homeImage/background", data);
+};
