@@ -2,10 +2,12 @@
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
 import {getAnnouncementListService} from "@/api/Announcement";
+import {getHomeImageService, getBackgroundImageService} from "@/api/admin/adminhomeimage";
 import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
+import defaultBackground from '@/assets/background/background.webp'
 
 // 添加 router 实例
 const router = useRouter()
@@ -14,40 +16,9 @@ const router = useRouter()
 const videos = ref([])
 
 // 轮播图数据模型
-const carouselItems = ref([
-  {
-    id: 1,
-    title: '我推的孩子',
-    description: '16岁的天才少女星野爱久爱海梦想成为偶像，但在甄选会上却屡屡受挫...',
-    image: 'https://play.xfvod.pro/images/hb/wtdhz.png',
-    video: 'https://hydownload.pan.wo.cn/openapi/download?fid=wTbXk_kRq0NKsFelRGRstdjDMR/fEyQrMMRTbxIRvDvWfwStrRKqUxUwjmBEYYK7rnZA0ZXLTZtTX4zwcoayAgVQk2dA==',
-    link: '/video/1'
-  },
-  {
-    id: 2,
-    title: '败犬女主太多了',
-    description: '这是一段视频介绍文字，简单描述视频的主要内容...',
-    image: 'https://play.xfvod.pro/images/hb/baiquan.jpg',
-    video: 'https://tgh0tsm6ca.senhewenhua.com:8080/cache/6LSl54qs5aWz5Li75aSq5aSa5LqG77yBLUVQMS5tcDQ=.mp4?verify=1745028270-gqi6GLPClU8iQx7vnIuWhl%2F5HtFDtbnq7O1trk3vMMc%3D',
-    link: '/video/2'
-  },
-  {
-    id: 3,
-    title: '青之箱',
-    description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
-    image: 'https://play.xfvod.pro/images/hb/lx.jpg',
-    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=11ZdW_3bp%2B4AeSsrwwrgRwvyMqP/CbTvxB/MojZMWZIkEEfNe7RFDpbiRit6qT2JiXZ%2BbQrgxEbx3kwQn8jpZ9AGGhMg==',
-    link: '/video/3'
-  },
-  {
-    id: 4,
-    title: '缘结甘神家',
-    description: '这是另一段视频介绍文字，帮助用户了解视频内容...',
-    image: 'https://picgg.cycimg.me/banner/GXehBtTbYAALPbN-up2x.webp',
-    video: 'https://tjdownload.pan.wo.cn/openapi/download?fid=cxHot_0WTDoRp%2BfdPpcnDVyNxk5CufKuJyv8GjprsE2lW4%2BKK5xyLGeeJJR7nYipRubIzDydsXcaguR6JyWTgFrzqvQA==',
-    link: '/video/4'
-  }
-])
+const carouselItems = ref([])
+// 轮播图加载状态
+const loadingCarousel = ref(false)
 
 // 分类导航
 const categories = ref([
@@ -82,6 +53,10 @@ const loadingAnnouncements = ref(false)
 // 添加播放视频相关状态
 const videoPlayerVisible = ref(false)
 const currentPlayingVideo = ref(null)
+
+// 背景图
+const backgroundImage = ref(defaultBackground)
+const loadingBackground = ref(false)
 
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
@@ -179,9 +154,52 @@ const showAnnouncementDetails = (announcement) => {
   router.push(`/announcement/${announcement.announcementId}`)
 }
 
+// 获取轮播图数据
+const getCarouselData = async () => {
+  loadingCarousel.value = true
+  try {
+    const result = await getHomeImageService()
+    if (result.code === 200 && result.data) {
+      // 将API返回的数据转换为轮播图需要的格式
+      carouselItems.value = result.data.map(item => ({
+        id: item.homeImgId,
+        title: item.title,
+        description: item.description || '暂无描述',
+        image: item.image,
+        video: item.video,
+        link: `/video/${item.homeImgId}`
+      }))
+    } else {
+      console.error('获取轮播图数据失败:', result.message)
+      // 如果API请求失败，也不在页面显示错误信息，保持良好的用户体验
+    }
+  } catch (error) {
+    console.error('获取轮播图数据失败:', error)
+  } finally {
+    loadingCarousel.value = false
+  }
+}
+
+// 获取背景图数据
+const getBackgroundData = async () => {
+  loadingBackground.value = true
+  try {
+    const result = await getBackgroundImageService()
+    if (result.code === 200 && result.data && result.data.img) {
+      backgroundImage.value = result.data.img
+    }
+  } catch (error) {
+    console.error('获取背景图数据失败:', error)
+  } finally {
+    loadingBackground.value = false
+  }
+}
+
 onMounted(() => {
-getVideoList()
+  getVideoList()
   getAnnouncementList()
+  getCarouselData() // 获取轮播图数据
+  getBackgroundData() // 获取背景图数据
 })
 
 // 添加视频点击处函数
@@ -280,7 +298,7 @@ const videoLoaded = (event) => {
   <div class="home">
     <!-- 顶部背景图 -->
     <div class="top-background">
-      <img src="../assets/background/background.webp" alt="顶部背景图" class="background-image">
+      <img :src="backgroundImage" alt="顶部背景图" class="background-image">
     </div>
 
     <!-- 分类导航 -->
@@ -335,29 +353,37 @@ const videoLoaded = (event) => {
       <template v-if="activeCategory === 0">
         <!-- 左侧轮播图区域 -->
         <div class="left-carousel">
-      <el-carousel
-        :height="carouselHeight"
-              class="carousel-container main-carousel"
-        :interval="4000"
-        :indicator-position="'none'"
-      >
-        <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
-          <div class="carousel-content">
-            <img :src="item.image" :alt="item.title" class="carousel-image">
-            <div class="carousel-overlay">
-              <h3 class="carousel-title">{{ item.title }}</h3>
-              <p class="carousel-description">{{ item.description }}</p>
-              <div class="carousel-info">
-                <span class="play-icon" @click.stop="handlePlayVideo(item)">
-                      <el-icon><VideoPlay/></el-icon>
-                  立即观看
-                </span>
-              </div>
-            </div>
+          <div v-if="loadingCarousel" class="carousel-loading">
+            <el-skeleton animated :rows="0" style="width: 100%; height: 100%;">
+              <template #template>
+                <div style="height: 480px; width: 100%; background: #f3f3f3; border-radius: 8px"></div>
+              </template>
+            </el-skeleton>
           </div>
-        </el-carousel-item>
-      </el-carousel>
-    </div>
+          <el-carousel
+            v-else
+            :height="carouselHeight"
+            class="carousel-container main-carousel"
+            :interval="4000"
+            :indicator-position="'none'"
+          >
+            <el-carousel-item v-for="item in carouselItems" :key="item.id" class="carousel-item">
+              <div class="carousel-content">
+                <img :src="item.image" :alt="item.title" class="carousel-image">
+                <div class="carousel-overlay">
+                  <h3 class="carousel-title">{{ item.title }}</h3>
+                  <p class="carousel-description">{{ item.description }}</p>
+                  <div class="carousel-info">
+                    <span class="play-icon" @click.stop="handlePlayVideo(item)">
+                      <el-icon><VideoPlay/></el-icon>
+                      立即观看
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </el-carousel-item>
+          </el-carousel>
+        </div>
 
         <!-- 右侧视频区域 -->
         <div class="right-videos">
@@ -1312,5 +1338,13 @@ const videoLoaded = (event) => {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* 添加轮播图加载状态样式 */
+.carousel-loading {
+  width: 100%;
+  height: 480px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 </style>
