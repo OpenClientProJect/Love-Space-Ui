@@ -43,6 +43,7 @@
           <AdminVideoManager v-if="currentNav === 'adminVideo'" />
           <AnnouncementManager v-else-if="currentNav === 'announcement'" />
           <HomeImageManager v-else-if="currentNav === 'HomeImg'" />
+          <ActivityManager v-else-if="currentNav === 'activity'" />
         </div>
       </div>
     </div>
@@ -66,13 +67,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Film, Bell, PictureFilled, SwitchButton } from '@element-plus/icons-vue'
+import { Film, Bell, PictureFilled, SwitchButton, Calendar } from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import { useTokenStore } from '@/stores/token'
 import LoginDialog from '@/components/LoginDialog.vue'
 import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
 import HomeImageManager from '@/components/admin/HomeImageManager.vue'
+import ActivityManager from '@/components/admin/ActivityManager.vue'
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -83,7 +85,8 @@ const currentNav = ref('adminVideo')
 const navItems = [
   {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
   {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
-  {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0}
+  {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0},
+  {name: 'activity', label: '活动公告', icon: 'Calendar', count: 0}
 ]
 
 // 计算属性：是否已登录
