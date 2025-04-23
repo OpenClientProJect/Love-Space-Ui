@@ -1,11 +1,10 @@
 import request from '@/utils/request'
 
 // 获取活动公告列表
-export function getActivityListService(params) {
+export function getActivityListService() {
   return request({
-    url: '/admin/activity/list',
+    url: '/admin/activity',
     method: 'get',
-    params
   })
 }
 

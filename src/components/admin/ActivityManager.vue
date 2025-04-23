@@ -144,8 +144,6 @@ const loading = ref(false);
 const submitting = ref(false);
 const dialogVisible = ref(false);
 const dialogType = ref('add'); // 'add' 或 'edit'
-const currentPage = ref(1);
-const pageSize = ref(10);
 const total = ref(0);
 
 // 表单引用
@@ -205,14 +203,12 @@ const initData = async () => {
   loading.value = true;
   try {
     // 调用API获取活动列表
-    const result = await getActivityListService({ 
-      page: currentPage.value, 
-      pageSize: pageSize.value 
-    });
+    const result = await getActivityListService();
     
     if (result.code === 200 && result.data) {
-      activities.value = result.data.list.map(item => ({
-        activity_id: item.activity_id,
+      // 适配后端返回的数据结构
+      activities.value = result.data.map(item => ({
+        activity_id: item.activityId, // 转换为前端使用的字段名
         title: item.title,
         text: item.text,
         image: item.image,
@@ -223,7 +219,7 @@ const initData = async () => {
         endTime: item.endTime || '',
         status: item.status || 'active'
       }));
-      total.value = result.data.total || 0;
+      total.value = result.data.length;
     } else {
       // 处理API错误
       console.error('获取活动列表失败:', result.message);
@@ -261,33 +257,6 @@ const initData = async () => {
   } catch (error) {
     console.error('获取活动列表失败:', error);
     ElMessage.error('获取活动列表失败，请稍后重试');
-    
-    // 使用模拟数据（在API未完成时）
-    activities.value = [
-      {
-        activity_id: 1,
-        title: '新春活动：分享得奖励',
-        text: '春节期间分享视频可获得额外积分奖励...',
-        image: 'https://example.com/spring_festival.jpg',
-        createTime: '2023-01-20 00:00:00',
-        type: 'limited',
-        startTime: '2023-01-20 00:00:00',
-        endTime: '2023-02-20 23:59:59',
-        status: 'active'
-      },
-      {
-        activity_id: 2,
-        title: '网站维护公告',
-        text: '网站将于3月12日凌晨2点至6点进行维护...',
-        image: '',
-        createTime: '2023-03-10 00:00:00',
-        type: 'important',
-        startTime: '2023-03-10 00:00:00',
-        endTime: '2023-03-15 23:59:59',
-        status: 'active'
-      }
-    ];
-    total.value = 2;
     loading.value = false;
   }
 };
@@ -379,7 +348,7 @@ const submitActivityForm = async () => {
       
       // 只在编辑时添加ID
       if (dialogType.value === 'edit') {
-        activityData.activity_id = activityForm.activity_id;
+        activityData.activityId = activityForm.activity_id;
       }
       
       let result;
