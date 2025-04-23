@@ -1,5 +1,9 @@
 <template>
-  <div class="chat-page">
+  <div class="chat-page page-background bg-wave">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 左侧聊天列表 -->
     <div class="chat-list">
       <div class="list-header">
@@ -110,6 +114,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
 import WebSocketClient from '@/utils/websocket'
+import '@/assets/styles/common-bg.css'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')

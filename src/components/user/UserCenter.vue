@@ -1,5 +1,9 @@
 <template>
-  <div class="user-center" id="user-center">
+  <div class="user-center page-background bg-wave" id="user-center">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 顶部背景和用户信息 -->
     <div class="user-header">
       <div class="header-bg">
@@ -127,6 +131,7 @@ import {getUserVideoService} from "@/api/userVideo";
 import {getFollowListService, getFansListService} from "@/api/follow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
+import '@/assets/styles/common-bg.css'
 
 const router = useRouter()
 const route = useRoute()
@@ -280,7 +285,7 @@ const goToEditProfile = () => {
 // 修改导航项点击处理方法，使其也更新URL参数
 const handleNavClick = (item) => {
   currentNav.value = item.name
-  
+
   router.replace({
     query: { ...route.query, tab: item.name }
   }).catch(err => {
@@ -308,7 +313,7 @@ onMounted(() => {
   console.log('UserCenter组件已挂载')
   const userCenterEl = document.querySelector('#user-center')
   console.log('UserCenter DOM元素:', userCenterEl)
-  
+
   // 从URL查询参数中读取tab
   const tabParam = route.query.tab
   if (tabParam) {
@@ -320,7 +325,7 @@ onMounted(() => {
       console.warn('无效的tab参数:', tabParam)
     }
   }
-  
+
   // 检查localStorage中是否有打开关注/粉丝列表的标记
   const openFollowDialogType = localStorage.getItem('openFollowDialog')
   if (openFollowDialogType) {

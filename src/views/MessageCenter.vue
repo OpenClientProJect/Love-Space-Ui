@@ -1,5 +1,9 @@
 <template>
-  <div class="message-center">
+  <div class="message-center page-background bg-wave">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 左侧菜单 -->
     <div class="message-sidebar">
       <el-menu
@@ -99,6 +103,7 @@ import { getUserMessageListService } from '@/api/user/usermessage'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import {formatDate} from "@/utils/format";
+import '@/assets/styles/common-bg.css'
 
 const router = useRouter()
 const tokenStore = useTokenStore()

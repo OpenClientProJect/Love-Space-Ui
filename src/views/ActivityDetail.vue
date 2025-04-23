@@ -1,86 +1,92 @@
 <template>
-  <div class="activity-detail-page">
-    <div class="container" v-loading="loading">
-      <div class="page-header">
-        <h1 class="page-title">活动详情</h1>
-        <el-button @click="goBack" class="close-btn" type="default" circle>
-          <el-icon><Close /></el-icon>
-        </el-button>
-      </div>
-      
-      <!-- 主要内容区域 - 左侧菜单和右侧轮播图 -->
-      <div class="main-content-wrapper" v-if="activities.length > 0">
-        <!-- 左侧活动菜单 -->
-        <div class="activity-menu">
-          <h3 class="menu-title">活动列表</h3>
-          <ul class="activity-menu-list">
-            <li v-for="item in activities" 
-                :key="item.activityId"
-                :class="{ active: activeActivityId === item.activityId.toString() }"
-                @click="handleActivityChange(item.activityId.toString())"
-            >
-              {{ item.title }}
-            </li>
-          </ul>
-        </div>
-        
-        <!-- 右侧内容区域 -->
-        <div class="activity-content-area">
-          <!-- 轮播图展示区域 -->
-          <div class="carousel-container">
-            <el-carousel :interval="4000" height="320px" arrow="always" indicator-position="outside">
-              <el-carousel-item v-for="item in activitiesWithImages" :key="item.activityId">
-                <div class="carousel-content">
-                  <img :src="item.image" :alt="item.title" class="carousel-image">
-                  <div class="carousel-caption">
-                    <h3>{{ item.title }}</h3>
-                    <p class="carousel-date">{{ formatDate(item.createTime) }}</p>
-                  </div>
-                </div>
-              </el-carousel-item>
-            </el-carousel>
-          </div>
-          
-          <!-- 当前选中的活动简介 -->
-          <div class="activity-brief" v-if="currentActivity">
-            <div class="brief-header">
-              <span class="activity-tag">活动简介</span>
-              <span class="brief-date">发布时间: {{ formatDate(currentActivity.createTime) }}</span>
-            </div>
-            <div class="brief-content">{{ currentActivity.text }}</div>
-            <el-button 
-              type="primary" 
-              class="view-detail-btn" 
-              @click="showDetailCard(currentActivity)"
-            >查看详情</el-button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 活动内容详情卡片 -->
-      <div class="activity-card" v-if="showDetail && currentActivity">
-        <div class="card-header">
-          <h3 class="card-title">{{ currentActivity.title }}</h3>
-          <el-button type="text" class="close-detail" @click="showDetail = false">
+  <div class="activity-detail-page page-background bg-wave">
+    <div class="top-wave"></div>
+    <div class="side-dots"></div>
+    <div class="side-dots-left"></div>
+    <div class="bottom-wave"></div>
+    <div class="page-content">
+      <div class="container" v-loading="loading">
+        <div class="page-header">
+          <h1 class="page-title">活动详情</h1>
+          <el-button @click="goBack" class="close-btn" type="default" circle>
             <el-icon><Close /></el-icon>
           </el-button>
         </div>
         
-        <!-- 活动图片（如果有） -->
-        <div class="activity-image-container" v-if="currentActivity.image">
-          <img :src="currentActivity.image" alt="活动图片" class="activity-image" />
+        <!-- 主要内容区域 - 左侧菜单和右侧轮播图 -->
+        <div class="main-content-wrapper" v-if="activities.length > 0">
+          <!-- 左侧活动菜单 -->
+          <div class="activity-menu">
+            <h3 class="menu-title">活动列表</h3>
+            <ul class="activity-menu-list">
+              <li v-for="item in activities" 
+                  :key="item.activityId"
+                  :class="{ active: activeActivityId === item.activityId.toString() }"
+                  @click="handleActivityChange(item.activityId.toString())"
+              >
+                {{ item.title }}
+              </li>
+            </ul>
+          </div>
+          
+          <!-- 右侧内容区域 -->
+          <div class="activity-content-area">
+            <!-- 轮播图展示区域 -->
+            <div class="carousel-container">
+              <el-carousel :interval="4000" height="320px" arrow="always" indicator-position="outside">
+                <el-carousel-item v-for="item in activitiesWithImages" :key="item.activityId">
+                  <div class="carousel-content">
+                    <img :src="item.image" :alt="item.title" class="carousel-image">
+                    <div class="carousel-caption">
+                      <h3>{{ item.title }}</h3>
+                      <p class="carousel-date">{{ formatDate(item.createTime) }}</p>
+                    </div>
+                  </div>
+                </el-carousel-item>
+              </el-carousel>
+            </div>
+            
+            <!-- 当前选中的活动简介 -->
+            <div class="activity-brief" v-if="currentActivity">
+              <div class="brief-header">
+                <span class="activity-tag">活动简介</span>
+                <span class="brief-date">发布时间: {{ formatDate(currentActivity.createTime) }}</span>
+              </div>
+              <div class="brief-content">{{ currentActivity.text }}</div>
+              <el-button 
+                type="primary" 
+                class="view-detail-btn" 
+                @click="showDetailCard(currentActivity)"
+              >查看详情</el-button>
+            </div>
+          </div>
         </div>
         
-        <!-- 活动内容 -->
-        <div class="activity-content">
-          <div class="content-text">{{ currentActivity.text }}</div>
+        <!-- 活动内容详情卡片 -->
+        <div class="activity-card" v-if="showDetail && currentActivity">
+          <div class="card-header">
+            <h3 class="card-title">{{ currentActivity.title }}</h3>
+            <el-button type="text" class="close-detail" @click="showDetail = false">
+              <el-icon><Close /></el-icon>
+            </el-button>
+          </div>
+          
+          <!-- 活动图片（如果有） -->
+          <div class="activity-image-container" v-if="currentActivity.image">
+            <img :src="currentActivity.image" alt="活动图片" class="activity-image" />
+          </div>
+          
+          <!-- 活动内容 -->
+          <div class="activity-content">
+            <div class="content-text">{{ currentActivity.text }}</div>
+          </div>
         </div>
+        
+        <!-- 未找到活动的提示 -->
+        <el-empty v-else-if="!loading && activities.length === 0" description="暂无活动信息">
+          <el-button type="primary" @click="goBack">返回首页</el-button>
+        </el-empty>
       </div>
-      
-      <!-- 未找到活动的提示 -->
-      <el-empty v-else-if="!loading && activities.length === 0" description="暂无活动信息">
-        <el-button type="primary" @click="goBack">返回首页</el-button>
-      </el-empty>
     </div>
   </div>
 </template>
@@ -91,6 +97,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Calendar, ArrowLeft, Close } from '@element-plus/icons-vue';
 import { getActivityListService } from '@/api/activity';
+import '@/assets/styles/common-bg.css';
 
 const router = useRouter();
 
@@ -174,7 +181,6 @@ onMounted(() => {
 <style scoped>
 .activity-detail-page {
   padding: 20px 0;
-  background-color: #f4f5f7;
   min-height: calc(100vh - 120px);
 }
 
@@ -182,6 +188,8 @@ onMounted(() => {
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .page-header {
@@ -207,16 +215,17 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 }
 
 /* 左侧菜单样式 */
 .activity-menu {
   width: 220px;
-  background-color: #f8f8f8;
+  background-color: rgba(248, 248, 248, 0.8);
   padding: 20px 0;
   border-right: 1px solid #eee;
   flex-shrink: 0;
@@ -251,12 +260,12 @@ onMounted(() => {
 }
 
 .activity-menu-list li:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(240, 240, 240, 0.8);
   color: #ff5722;
 }
 
 .activity-menu-list li.active {
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   color: #ff5722;
   font-weight: bold;
   border-left-color: #ff5722;
@@ -334,9 +343,10 @@ onMounted(() => {
 /* 活动简介区域样式 */
 .activity-brief {
   padding: 20px;
-  background-color: #fffaf7;
+  background-color: rgba(255, 250, 247, 0.8);
   border-radius: 8px;
   border-left: 3px solid #ff5722;
+  backdrop-filter: blur(5px);
 }
 
 .brief-header {
@@ -368,12 +378,13 @@ onMounted(() => {
 
 /* 活动详情卡片样式 */
 .activity-card {
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 20px;
   animation: slideIn 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 @keyframes slideIn {
@@ -421,7 +432,7 @@ onMounted(() => {
   width: 100%;
   text-align: center;
   padding: 20px;
-  background-color: #fafafa;
+  background-color: rgba(250, 250, 250, 0.8);
 }
 
 .activity-image {

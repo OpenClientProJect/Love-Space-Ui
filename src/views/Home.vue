@@ -9,6 +9,7 @@ import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
 import defaultBackground from '@/assets/background/background.webp'
+import '@/assets/styles/common-bg.css'
 
 // 添加 router 实例
 const router = useRouter()
@@ -319,7 +320,11 @@ const videoLoaded = (event) => {
 </script>
 
 <template>
-  <div class="home">
+  <div class="home page-background bg-wave">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 顶部背景图 -->
     <div class="top-background">
       <img :src="backgroundImage" alt="顶部背景图" class="background-image">

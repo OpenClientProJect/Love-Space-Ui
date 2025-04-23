@@ -1,5 +1,9 @@
 <template>
-  <div class="search-result-container">
+  <div class="search-result-container page-background bg-wave">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 搜索结果分类导航 -->
     <div class="search-nav">
       <div class="nav-content">
@@ -141,6 +145,7 @@ import {formatCount, formatDuration, formatDate} from '@/utils/format.js'
 import {getSearchResult} from '@/api/Search'
 import {ElMessage} from 'element-plus'
 import {getSearchHistory, addSearchHistory} from '@/utils/searchHistory'
+import '@/assets/styles/common-bg.css'
 
 const route = useRoute()
 const router = useRouter()
@@ -151,9 +156,6 @@ const searchHistory = ref([])
 // 搜索导航项
 const navItems = [
   {name: '视频', type: 'video', count: 0},
-  {name: '用户', type: 'user', count: 0},
-  {name: '番剧', type: 'anime', count: 0},
-  {name: '直播', type: 'live', count: 0}
 ]
 
 // 响应式数据
