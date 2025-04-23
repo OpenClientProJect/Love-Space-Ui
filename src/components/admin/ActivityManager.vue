@@ -169,7 +169,7 @@ const rules = {
 
 // 活动表单
 const activityForm = reactive({
-  activity_id: null,
+  activityId: '',
   title: '',
   text: '',
   image: '',
@@ -208,7 +208,7 @@ const initData = async () => {
     if (result.code === 200 && result.data) {
       // 适配后端返回的数据结构
       activities.value = result.data.map(item => ({
-        activity_id: item.activityId, // 转换为前端使用的字段名
+        activityId: item.activityId,
         title: item.title,
         text: item.text,
         image: item.image,
@@ -245,7 +245,7 @@ const handleEditActivity = (row) => {
   resetForm();
   
   // 填充表单数据
-  activityForm.activity_id = row.activity_id;
+  activityForm.activityId = row.activityId;
   activityForm.title = row.title;
   activityForm.text = row.text;
   activityForm.image = row.image || '';
@@ -275,11 +275,11 @@ const handleDeleteActivity = (row) => {
     loading.value = true;
     try {
       // 调用API删除活动
-      const result = await deleteActivityService(row.activity_id);
+      const result = await deleteActivityService(row.activityId);
       
       if (result.code === 200) {
         // 删除成功后从列表中移除该项
-        const index = activities.value.findIndex(item => item.activity_id === row.activity_id);
+        const index = activities.value.findIndex(item => item.activityId === row.activityId);
         if (index !== -1) {
           activities.value.splice(index, 1);
           total.value -= 1;
@@ -319,7 +319,7 @@ const submitActivityForm = async () => {
       
       // 只在编辑时添加ID
       if (dialogType.value === 'edit') {
-        activityData.activityId = activityForm.activity_id;
+        activityData.activityId = activityForm.activityId;
       }
       
       let result;
@@ -355,7 +355,7 @@ const resetForm = () => {
     activityFormRef.value.resetFields();
   }
   
-  activityForm.activity_id = null;
+  activityForm.activityId = null;
   activityForm.title = '';
   activityForm.text = '';
   activityForm.image = '';

@@ -8,13 +8,6 @@ export function getActivityListService() {
   })
 }
 
-// 获取活动公告详情
-export function getActivityDetailService(id) {
-  return request({
-    url: `/admin/activity/${id}`,
-    method: 'get'
-  })
-}
 
 // 创建新活动公告
 export function createActivityService(data) {
@@ -28,16 +21,16 @@ export function createActivityService(data) {
 // 更新活动公告
 export function updateActivityService(data) {
   return request({
-    url: '/admin/activity/update',
+    url: '/admin/activity',
     method: 'put',
     data
   })
 }
 
 // 删除活动公告
-export function deleteActivityService(id) {
+export function deleteActivityService(activityId) {
   return request({
-    url: `/admin/activity/delete/${id}`,
+    url: `/admin/activity?activityId=`+ activityId,
     method: 'delete'
   })
 }
