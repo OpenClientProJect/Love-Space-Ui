@@ -52,6 +52,11 @@ const routes = [
     component: () => import('@/views/AnnouncementDetail.vue')
   },
   {
+    path: '/activity',
+    name: 'ActivityDetail',
+    component: () => import('@/views/ActivityDetail.vue')
+  },
+  {
     path: '/messages',
     name: 'MessageCenter',
     component: MessageCenter,

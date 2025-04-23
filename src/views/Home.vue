@@ -2,8 +2,9 @@
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
 import {getAnnouncementListService} from "@/api/Announcement";
+import {getActivityListService} from "@/api/activity";
 import {getHomeImageService, getBackgroundImageService} from "@/api/admin/adminhomeimage";
-import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close} from '@element-plus/icons-vue'
+import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close, Calendar} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
@@ -57,6 +58,10 @@ const currentPlayingVideo = ref(null)
 // 背景图
 const backgroundImage = ref(defaultBackground)
 const loadingBackground = ref(false)
+
+// 活动数据
+const activities = ref([])
+const loadingActivities = ref(false)
 
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
@@ -195,9 +200,28 @@ const getBackgroundData = async () => {
   }
 }
 
+// 获取活动列表
+const getActivityList = async () => {
+  loadingActivities.value = true
+  try {
+    const res = await getActivityListService()
+      activities.value = res.data
+  } catch (error) {
+    console.error('获取活动列表失败:', error)
+  } finally {
+    loadingActivities.value = false
+  }
+}
+
+// 显示活动详情
+const showActivityDetails = (activity) => {
+  router.push(`/activity`)
+}
+
 onMounted(() => {
   getVideoList()
   getAnnouncementList()
+  getActivityList()
   getCarouselData() // 获取轮播图数据
   getBackgroundData() // 获取背景图数据
 })
@@ -311,6 +335,40 @@ const videoLoaded = (event) => {
           :class="{ active: category.id === activeCategory }"
       >
         {{ category.name }}
+      </div>
+    </div>
+
+    <!-- 活动栏 -->
+    <div class="activity-bar" v-if="activities.length > 0">
+      <div class="activity-icon">
+        <el-icon><Calendar /></el-icon>
+      </div>
+      <div class="activity-content" v-loading="loadingActivities">
+        <el-carousel 
+          height="36px" 
+          direction="vertical" 
+          :autoplay="true"
+          :interval="3000"
+          indicator-position="none"
+        >
+          <el-carousel-item v-for="item in activities" :key="item.activityId">
+            <div class="activity-container">
+              <div class="activity-text">
+                <span class="activity-label">活动</span>
+                {{ item.title }}
+              </div>
+              <el-button 
+                class="activity-detail-btn" 
+                type="danger" 
+                size="small" 
+                link
+                @click.stop="showActivityDetails(item)"
+              >
+                查看详情
+              </el-button>
+            </div>
+          </el-carousel-item>
+        </el-carousel>
       </div>
     </div>
 
@@ -1346,5 +1404,93 @@ const videoLoaded = (event) => {
   height: 480px;
   border-radius: 8px;
   overflow: hidden;
+}
+
+/* 活动栏样式 */
+.activity-bar {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 12px 40px;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+}
+
+.activity-icon {
+  color: #ff5722;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 87, 34, 0.1);
+  border-radius: 50%;
+}
+
+.activity-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 36px;
+}
+
+.activity-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 10px;
+}
+
+.activity-text {
+  font-size: 15px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+  line-height: 36px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.activity-label {
+  display: inline-block;
+  background-color: #ff5722;
+  color: white;
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  margin-right: 10px;
+  line-height: normal;
+}
+
+.activity-detail-btn {
+  font-size: 12px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* 活动栏轮播样式 - 使用非常具体的选择器 */
+.activity-content .el-carousel {
+  height: 36px;
+}
+
+.activity-content :deep(.el-carousel__container) {
+  height: 36px !important;
+}
+
+.activity-content :deep(.el-carousel__item) {
+  line-height: 36px;
+  padding: 0;
 }
 </style>

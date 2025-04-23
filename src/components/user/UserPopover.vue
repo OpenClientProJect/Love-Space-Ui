@@ -31,9 +31,6 @@
         <div class="user-header">
           <div class="user-basic">
             <h3 class="username">{{ userInfo.nickname}}</h3>
-            <div class="user-level">
-              <span>硬币 0</span>
-            </div>
           </div>
           <div class="user-stats">
             <div class="stat-item" @click="goToFollowList('follow')">
@@ -45,12 +42,6 @@
               <span class="label">粉丝</span>
             </div>
           </div>
-        </div>
-
-        <!-- 会员信息 -->
-        <div class="vip-section">
-          <span class="vip-tag">大会员限时5.1折</span>
-          <span class="vip-text">年卡98.5元/月</span>
         </div>
 
         <!-- 菜单列表 -->

@@ -223,35 +223,6 @@ const initData = async () => {
     } else {
       // 处理API错误
       console.error('获取活动列表失败:', result.message);
-      // 如果API未完成，使用模拟数据
-      if (!result.data) {
-        // 模拟数据
-        activities.value = [
-          {
-            activity_id: 1,
-            title: '新春活动：分享得奖励',
-            text: '春节期间分享视频可获得额外积分奖励...',
-            image: 'https://example.com/spring_festival.jpg',
-            createTime: '2023-01-20 00:00:00',
-            type: 'limited',
-            startTime: '2023-01-20 00:00:00',
-            endTime: '2023-02-20 23:59:59',
-            status: 'active'
-          },
-          {
-            activity_id: 2,
-            title: '网站维护公告',
-            text: '网站将于3月12日凌晨2点至6点进行维护...',
-            image: '',
-            createTime: '2023-03-10 00:00:00',
-            type: 'important',
-            startTime: '2023-03-10 00:00:00',
-            endTime: '2023-03-15 23:59:59',
-            status: 'active'
-          }
-        ];
-        total.value = 2;
-      }
     }
     loading.value = false;
   } catch (error) {
