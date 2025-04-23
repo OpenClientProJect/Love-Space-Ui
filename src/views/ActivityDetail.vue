@@ -1,6 +1,13 @@
 <template>
   <div class="activity-detail-page">
     <div class="container" v-loading="loading">
+      <div class="page-header">
+        <h1 class="page-title">活动详情</h1>
+        <el-button @click="goBack" class="close-btn" type="default" circle>
+          <el-icon><Close /></el-icon>
+        </el-button>
+      </div>
+      
       <!-- 活动列表选择 -->
       <div class="activity-list-section" v-if="activities.length > 0">
         <h2 class="section-title">活动列表</h2>
@@ -11,23 +18,30 @@
             :label="item.title" 
             :name="item.activityId.toString()"
           >
+            <!-- 活动简介展示区域 -->
+            <div class="activity-brief">
+              <div class="brief-header">
+                <span class="activity-tag">活动简介</span>
+                <span class="brief-date">发布时间: {{ formatDate(item.createTime) }}</span>
+              </div>
+              <div class="brief-content">{{ item.text }}</div>
+              <el-button 
+                type="primary" 
+                class="view-detail-btn" 
+                @click="showDetailCard(item)"
+              >查看详情</el-button>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </div>
       
-      <!-- 活动内容 -->
-      <div class="activity-card" v-if="currentActivity">
-        <div class="activity-header">
-          <div class="title-section">
-            <span class="activity-tag">活动</span>
-            <h1 class="activity-title">{{ currentActivity.title }}</h1>
-          </div>
-          <div class="activity-meta">
-            <div class="meta-item">
-              <el-icon><Calendar /></el-icon>
-              <span>发布时间: {{ formatDate(currentActivity.createTime) }}</span>
-            </div>
-          </div>
+      <!-- 活动内容详情卡片 -->
+      <div class="activity-card" v-if="showDetail && currentActivity">
+        <div class="card-header">
+          <h3 class="card-title">{{ currentActivity.title }}</h3>
+          <el-button type="text" class="close-detail" @click="showDetail = false">
+            <el-icon><Close /></el-icon>
+          </el-button>
         </div>
         
         <!-- 活动图片（如果有） -->
@@ -38,13 +52,6 @@
         <!-- 活动内容 -->
         <div class="activity-content">
           <div class="content-text">{{ currentActivity.text }}</div>
-        </div>
-        
-        <!-- 返回按钮 -->
-        <div class="action-buttons">
-          <el-button type="primary" @click="goBack">
-            <el-icon><ArrowLeft /></el-icon> 返回首页
-          </el-button>
         </div>
       </div>
       
@@ -58,17 +65,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Calendar, ArrowLeft } from '@element-plus/icons-vue';
+import { Calendar, ArrowLeft, Close } from '@element-plus/icons-vue';
 import { getActivityListService } from '@/api/activity';
 
-const route = useRoute();
 const router = useRouter();
 
 const activities = ref([]);
 const loading = ref(true);
 const activeActivityId = ref('1'); // 默认选择第一个活动
+const showDetail = ref(false); // 控制是否显示详情卡片
 
 // 计算当前选中的活动
 const currentActivity = computed(() => {
@@ -77,19 +84,16 @@ const currentActivity = computed(() => {
 });
 
 // 获取活动列表数据
-const getActivityDetail = async () => {
+const getActivityList = async () => {
   loading.value = true;
   try {
     const res = await getActivityListService();
     if (res.code === 200 && res.data) {
       activities.value = res.data;
       
-      // 如果URL中有指定活动ID，则选中对应活动
-      if (route.params.id) {
-        activeActivityId.value = route.params.id.toString();
-      } else {
-        // 否则默认选择第一个活动
-        activeActivityId.value = activities.value.length > 0 ? activities.value[0].activityId.toString() : '1';
+      // 选择第一个活动作为默认显示
+      if (activities.value.length > 0) {
+        activeActivityId.value = activities.value[0].activityId.toString();
       }
       
       // 设置页面标题
@@ -112,13 +116,14 @@ const handleActivityChange = (tabId) => {
   const activity = activities.value.find(item => item.activityId.toString() === tabId);
   if (activity) {
     document.title = `${activity.title} - 活动详情`;
-    // 更新URL但不重新加载页面
-    window.history.pushState(
-      {}, 
-      '', 
-      `/activity/${tabId}`
-    );
+    showDetail.value = false; // 切换活动时关闭详情卡片
   }
+};
+
+// 显示活动详情卡片
+const showDetailCard = (activity) => {
+  activeActivityId.value = activity.activityId.toString();
+  showDetail.value = true;
 };
 
 // 格式化日期
@@ -134,7 +139,7 @@ const goBack = () => {
 };
 
 onMounted(() => {
-  getActivityDetail();
+  getActivityList();
 });
 </script>
 
@@ -146,9 +151,27 @@ onMounted(() => {
 }
 
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+  font-weight: bold;
+}
+
+.close-btn {
+  font-size: 18px;
 }
 
 .section-title {
@@ -184,24 +207,80 @@ onMounted(() => {
   background-color: #ff5722;
 }
 
+/* 活动简介区域样式 */
+.activity-brief {
+  padding: 20px;
+  background-color: #fffaf7;
+  border-radius: 8px;
+  border-left: 3px solid #ff5722;
+}
+
+.brief-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.brief-date {
+  font-size: 14px;
+  color: #999;
+}
+
+.brief-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.view-detail-btn {
+  margin-top: 10px;
+}
+
+/* 活动详情卡片样式 */
 .activity-card {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 20px;
+  animation: slideIn 0.3s ease;
 }
 
-.activity-header {
-  padding: 20px;
-  border-bottom: 1px solid #f0f0f0;
-  background-color: #fffaf7;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.title-section {
+.card-header {
+  padding: 15px 20px;
+  background-color: #ff5722;
+  color: white;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.close-detail {
+  color: white;
+  font-size: 18px;
 }
 
 .activity-tag {
@@ -212,31 +291,6 @@ onMounted(() => {
   padding: 2px 8px;
   border-radius: 4px;
   margin-right: 10px;
-}
-
-.activity-title {
-  margin: 0;
-  font-size: 24px;
-  color: #333;
-  font-weight: bold;
-}
-
-.activity-meta {
-  display: flex;
-  align-items: center;
-  color: #888;
-  font-size: 14px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-}
-
-.meta-item .el-icon {
-  margin-right: 6px;
-  color: #ff5722;
 }
 
 .activity-image-container {
@@ -264,21 +318,12 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
-.action-buttons {
-  padding: 10px 20px 20px;
-  display: flex;
-  justify-content: center;
-}
-
 @media (max-width: 768px) {
-  .activity-title {
+  .page-title {
     font-size: 20px;
   }
   
-  .activity-content {
-    padding: 16px;
-  }
-  
+  .brief-content,
   .content-text {
     font-size: 14px;
     line-height: 1.6;
@@ -291,6 +336,10 @@ onMounted(() => {
   :deep(.el-tabs__header.is-left) {
     margin-right: 0;
     margin-bottom: 15px;
+  }
+  
+  .card-title {
+    font-size: 16px;
   }
 }
 </style> 

@@ -215,7 +215,7 @@ const getActivityList = async () => {
 
 // 显示活动详情
 const showActivityDetails = (activity) => {
-  router.push(`/activity`)
+  router.push('/activity')
 }
 
 onMounted(() => {
