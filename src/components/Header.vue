@@ -123,7 +123,8 @@ import {
   VideoPlay,
   Search,
   ArrowLeft,
-  Close
+  Close,
+  Setting
 } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import eventBus from '@/utils/eventBus'
@@ -219,14 +220,27 @@ const handleMobileSearch = () => {
   showMobileSearch.value = false
 }
 
+// 计算属性：是否为管理员
+const isAdmin = computed(() => {
+  return userInfoStore.info?.role === 'admin'
+})
+
 // 移动端导航项配置
-const mobileNavItems = [
-  { name: '首页', path: '/', icon: 'HomeFilled' },
-  { name: '番剧', path: '/anime', icon: 'VideoPlay' },
-  { name: '直播', path: '/live', icon: 'VideoCamera' },
-  { name: '消息', path: '/messages', icon: 'Message' },
-  { name: '收藏', path: '/favorites', icon: 'Star' }
-]
+const mobileNavItems = computed(() => {
+  const items = [
+    { name: '首页', path: '/', icon: 'HomeFilled' },
+    { name: '番剧', path: '/anime', icon: 'VideoPlay' },
+    { name: '直播', path: '/live', icon: 'VideoCamera' },
+    { name: '消息', path: '/messages', icon: 'Message' }
+  ]
+  
+  // 如果是管理员，添加管理入口
+  if (isAdmin.value) {
+    items.push({ name: '管理控制台', path: '/admin', icon: 'Setting' })
+  }
+  
+  return items
+})
 
 const goToUpload = () => {
   if (!isLogin.value) {
@@ -252,6 +266,7 @@ const goToMessages = () => {
   // 跳转到消息中心页面
   router.push('/messages')
 }
+
 
 // 在 script setup 部分添加路由相关的计算属性
 const isUploadPage = computed(() => {
@@ -798,5 +813,30 @@ const isUploadPage = computed(() => {
   :deep(.el-drawer) {
     background-color: #fff;
   }
+}
+
+/* 添加管理员图标样式 */
+.admin-icon {
+  color: #fff;
+  font-size: 20px;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-icon:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.header-scrolled .admin-icon {
+  color: #fb7299;
+  background-color: rgba(251, 114, 153, 0.1);
+}
+
+.header-scrolled .admin-icon:hover {
+  background-color: rgba(251, 114, 153, 0.2);
 }
 </style>

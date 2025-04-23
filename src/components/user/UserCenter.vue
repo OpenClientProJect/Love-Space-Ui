@@ -59,9 +59,6 @@
           <!-- 视频列表相关内容 -->
           <UserVideoContent v-if="currentNav === 'videos'" :videos="videos" @refresh="getUserVideos" />
           <EditProfileContent v-else-if="currentNav === 'edit-profile'" />
-          <AdminVideoManager v-else-if="currentNav === 'adminVideo'" />
-          <AnnouncementManager v-else-if="currentNav === 'announcement'" />
-          <HomeImageManager v-else-if="currentNav === 'HomeImg'" />
           <div v-else class="empty-state">
             <el-empty :description="getEmptyText">
               <template #description>
@@ -122,7 +119,7 @@
 <script setup>
 import {ref, computed, watch, defineExpose, onMounted} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
-import {Edit} from '@element-plus/icons-vue'
+import {Edit, Setting} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import {ElMessage} from "element-plus";
 import {useTokenStore} from "@/stores/token";
@@ -130,9 +127,6 @@ import {getUserVideoService} from "@/api/userVideo";
 import {getFollowListService, getFansListService} from "@/api/follow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
-import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
-import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
-import HomeImageManager from '@/components/admin/HomeImageManager.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -154,14 +148,7 @@ const baseNavItems = [
 
 // 根据用户角色动态计算导航项
 const navItems = computed(() => {
-  if (userInfo.value?.role === 'admin') {
-    // 管理员只显示管理员特有菜单项
-    return [
-      {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
-      {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
-      {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0}
-    ]
-  }
+
   return baseNavItems
 })
 
