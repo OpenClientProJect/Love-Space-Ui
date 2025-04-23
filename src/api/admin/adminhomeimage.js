@@ -3,9 +3,9 @@ import request from "@/utils/request";
 export const uploadHomeImageService = (data) => {
   return request.post("/admin/homeImage/upload", data);
 };
-
+//获取轮播图
 export const getHomeImageService = () => {
-  return request.get("/admin/homeImage");
+  return request.get("/admin/homeImage/image");
 };
 //背景图
 export const getBackgroundImageService = () => {
