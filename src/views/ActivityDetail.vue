@@ -8,31 +8,53 @@
         </el-button>
       </div>
       
-      <!-- 活动列表选择 -->
-      <div class="activity-list-section" v-if="activities.length > 0">
-        <h2 class="section-title">活动列表</h2>
-        <el-tabs v-model="activeActivityId" tab-position="left" @tab-change="handleActivityChange">
-          <el-tab-pane 
-            v-for="item in activities" 
-            :key="item.activityId" 
-            :label="item.title" 
-            :name="item.activityId.toString()"
-          >
-            <!-- 活动简介展示区域 -->
-            <div class="activity-brief">
-              <div class="brief-header">
-                <span class="activity-tag">活动简介</span>
-                <span class="brief-date">发布时间: {{ formatDate(item.createTime) }}</span>
-              </div>
-              <div class="brief-content">{{ item.text }}</div>
-              <el-button 
-                type="primary" 
-                class="view-detail-btn" 
-                @click="showDetailCard(item)"
-              >查看详情</el-button>
+      <!-- 主要内容区域 - 左侧菜单和右侧轮播图 -->
+      <div class="main-content-wrapper" v-if="activities.length > 0">
+        <!-- 左侧活动菜单 -->
+        <div class="activity-menu">
+          <h3 class="menu-title">活动列表</h3>
+          <ul class="activity-menu-list">
+            <li v-for="item in activities" 
+                :key="item.activityId"
+                :class="{ active: activeActivityId === item.activityId.toString() }"
+                @click="handleActivityChange(item.activityId.toString())"
+            >
+              {{ item.title }}
+            </li>
+          </ul>
+        </div>
+        
+        <!-- 右侧内容区域 -->
+        <div class="activity-content-area">
+          <!-- 轮播图展示区域 -->
+          <div class="carousel-container">
+            <el-carousel :interval="4000" height="320px" arrow="always" indicator-position="outside">
+              <el-carousel-item v-for="item in activitiesWithImages" :key="item.activityId">
+                <div class="carousel-content">
+                  <img :src="item.image" :alt="item.title" class="carousel-image">
+                  <div class="carousel-caption">
+                    <h3>{{ item.title }}</h3>
+                    <p class="carousel-date">{{ formatDate(item.createTime) }}</p>
+                  </div>
+                </div>
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+          
+          <!-- 当前选中的活动简介 -->
+          <div class="activity-brief" v-if="currentActivity">
+            <div class="brief-header">
+              <span class="activity-tag">活动简介</span>
+              <span class="brief-date">发布时间: {{ formatDate(currentActivity.createTime) }}</span>
             </div>
-          </el-tab-pane>
-        </el-tabs>
+            <div class="brief-content">{{ currentActivity.text }}</div>
+            <el-button 
+              type="primary" 
+              class="view-detail-btn" 
+              @click="showDetailCard(currentActivity)"
+            >查看详情</el-button>
+          </div>
+        </div>
       </div>
       
       <!-- 活动内容详情卡片 -->
@@ -83,6 +105,11 @@ const currentActivity = computed(() => {
   return activities.value.find(item => item.activityId.toString() === activeActivityId.value) || activities.value[0];
 });
 
+// 筛选有图片的活动用于轮播图展示
+const activitiesWithImages = computed(() => {
+  return activities.value.filter(item => item.image && item.image.trim() !== '');
+});
+
 // 获取活动列表数据
 const getActivityList = async () => {
   loading.value = true;
@@ -113,6 +140,7 @@ const getActivityList = async () => {
 
 // 处理活动选择变化
 const handleActivityChange = (tabId) => {
+  activeActivityId.value = tabId;
   const activity = activities.value.find(item => item.activityId.toString() === tabId);
   if (activity) {
     document.title = `${activity.title} - 活动详情`;
@@ -151,7 +179,7 @@ onMounted(() => {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -174,36 +202,132 @@ onMounted(() => {
   font-size: 18px;
 }
 
-.section-title {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: bold;
-  border-left: 4px solid #ff5722;
-  padding-left: 12px;
-}
-
-.activity-list-section {
+/* 主内容区布局 */
+.main-content-wrapper {
+  display: flex;
+  gap: 20px;
   margin-bottom: 30px;
   background-color: #fff;
   border-radius: 8px;
-  padding: 20px;
+  overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-:deep(.el-tabs__item) {
-  height: 50px;
-  line-height: 50px;
-  font-size: 15px;
-  color: #555;
+/* 左侧菜单样式 */
+.activity-menu {
+  width: 220px;
+  background-color: #f8f8f8;
+  padding: 20px 0;
+  border-right: 1px solid #eee;
+  flex-shrink: 0;
 }
 
-:deep(.el-tabs__item.is-active) {
+.menu-title {
+  font-size: 18px;
+  padding: 0 20px 15px;
+  margin: 0;
+  color: #333;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-menu-list li {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border-left: 3px solid transparent;
+  color: #555;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-menu-list li:hover {
+  background-color: #f0f0f0;
+  color: #ff5722;
+}
+
+.activity-menu-list li.active {
+  background-color: #fff;
   color: #ff5722;
   font-weight: bold;
+  border-left-color: #ff5722;
 }
 
-:deep(.el-tabs__active-bar) {
+/* 右侧内容区域 */
+.activity-content-area {
+  flex-grow: 1;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* 轮播图样式 */
+.carousel-container {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-content {
+  position: relative;
+  height: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.carousel-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: white;
+}
+
+.carousel-caption h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.carousel-date {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+:deep(.el-carousel__button) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 87, 34, 0.5);
+}
+
+:deep(.el-carousel__button:hover),
+:deep(.el-carousel__indicator.is-active .el-carousel__button) {
+  background-color: #ff5722;
+}
+
+:deep(.el-carousel__arrow) {
+  background-color: rgba(255, 87, 34, 0.7);
+}
+
+:deep(.el-carousel__arrow:hover) {
   background-color: #ff5722;
 }
 
@@ -232,7 +356,7 @@ onMounted(() => {
   line-height: 1.6;
   color: #333;
   margin-bottom: 20px;
-  max-height: 200px;
+  max-height: 150px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
@@ -318,7 +442,37 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
+/* 响应式布局 */
 @media (max-width: 768px) {
+  .main-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .activity-menu {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+  }
+  
+  .activity-menu-list {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .activity-menu-list li {
+    padding: 8px 15px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  
+  .activity-menu-list li.active {
+    border-left-color: transparent;
+    border-bottom-color: #ff5722;
+  }
+  
   .page-title {
     font-size: 20px;
   }
@@ -329,16 +483,11 @@ onMounted(() => {
     line-height: 1.6;
   }
   
-  :deep(.el-tabs--left) {
-    flex-direction: column;
-  }
-  
-  :deep(.el-tabs__header.is-left) {
-    margin-right: 0;
-    margin-bottom: 15px;
-  }
-  
   .card-title {
+    font-size: 16px;
+  }
+  
+  .carousel-caption h3 {
     font-size: 16px;
   }
 }
