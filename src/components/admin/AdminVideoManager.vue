@@ -4,16 +4,6 @@
     <div class="header-actions">
       <h2 class="section-title">视频审核</h2>
       <div class="action-group">
-        <el-select v-model="filterStatus" placeholder="筛选状态" class="filter-select">
-          <el-option label="全部视频" :value="-1" />
-          <el-option label="待审核" :value="0" />
-          <el-option label="已发布" :value="1" />
-          <el-option label="已拒绝" :value="2" />
-        </el-select>
-        <el-select v-model="filterCategory" placeholder="筛选分类" class="filter-select">
-          <el-option label="全部分类" :value="-1" />
-          <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
-        </el-select>
         <el-button type="primary" @click="refreshData" class="refresh-button">
           <el-icon><Refresh /></el-icon>
           刷新列表

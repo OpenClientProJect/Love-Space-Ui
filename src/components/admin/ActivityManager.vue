@@ -18,11 +18,6 @@
         <el-table-column prop="title" label="标题" min-width="180"/>
         <el-table-column prop="text" label="内容" min-width="220" show-overflow-tooltip/>
         <el-table-column prop="createTime" label="创建时间" width="160"/>
-        <el-table-column prop="type" label="活动类型" width="100">
-          <template #default="scope">
-            <el-tag :type="getActivityTypeTag(scope.row.type)">{{ getActivityTypeText(scope.row.type) }}</el-tag>
-          </template>
-        </el-table-column>
         <el-table-column label="图片" width="100">
           <template #default="scope">
             <el-image 
@@ -92,23 +87,6 @@
             * 建议尺寸: 800×450px，JPG或PNG格式
           </div>
         </el-form-item>
-        <el-form-item label="活动类型" prop="type">
-          <el-select v-model="activityForm.type" placeholder="请选择活动类型" style="width:100%">
-            <el-option label="常规活动" value="regular" />
-            <el-option label="限时活动" value="limited" />
-            <el-option label="重要通知" value="important" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="活动时间" prop="timeRange" v-if="activityForm.type === 'limited'">
-          <el-date-picker
-            v-model="activityForm.timeRange"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            style="width:100%"
-          />
-        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -175,7 +153,6 @@ const activityForm = reactive({
   image: '',
   type: 'regular',
   timeRange: [],
-  status: 'active'
 });
 
 // 获取活动类型标签颜色
@@ -332,14 +309,10 @@ const submitActivityForm = async () => {
         result = await createActivityService(activityData);
       }
       
-      if (result.code === 200) {
         // 保存成功后重新获取最新数据
         await initData();
         ElMessage.success(dialogType.value === 'edit' ? '活动更新成功' : '活动添加成功');
         dialogVisible.value = false;
-      } else {
-        ElMessage.error(result.message || '保存活动失败');
-      }
     } catch (error) {
       console.error('保存活动失败:', error);
       ElMessage.error('保存活动失败，请稍后重试');
