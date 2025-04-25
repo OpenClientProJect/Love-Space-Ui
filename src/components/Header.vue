@@ -117,22 +117,15 @@ import useUserInfoStore  from '@/stores/userInfo'
 import { getUserInfoService } from '@/api/user/user'
 import {
   VideoCamera,
-  Star,
-  Collection,
-  Clock,
   Monitor,
   Menu,
-  HomeFilled,
-  VideoPlay,
   Search,
   ArrowLeft,
   Close,
-  Setting
 } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import eventBus from '@/utils/eventBus'
 import {ElMessage} from "element-plus";
-import Message from '@/assets/iconsvg/message.svg'
 //路由
 const router = useRouter()
 const isScrolled = ref(false)

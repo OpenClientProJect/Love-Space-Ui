@@ -235,10 +235,6 @@ onMounted(() => {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.back-home-btn {
-  margin-top: 20px;
-}
-
 .announcement-container {
   background: white;
   border-radius: 8px;
@@ -363,15 +359,5 @@ onMounted(() => {
   }
 }
 
-.debug-info {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
-  overflow-x: auto;
-  text-align: left;
-  border: 1px solid #ddd;
-}
+
 </style> 

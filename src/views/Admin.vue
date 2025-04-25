@@ -43,7 +43,6 @@
           <AdminVideoManager v-if="currentNav === 'adminVideo'" />
           <AnnouncementManager v-else-if="currentNav === 'announcement'" />
           <HomeImageManager v-else-if="currentNav === 'HomeImg'" />
-          <ActivityManager v-else-if="currentNav === 'activity'" />
         </div>
       </div>
     </div>
@@ -67,7 +66,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Film, Bell, PictureFilled, SwitchButton, Calendar } from '@element-plus/icons-vue'
+import { SwitchButton} from '@element-plus/icons-vue'
 import useUserInfoStore from '@/stores/userInfo'
 import { useTokenStore } from '@/stores/token'
 import LoginDialog from '@/components/LoginDialog.vue'
