@@ -29,6 +29,9 @@
         <div v-if="!isMobile" class="nav-links">
           <router-link to="/" class="nav-item" active-class="active">首页</router-link>
         </div>
+        <div v-if="!isMobile" class="nav-links">
+          <router-link to="/announcements" class="nav-item" active-class="active">公告</router-link>
+        </div>
       </div>
 
       <!-- 中间搜索框 -->

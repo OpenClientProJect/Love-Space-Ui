@@ -52,9 +52,9 @@ const routes = [
     component: () => import('@/views/AnnouncementDetail.vue')
   },
   {
-    path: '/activity',
-    name: 'ActivityDetail',
-    component: () => import('@/views/ActivityDetail.vue')
+    path: '/announcements',
+    name: 'AnnouncementList',
+    component: () => import('@/views/AnnouncementList.vue')
   },
   {
     path: '/messages',

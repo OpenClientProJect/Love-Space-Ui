@@ -2,7 +2,6 @@
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
 import {getAnnouncementListService} from "@/api/Announcement";
-import {getActivityListService} from "@/api/activity";
 import {getHomeImageService, getBackgroundImageService} from "@/api/admin/adminhomeimage";
 import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close, Calendar} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
@@ -160,6 +159,11 @@ const showAnnouncementDetails = (announcement) => {
   router.push(`/announcement/${announcement.announcementId}`)
 }
 
+// 显示公告列表
+const showAnnouncementList = () => {
+  router.push('/announcements')
+}
+
 // 获取轮播图数据
 const getCarouselData = async () => {
   loadingCarousel.value = true
@@ -201,28 +205,9 @@ const getBackgroundData = async () => {
   }
 }
 
-// 获取活动列表
-const getActivityList = async () => {
-  loadingActivities.value = true
-  try {
-    const res = await getActivityListService()
-      activities.value = res.data
-  } catch (error) {
-    console.error('获取活动列表失败:', error)
-  } finally {
-    loadingActivities.value = false
-  }
-}
-
-// 显示活动详情
-const showActivityDetails = (activity) => {
-  router.push('/activity')
-}
-
 onMounted(() => {
   getVideoList()
   getAnnouncementList()
-  getActivityList()
   getCarouselData() // 获取轮播图数据
   getBackgroundData() // 获取背景图数据
 })
@@ -343,42 +328,8 @@ const videoLoaded = (event) => {
       </div>
     </div>
 
-    <!-- 活动栏 -->
-    <div class="activity-bar" v-if="activities.length > 0">
-      <div class="activity-icon">
-        <el-icon><Calendar /></el-icon>
-      </div>
-      <div class="activity-content" v-loading="loadingActivities">
-        <el-carousel 
-          height="36px" 
-          direction="vertical" 
-          :autoplay="true"
-          :interval="3000"
-          indicator-position="none"
-        >
-          <el-carousel-item v-for="item in activities" :key="item.activityId">
-            <div class="activity-container">
-              <div class="activity-text">
-                <span class="activity-label">活动</span>
-                {{ item.title }}
-              </div>
-              <el-button 
-                class="activity-detail-btn" 
-                type="danger" 
-                size="small" 
-                link
-                @click.stop="showActivityDetails(item)"
-              >
-                查看详情
-              </el-button>
-            </div>
-          </el-carousel-item>
-        </el-carousel>
-      </div>
-    </div>
-
     <!-- 公告栏 -->
-    <div class="notice-bar">
+    <div class="notice-bar" @click="showAnnouncementList">
       <div class="notice-icon">
         <el-icon><Bell /></el-icon>
       </div>

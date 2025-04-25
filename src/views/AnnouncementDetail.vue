@@ -1,5 +1,9 @@
 <template>
-  <div class="announcement-detail-page">
+  <div class="announcement-detail-page page-background bg-wave">
+    <div class="top-dots"></div>
+    <div class="side-dots"></div>
+    <div class="bottom-wave"></div>
+    
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-container">
       <el-skeleton :rows="10" animated />
@@ -8,17 +12,22 @@
     <!-- 公告不存在 -->
     <div v-else-if="!announcement" class="empty-state">
       <el-empty description="未找到该公告" />
-      <el-button type="primary" @click="goBack" class="back-home-btn">返回首页</el-button>
+      <div class="action-buttons">
+        <el-button type="primary" @click="goToAnnouncementList" class="list-btn">返回公告列表</el-button>
+      </div>
     </div>
 
     <!-- 公告内容 -->
     <div v-else class="announcement-container">
-        <el-button @click="goBack" class="back-button">
-        <el-icon><ArrowLeft /></el-icon>
-        返回首页
-      </el-button>
+      <div class="action-buttons">
+        <el-button @click="goToAnnouncementList" class="list-button">
+          <el-icon><Back /></el-icon>
+          返回公告列表
+        </el-button>
+      </div>
       <div class="announcement-header">
-        <h1 class="announcement-title">标题：{{ announcement.title }}</h1>
+        <h1 class="announcement-title">{{ announcement.title }}</h1>
+        <div class="announcement-time">发布时间：{{ formatDate(announcement.createTime) }}</div>
       </div>
 
       <div class="announcement-content">
@@ -67,8 +76,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft } from '@element-plus/icons-vue'
+import { ArrowLeft, Back, House } from '@element-plus/icons-vue'
 import { getAnnouncementListService } from '@/api/Announcement'
+import '@/assets/styles/common-bg.css'
 
 const route = useRoute()
 const router = useRouter()
@@ -137,6 +147,11 @@ const formatDate = (timestamp) => {
 // 返回上一页
 const goBack = () => {
   router.push('/')
+}
+
+// 返回公告列表
+const goToAnnouncementList = () => {
+  router.push('/announcements')
 }
 
 // 查看其他公告

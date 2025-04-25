@@ -20,3 +20,10 @@ export const getAnnouncementListService = () =>{
 export const deleteAnnouncementService = (announcementId) =>{
     return request.delete(`/announcement?announcementId=` + announcementId);
 }
+
+/**
+ * 修改公告
+ */
+export const updateAnnouncementService = (data) =>{
+    return request.put("/announcement",data);
+}

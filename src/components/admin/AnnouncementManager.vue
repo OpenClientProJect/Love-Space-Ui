@@ -83,6 +83,15 @@
             <div class="actions-group">
               <el-button
                 size="small" 
+                type="primary"
+                @click="openAnnouncementDialog(true, item)"
+                class="top-action-btn"
+              >
+                <el-icon><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button
+                size="small" 
                 type="danger"
                 @click="deleteAnnouncement(item.announcementId)"
                 class="top-action-btn"
@@ -220,11 +229,12 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {  Plus, Delete, Refresh, VideoPlay } from '@element-plus/icons-vue'
+import {  Plus, Delete, Refresh, VideoPlay, Edit } from '@element-plus/icons-vue'
 import { 
   publishAnnouncementService, 
   getAnnouncementListService, 
   deleteAnnouncementService,
+  updateAnnouncementService
 } from '@/api/Announcement'
 import { useTokenStore } from '@/stores/token'
 import VideoFill from '@/assets/iconsvg/video_fill.svg'
@@ -363,7 +373,11 @@ const submitForm = () => {
         
         if (isEdit.value) {
           // 调用更新API
-          result = await updateAnnouncementService(currentId.value, form.value);
+          const updateData = {
+            announcementId: currentId.value,
+            ...form.value
+          };
+          result = await updateAnnouncementService(updateData);
         } else {
           // 调用新增API
           result = await publishAnnouncementService(form.value);
@@ -371,14 +385,8 @@ const submitForm = () => {
         
         if (result.code === 200) {
           if (isEdit.value) {
-            const index = announcements.value.findIndex(item => item.announcementId === currentId.value);
-            if (index !== -1) {
-              announcements.value[index] = {
-                ...form.value,
-                announcementId: currentId.value,
-                updateTime: new Date().toISOString()
-              };
-            }
+            // 更新成功后刷新列表
+            await loadAnnouncements();
             ElMessage.success('公告更新成功');
           } else {
             // 添加新发布的公告到列表

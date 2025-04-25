@@ -74,7 +74,6 @@ import LoginDialog from '@/components/LoginDialog.vue'
 import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
 import HomeImageManager from '@/components/admin/HomeImageManager.vue'
-import ActivityManager from '@/components/admin/ActivityManager.vue'
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -86,7 +85,6 @@ const navItems = [
   {name: 'adminVideo', label: '视频审核', icon: 'Film', count: 0},
   {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
   {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0},
-  {name: 'activity', label: '活动公告', icon: 'Calendar', count: 0}
 ]
 
 // 计算属性：是否已登录
