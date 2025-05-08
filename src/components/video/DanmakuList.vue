@@ -146,7 +146,7 @@ watch(() => danmakuList.value, (newList) => {
     
     .list-icon {
       font-size: 18px;
-      color: #00aeec;
+      color: #9E96C5;
     }
   }
   

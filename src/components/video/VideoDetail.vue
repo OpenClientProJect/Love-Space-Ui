@@ -22,7 +22,7 @@
               <!-- 视频标题和统计信息 -->
               <h1 class="video-title">{{ videoInfo.title }}</h1>
               <div class="video-stats">
-                <span class="view-count">100W 播放</span>
+<!--                <span class="view-count">{{ video.viewCount }}播放</span>-->
                 <span class="bullet">·</span>
                 <span class="date">发布于 {{ formatDate(videoInfo.createTime) }}</span>
               </div>
@@ -143,7 +143,10 @@
                       @close="showEmojiPicker = false"
                   />
                 </div>
-                <el-button type="primary" :disabled="!commentContent.trim()" @click="submitComment">
+                <el-button type="primary" :disabled="!commentContent.trim()" @click="submitComment"
+                           style="background-color: #6C679B;
+                           border-color: transparent;
+">
                   发布评论
                 </el-button>
               </div>
@@ -253,7 +256,7 @@
             />
             <div class="uploader-info" @click="goToUserHome">
               <div class="nickname">{{ videoInfo.nickname }}</div>
-              <div class="fans-count">100粉丝</div>
+              <div class="fans-count">{{ videoInfo.fansCount || 0 }}粉丝</div>
             </div>
           </div>
           <H5>UP主简介：</H5>
@@ -294,7 +297,7 @@
         <!-- 添加弹幕列表 -->
         <DanmakuList :videoId="videoId"/>
 
-        <h3 class="recommend-title">相关推荐</h3>
+<!--        <h3 class="recommend-title">相关推荐</h3>-->
         <div class="recommend-list">
           <div v-for="video in recommendVideos" :key="video.id" class="recommend-item">
             <div class="recommend-cover">
@@ -993,7 +996,7 @@ watch(isLogin, async (newVal) => {
 }
 
 .uploader-info:hover .nickname {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .nickname {
@@ -1007,7 +1010,7 @@ watch(isLogin, async (newVal) => {
 }
 
 .nickname :deep(.uploader-icon) {
-  color: #fb7299;
+  color: #6C679B;
   transform: scale(0.9);
 }
 
@@ -1020,7 +1023,7 @@ watch(isLogin, async (newVal) => {
 }
 
 .fans-count .count {
-  color: #fb7299;
+  color: #6C679B;
   font-weight: 500;
 }
 
@@ -1035,7 +1038,7 @@ watch(isLogin, async (newVal) => {
   overflow: hidden;
   position: relative;
   padding-left: 12px;
-  border-left: 3px solid #fb7299;
+  border-left: 3px solid #6C679B;
   background: #fafafa;
   padding: 12px;
   border-radius: 8px;
@@ -1062,13 +1065,13 @@ watch(isLogin, async (newVal) => {
   font-weight: 500;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: #00aeec;
-  border: 1px solid #00aeec;
+  background: #9E96C5;
+  border: 1px solid #9E96C5;
   color: #fff;
 
   &:hover {
-    background: #33bfef;
-    border-color: #33bfef;
+    background: #D0CAEC;
+    border-color: #D0CAEC;
     color: #fff;
     transform: translateY(-1px);
   }
@@ -1144,7 +1147,7 @@ watch(isLogin, async (newVal) => {
   .uploader-desc {
     color: #9499a0;
     background: #18191c;
-    border-left-color: #fb7299;
+    border-left-color: #6C679B;
   }
 
   .message-btn {
@@ -1160,13 +1163,13 @@ watch(isLogin, async (newVal) => {
 
   .follow-btn {
     &:not(.is-followed) {
-      background: #00aeec;
-      border-color: #00aeec;
+      background: #9E96C5;
+      border-color: #9E96C5;
       color: #fff;
 
       &:hover {
-        background: #33bfef;
-        border-color: #33bfef;
+        background: #D0CAEC;
+        border-color: #D0CAEC;
       }
 
       .follow-icon {
@@ -1264,7 +1267,7 @@ watch(isLogin, async (newVal) => {
 }
 
 .close-reply:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .reply-input-wrapper {
@@ -1315,7 +1318,7 @@ watch(isLogin, async (newVal) => {
 .reply-user {
   font-size: 13px;
   font-weight: 500;
-  color: #fb7299;
+  color: #6C679B;
   margin-bottom: 4px;
   display: flex;
   align-items: center;
@@ -1395,7 +1398,7 @@ watch(isLogin, async (newVal) => {
 }
 
 :deep(.el-textarea__inner:focus) {
-  border-color: #fb7299;
+  border-color: #6C679B;
   box-shadow: 0 0 0 2px rgba(251, 114, 153, 0.1);
 }
 
@@ -1419,7 +1422,7 @@ watch(isLogin, async (newVal) => {
 
   &:hover {
     background: #f4f5f7;
-    color: #fb7299;
+    color: #6C679B;
   }
 }
 
@@ -1461,7 +1464,7 @@ watch(isLogin, async (newVal) => {
 .comment-user {
   font-size: 14px;
   font-weight: 500;
-  color: #fb7299;
+  color: #6C679B;
   margin-bottom: 6px;
   display: flex;
   align-items: center;
@@ -1501,7 +1504,7 @@ watch(isLogin, async (newVal) => {
   transition: all 0.3s;
 
   &:hover {
-    color: #fb7299;
+    color: #6C679B;
   }
 
   :deep(.el-icon) {
@@ -1533,7 +1536,7 @@ watch(isLogin, async (newVal) => {
     color: #e5e7eb;
 
     &:focus {
-      border-color: #fb7299;
+      border-color: #6C679B;
       box-shadow: 0 0 0 2px rgba(251, 114, 153, 0.2);
     }
   }
@@ -1686,7 +1689,7 @@ watch(isLogin, async (newVal) => {
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #61666d;
+  color: #9e96c5;
   transition: all 0.3s ease;
   cursor: pointer;
   font-size: 16px;
@@ -1702,22 +1705,22 @@ watch(isLogin, async (newVal) => {
 
 /* 激活状态下的图标颜色 */
 .action-btn.is-active .action-icon {
-  /* 蓝色滤镜 (#00a1d6) */
-  filter: invert(47%) sepia(87%) saturate(1654%) hue-rotate(165deg) brightness(99%) contrast(96%);
+  /* 紫色滤镜 (#9E96C5) */
+  filter: invert(63%) sepia(24%) saturate(470%) hue-rotate(211deg) brightness(91%) contrast(88%);
 }
 
 /* 悬浮状态下的图标颜色 */
 .action-btn:hover .action-icon {
-  /* 蓝色滤镜 (#00a1d6) */
-  filter: invert(47%) sepia(87%) saturate(1654%) hue-rotate(165deg) brightness(99%) contrast(96%);
+  /* 紫色滤镜 (#9E96C5) */
+  filter: invert(63%) sepia(24%) saturate(470%) hue-rotate(211deg) brightness(91%) contrast(88%);
 }
 
 .action-btn:hover {
-  color: #00a1d6;
+  color: #9E96C5;
 }
 
 .action-btn.is-active {
-  color: #00a1d6;
+  color: #9E96C5;
 }
 
 /* 暗色模式支持 */
@@ -1728,11 +1731,11 @@ watch(isLogin, async (newVal) => {
   }
 
   .action-btn:hover {
-    color: #00a1d6;
+    color: #9E96C5;
   }
 
   .action-btn.is-active {
-    color: #00a1d6;
+    color: #9E96C5;
   }
 }
 

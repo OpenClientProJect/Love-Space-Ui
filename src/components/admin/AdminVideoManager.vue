@@ -158,21 +158,17 @@ import VideoFill from '@/assets/iconsvg/video_fill.svg'
 
 // 视频分类列表
 const categories = ref([
-  { id: 1, name: '动画' },
-  { id: 2, name: '番剧' },
-  { id: 3, name: '国创' },
-  { id: 4, name: '音乐' },
-  { id: 5, name: '舞蹈' },
-  { id: 6, name: '游戏' },
-  { id: 7, name: '知识' },
-  { id: 8, name: '科技' },
-  { id: 9, name: '运动' },
-  { id: 10, name: '生活' },
-  { id: 11, name: '美食' },
-  { id: 12, name: '动物' },
-  { id: 13, name: '鬼畜' },
-  { id: 14, name: '时尚' },
-  { id: 15, name: '娱乐' }
+  { id: 1, name: '多人' },
+  { id: 2, name: '沈星回' },
+  { id: 3, name: '黎深' },
+  { id: 4, name: '祁煜' },
+  { id: 5, name: '秦彻' },
+  { id: 6, name: '夏以昼' },
+  { id: 7, name: '流浪体' },
+  { id: 8, name: 'npc' },
+  { id: 9, name: '深网' },
+  { id: 10, name: '猎人锦标赛' },
+  { id: 11, name: '定向轨道' }
 ])
 
 // 获取分类名称
@@ -620,8 +616,8 @@ onMounted(() => {
 .category-tag {
   display: inline-flex;
   align-items: center;
-  background-color: #fb729915;
-  color: #fb7299;
+  background-color: #6C679B15;
+  color: #6C679B;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -633,7 +629,7 @@ onMounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #fb7299;
+  background-color: #6C679B;
   margin-right: 4px;
 }
 
@@ -688,21 +684,21 @@ onMounted(() => {
 
 /* Element Plus 主题覆盖 */
 :deep(.el-button--primary) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
-  background-color: #fb7299;
+  background-color: #6C679B;
 }
 
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled):hover) {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 :deep(.el-button--success) {
@@ -762,5 +758,27 @@ onMounted(() => {
 .filter-select {
   width: 120px;
   margin-right: 10px;
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style> 

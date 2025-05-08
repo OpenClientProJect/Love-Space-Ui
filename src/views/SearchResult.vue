@@ -82,7 +82,7 @@
               <div class="uploader-info">
                 <el-avatar
                     :size="24"
-                    :src="item.userPic || 'https://i0.hdslb.com/bfs/face/default.jpg'"
+                    :src="item.userPic || 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'"
                 />
                 <span class="uploader-name">{{ item.username || '用户未设置昵称' }}</span>
                 <span class="upload-time">
@@ -280,7 +280,7 @@ onMounted(() => {
       position: relative;
 
       &.active {
-        color: #00aeec;
+        color: #9E96C5;
         font-weight: 500;
 
         &::after {
@@ -290,7 +290,7 @@ onMounted(() => {
           left: 0;
           width: 100%;
           height: 2px;
-          background-color: #00aeec;
+          background-color: #9E96C5;
         }
       }
 
@@ -330,7 +330,7 @@ onMounted(() => {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
       .video-title {
-        color: #00aeec;
+        color: #9E96C5;
       }
     }
 
@@ -471,8 +471,8 @@ onMounted(() => {
       border-radius: 4px;
 
       &:hover {
-        color: #00aeec;
-        border-color: #00aeec;
+        color: #9E96C5;
+        border-color: #9E96C5;
       }
 
       &.is-disabled {
@@ -506,20 +506,20 @@ onMounted(() => {
         border-radius: 4px;
 
         &:hover {
-          color: #00aeec;
-          border-color: #00aeec;
+          color: #9E96C5;
+          border-color: #9E96C5;
         }
 
         &.active {
-          background-color: #00aeec;
+          background-color: #9E96C5;
           color: #fff;
-          border-color: #00aeec;
+          border-color: #9E96C5;
         }
 
         &.is-active {
-          background-color: #00aeec;
+          background-color: #9E96C5;
           color: #fff;
-          border-color: #00aeec;
+          border-color: #9E96C5;
         }
       }
     }

@@ -20,10 +20,7 @@
         <div class="video-title">{{ video.title }}</div>
         <div class="video-info">
           <div class="uploader">
-            <span class="up-tag">
-              <img src="../assets/iconsvg/up.svg" style="width: 20px" alt="">
-            </span>
-            <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+            <img :src="video.userPic || 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'"
                  class="user-avatar">
             <span class="username">{{ video.nickname }}</span>
           </div>
@@ -57,10 +54,18 @@ defineEmits(['video-click'])
 <style scoped>
 .category-content {
   margin-top: 20px;
-  background: #fff;
+
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.22); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
+
 }
 
 .category-header {

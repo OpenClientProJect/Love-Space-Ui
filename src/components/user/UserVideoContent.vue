@@ -2,7 +2,8 @@
   <div class="video-content">
     <!-- 空状态 -->
     <div class="empty-state" v-if="!hasContent">
-      <el-empty :description="emptyText">
+      <el-empty :description="emptyText"
+                :image="emptyImge">
         <template #description>
           <p class="empty-text">{{ emptyText }}</p>
         </template>
@@ -162,7 +163,7 @@
           <el-button type="primary" @click="isEdit ? updateVideo() : submitForm()">
             {{ isEdit ? '修改' : '发布' }}
           </el-button>
-          <el-button @click="resetForm">重置</el-button>
+          <el-button @click="resetForm" style="color: #6C679B">重置</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -192,6 +193,7 @@ import eventBus from '@/utils/eventBus'
 
 const tokenStore = useTokenStore()
 const emptyText = '还没有发布过视频哦'
+const emptyImge='https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'
 
 // 视频列表数据
 const videos = ref([])
@@ -230,21 +232,17 @@ const rules = {
 
 // 视频分类列表
 const categories = ref([
-  { id: 1, name: '动画' },
-  { id: 2, name: '番剧' },
-  { id: 3, name: '国创' },
-  { id: 4, name: '音乐' },
-  { id: 5, name: '舞蹈' },
-  { id: 6, name: '游戏' },
-  { id: 7, name: '知识' },
-  { id: 8, name: '科技' },
-  { id: 9, name: '运动' },
-  { id: 10, name: '生活' },
-  { id: 11, name: '美食' },
-  { id: 12, name: '动物' },
-  { id: 13, name: '鬼畜' },
-  { id: 14, name: '时尚' },
-  { id: 15, name: '娱乐' }
+  { id: 1, name: '多人' },
+  { id: 2, name: '沈星回' },
+  { id: 3, name: '黎深' },
+  { id: 4, name: '祁煜' },
+  { id: 5, name: '秦彻' },
+  { id: 6, name: '夏以昼' },
+  { id: 7, name: '流浪体' },
+  { id: 8, name: 'npc' },
+  { id: 9, name: '深网' },
+  { id: 10, name: '猎人锦标赛' },
+  { id: 11, name: '定向轨道' }
 ])
 
 // 获取用户视频列表
@@ -366,10 +364,10 @@ const handleVideoSuccess = (response) => {
 }
 
 const beforeVideoUpload = (file) => {
-  const isLt500M = file.size / 1024 / 1024 < 20
+  const isLt500M = file.size / 1024 / 1024 < 50
 
   if (!isLt500M) {
-    ElMessage.error('视频大小不能超过 20Mb!')
+    ElMessage.error('视频大小不能超过 50Mb!')
     return false
   }
   return true
@@ -516,7 +514,7 @@ const getCategoryName = (categoryId) => {
 
 .action-icon:hover {
   background-color: #f5f5f5;
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .pagination-container {
@@ -537,7 +535,7 @@ const getCategoryName = (categoryId) => {
 }
 
 .cover-uploader :deep(.el-upload:hover) {
-  border-color: #fb7299;
+  border-color: #6C679B;
 }
 
 .cover-preview {
@@ -563,7 +561,7 @@ const getCategoryName = (categoryId) => {
 }
 
 .video-upload-box:hover {
-  border-color: #fb7299;
+  border-color: #6C679B;
 }
 
 .upload-icon {
@@ -607,21 +605,21 @@ const getCategoryName = (categoryId) => {
 
 /* Element Plus 主题覆盖 */
 :deep(.el-button--primary) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #9e96c5;
+  border-color: #9e96c5;
 }
 
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
-  background-color: #fb7299;
+  background-color: #6C679B;
 }
 
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled):hover) {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 /* 空状态样式 */
@@ -677,24 +675,35 @@ const getCategoryName = (categoryId) => {
 }
 
 :deep(.el-select .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px #fb7299 inset;
+  box-shadow: 0 0 0 1px #6C679B inset;
 }
 
 :deep(.el-select .el-input__wrapper:hover) {
-  box-shadow: 0 0 0 1px #fb7299 inset;
+  box-shadow: 0 0 0 1px #6C679B inset;
 }
 
 :deep(.el-select-dropdown__item.selected) {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 /* 使分类标签更加醒目 */
 .video-meta .category-tag {
-  background-color: #fb729930;
-  color: #fb7299;
+  background-color: #6C679B30;
+  color: #6C679B;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   margin-right: 8px;
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style> 

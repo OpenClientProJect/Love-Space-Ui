@@ -18,9 +18,8 @@
       <div class="left-section">
         <div class="logo" @click="router.push('/')">
           <div class="tv-icon">
-            <el-icon><Monitor /></el-icon>
           </div>
-          <span class="logo-text">哔哩哔哩</span>
+          <span class="logo-text">临空市</span>
         </div>
         <!-- 移动端菜单按钮 -->
         <div v-if="isMobile" class="mobile-menu-btn" @click="showMobileMenu = true">
@@ -31,6 +30,9 @@
         </div>
         <div v-if="!isMobile" class="nav-links">
           <router-link to="/announcements" class="nav-item" active-class="active">公告</router-link>
+        </div>
+        <div v-if="!isMobile" class="nav-links">
+          <router-link to="/creator" class="nav-item" active-class="active">创作者</router-link>
         </div>
       </div>
 
@@ -52,10 +54,10 @@
         <div class="user-info">
           <UserPopover v-if="isLogin" />
           <div v-else class="user-avatar" @click="showLoginDialog">
-            <el-avatar :size="42" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+            <el-avatar :size="42" src="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg" />
           </div>
           <div v-if="!isMobile" class="user-icons">
-            <el-icon @click="goToMessages"><img src="@/assets/iconsvg/message.svg" style="width: 20px; "></el-icon>
+            <el-icon @click="goToMessages"><img src="@/assets/iconsvg/message.svg" style="width: 20px;"></el-icon>
           </div>
         </div>
         <div class="upload-section" v-if="!isMobile && !isUploadPage">
@@ -65,6 +67,7 @@
           </el-button>
         </div>
       </div>
+
     </div>
 
     <!-- 移动端菜单抽屉 -->
@@ -84,7 +87,7 @@
           <UserPopover />
         </div>
         <div class="mobile-user-info" v-else @click="showLoginDialog">
-          <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+          <el-avatar :size="50" src="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg" />
           <span>点击登录</span>
         </div>
         <div class="mobile-nav-links">
@@ -281,7 +284,7 @@ const isUploadPage = computed(() => {
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: transparent;
+  background-color: rgba(190, 208, 249, 0.67);
   transition: all 0.3s ease;
 }
 
@@ -373,7 +376,7 @@ const isUploadPage = computed(() => {
 }
 
 .header:not(.header-scrolled) .user-avatar:hover {
-  background-color: rgba(241, 242, 243, 0.1);
+  background-color: rgba(158, 150, 197, 0.3);
 }
 
 .header-scrolled .user-avatar:hover {
@@ -406,7 +409,7 @@ const isUploadPage = computed(() => {
 }
 
 .user-icons .el-icon:hover {
-  color: #00aeec;
+  color: #6C679B;
   background-color: rgba(241, 242, 243, 0.1);
 }
 
@@ -429,18 +432,18 @@ const isUploadPage = computed(() => {
   border-radius: 6px;
   font-size: 14px;
   font-weight: normal;
-  background-color: rgba(251, 114, 153, 0.9);
+  background-color: #CBC5E7;
   border-color: transparent;
   backdrop-filter: blur(4px);
   color: #fff;
 }
 
 .header-scrolled .upload-btn {
-  background-color: #fb7299;
+  background-color: #CBC5E7;
 }
 
 .message-badge :deep(.el-badge__content) {
-  background-color: #fb7299;
+  background-color: #CBC5E7;
   border: none;
   transform: translate(30%, -30%);
 }
@@ -461,20 +464,16 @@ const isUploadPage = computed(() => {
 }
 
 .tv-icon {
-  background-color: #fb7299;
-  width: 28px;
+  background-image: url("../assets/Logo/logo1.png");
+  background-size: cover; /* 让背景图片覆盖整个元素 */
+  background-position: center; /* 背景图片居中显示 */
+  width: 40px;
   height: 28px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.tv-icon .el-icon {
-  font-size: 20px;
-  color: white;
-}
-
 .logo-text {
   font-size: 20px;
   font-weight: bold;
@@ -518,11 +517,11 @@ const isUploadPage = computed(() => {
 }
 
 .nav-item:hover {
-  color: #fb7299;
+  color: #CBC5E7;
 }
 
 .nav-item.active {
-  color: #fb7299;
+  color: #CBC5E7;
 }
 
 .nav-item.active::after {
@@ -532,7 +531,7 @@ const isUploadPage = computed(() => {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #fb7299;
+  background-color: #CBC5E7;
   transform: translateY(-1px);
 }
 
@@ -549,21 +548,21 @@ const isUploadPage = computed(() => {
 }
 
 :deep(.el-menu--horizontal > .el-menu-item.is-active) {
-  border-bottom: 2px solid #fb7299;
-  color: #fb7299;
+  border-bottom: 2px solid #CBC5E7;
+  color: #CBC5E7;
   font-weight: bold;
   transform: translateY(-1px);
 }
 
 :deep(.el-button--primary) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #CBC5E7;
+  border-color: #CBC5E7;
   color: #fff;
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-avatar) {
@@ -791,11 +790,11 @@ const isUploadPage = computed(() => {
   }
 
   &.router-link-active {
-    color: #fb7299;
+    color: #CBC5E7;
     background-color: #fff1f5;
 
     .el-icon {
-      color: #fb7299;
+      color: #CBC5E7;
     }
   }
 }
@@ -828,7 +827,7 @@ const isUploadPage = computed(() => {
 }
 
 .header-scrolled .admin-icon {
-  color: #fb7299;
+  color: #CBC5E7;
   background-color: rgba(251, 114, 153, 0.1);
 }
 

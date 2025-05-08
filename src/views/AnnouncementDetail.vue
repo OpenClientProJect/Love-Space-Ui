@@ -1,7 +1,7 @@
 <template>
-  <div class="announcement-detail-page page-background bg-wave">
+  <div class="page-background bg-wave">
+  <div class="announcement-detail-page ">
     <div class="top-dots"></div>
-    <div class="side-dots"></div>
     <div class="bottom-wave"></div>
     
     <!-- 加载状态 -->
@@ -36,21 +36,21 @@
 
       <!-- 图片展示 -->
       <div v-if="announcement.imageUrl" class="media-section">
-        <el-image 
-          :src="announcement.imageUrl" 
-          :preview-src-list="[announcement.imageUrl]"
-          fit="contain"
-          class="announcement-image"
-        />
+        <div class="image-scroll-container">
+          <img :src="announcement.imageUrl" class="scrollable-image" @click="openImageViewer(announcement.imageUrl)" />
+        </div>
       </div>
 
       <!-- 视频展示 -->
       <div v-if="announcement.videoUrl" class="media-section">
-        <video 
-          :src="announcement.videoUrl"
-          controls
-          class="announcement-video"
-        ></video>
+        <div class="video-container">
+          <video 
+            :src="announcement.videoUrl"
+            controls
+            class="announcement-video"
+            preload="metadata"
+          ></video>
+        </div>
       </div>
     </div>
 
@@ -69,13 +69,21 @@
         </div>
       </div>
     </div>
+
+    <!-- 图片查看器 -->
+    <el-image-viewer
+      v-if="imageViewerVisible"
+      :url-list="[previewImage]"
+      @close="closeImageViewer"
+    ></el-image-viewer>
+  </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElImageViewer } from 'element-plus'
 import { ArrowLeft, Back, House } from '@element-plus/icons-vue'
 import { getAnnouncementListService } from '@/api/Announcement'
 import '@/assets/styles/common-bg.css'
@@ -86,6 +94,10 @@ const announcementId = ref(null)
 const announcement = ref(null)
 const relatedAnnouncements = ref([])
 const loading = ref(true)
+
+// 图片预览相关
+const imageViewerVisible = ref(false)
+const previewImage = ref('')
 
 // 添加开发环境标志
 const isDev = computed(() => {
@@ -165,6 +177,17 @@ const viewAnnouncement = (id) => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+// 打开图片查看器
+const openImageViewer = (imageUrl) => {
+  previewImage.value = imageUrl
+  imageViewerVisible.value = true
+}
+
+// 关闭图片查看器
+const closeImageViewer = () => {
+  imageViewerVisible.value = false
+}
+
 // 组件挂载时获取数据
 onMounted(() => {
   // 从路由参数获取公告ID - 使用announcementId
@@ -184,11 +207,18 @@ onMounted(() => {
 
 <style scoped>
 .announcement-detail-page {
-  max-width: 1000px;
+  max-width: 65%;
   margin: 0 auto;
-  padding: 20px;
-  background-color: #f8f9fa;
+/*  background-color: #f8f9fa;*/
   min-height: calc(100vh - 120px);
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.44); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
 }
 
 .header-bar {
@@ -240,6 +270,7 @@ onMounted(() => {
   border-radius: 8px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
 }
 
 .announcement-header {
@@ -271,20 +302,68 @@ onMounted(() => {
 }
 
 .media-section {
-  margin: 20px 0;
+  margin: 30px auto;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;
 }
 
-.announcement-image {
+.image-scroll-container {
   max-width: 100%;
-  max-height: 500px;
-  border-radius: 4px;
+  position: relative;
+  margin: 0 auto;
+  border-radius: 8px;
+  overflow-y: auto;
+  max-height: 600px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+}
+
+.scrollable-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: zoom-in;
+}
+
+.scroll-tip {
+  margin-top: 10px;
+  color: #909399;
+  font-size: 14px;
+}
+
+/* 自定义滚动条样式 */
+.image-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.image-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.image-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: #bbb;
+}
+
+/* 视频容器样式 */
+.video-container {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 800px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .announcement-video {
-  max-width: 100%;
-  max-height: 500px;
-  border-radius: 4px;
+  width: 100%;
+  display: block;
   background-color: black;
 }
 
@@ -357,7 +436,45 @@ onMounted(() => {
   .announcement-content {
     font-size: 15px;
   }
+  
+  .media-section {
+    margin: 20px auto;
+    max-width: 100%;
+  }
+  
+  .image-scroll-container {
+    max-height: 500px;
+  }
+  
+  .related-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .related-time {
+    margin-left: 0;
+  }
 }
 
-
+@media (max-width: 480px) {
+  .announcement-image {
+    max-height: 450px;
+  }
+  
+  .announcement-container {
+    padding: 15px;
+  }
+  
+  .image-scroll-container {
+    max-height: 400px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+}
 </style> 

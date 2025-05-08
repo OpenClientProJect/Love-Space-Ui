@@ -35,7 +35,7 @@
     <div class="dialog-content">
       <!-- 左侧图片 -->
       <div class="left-section" v-if="!isMobile">
-        <img src="../assets/imge/login.jpg" alt="login-banner"/>
+        <img src="../assets/imge/11.jpeg" alt="login-banner"/>
       </div>
 
       <!-- 右侧登录表单 -->
@@ -71,22 +71,22 @@
           </el-form>
 
           <!-- 其他登录方式（仅在登录视图显示） -->
-          <div class="other-login">
-            <div class="divider">
-              <span>其他登录方式</span>
-            </div>
-            <div class="login-icons">
-              <el-icon class="icon">
-                <Position/>
-              </el-icon>
-              <el-icon class="icon">
-                <ChatDotRound/>
-              </el-icon>
-              <el-icon class="icon">
-                <Apple/>
-              </el-icon>
-            </div>
-          </div>
+<!--          <div class="other-login">-->
+<!--            <div class="divider">-->
+<!--              <span>其他登录方式</span>-->
+<!--            </div>-->
+<!--            <div class="login-icons">-->
+<!--              <el-icon class="icon">-->
+<!--                <Position/>-->
+<!--              </el-icon>-->
+<!--              <el-icon class="icon">-->
+<!--                <ChatDotRound/>-->
+<!--              </el-icon>-->
+<!--              <el-icon class="icon">-->
+<!--                <Apple/>-->
+<!--              </el-icon>-->
+<!--            </div>-->
+<!--          </div>-->
 
           <!-- 注册提示（仅在登录视图显示） -->
           <div class="register-tip">
@@ -508,7 +508,7 @@ onUnmounted(() => {
 }
 
 .tab-item.active {
-  color: #fb7299;
+  color: #6C679B;
   font-weight: 600;
 }
 
@@ -519,7 +519,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #fb7299;
+  background-color: #6C679B;
 }
 
 .close-btn {
@@ -652,7 +652,7 @@ onUnmounted(() => {
 }
 
 .login-icons .icon:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .register-tip,
@@ -664,14 +664,14 @@ onUnmounted(() => {
 
 .register-link,
 .login-link {
-  color: #00aeec;
+  color: #9E96C5;
   cursor: pointer;
   font-weight: 600;
 }
 
 .register-link:hover,
 .login-link:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 :deep(.el-input__wrapper) {
@@ -709,7 +709,7 @@ onUnmounted(() => {
 }
 
 .login-form :deep(.el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px #fb7299;
+  box-shadow: 0 0 0 1px #6C679B;
 }
 
 .login-form :deep(.el-input__inner) {
@@ -747,7 +747,7 @@ onUnmounted(() => {
 }
 
 .login-form :deep(.el-input__wrapper:hover) {
-  box-shadow: 0 0 0 1px #fb7299;
+  box-shadow: 0 0 0 1px #6C679B;
 }
 
 .login-form :deep(.el-input__wrapper input) {
@@ -786,13 +786,13 @@ onUnmounted(() => {
 }
 
 .send-code-btn:not(:disabled) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 .send-code-btn:not(:disabled):hover {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 /* 加载动画样式 */
@@ -852,8 +852,8 @@ onUnmounted(() => {
   }
 
   .send-code-btn:not(:disabled) {
-    background-color: #fb7299;
-    border-color: #fb7299;
+    background-color: #6C679B;
+    border-color: #6C679B;
   }
 
   .send-code-btn :deep(.el-loading-spinner .path) {
@@ -865,7 +865,7 @@ onUnmounted(() => {
   }
 
   .close-btn:hover  {
-    background-color: #fb7299;
+    background-color: #6C679B;
   }
 
   .custom-close img {
@@ -1007,7 +1007,7 @@ onUnmounted(() => {
 }
 
 .forget-pwd {
-  color: #00aeec;
+  color: #9E96C5;
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
@@ -1015,7 +1015,7 @@ onUnmounted(() => {
 }
 
 .forget-pwd:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 /* 添加新样式 */
@@ -1034,17 +1034,17 @@ onUnmounted(() => {
 }
 
 .send-code-btn:not(:disabled) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 .send-code-btn:not(:disabled):hover {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 .forget-pwd {
-  color: #00aeec;
+  color: #9E96C5;
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
@@ -1052,7 +1052,7 @@ onUnmounted(() => {
 }
 
 .forget-pwd:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 /* 添加移动端适配样式 */
@@ -1264,5 +1264,17 @@ onUnmounted(() => {
   left: 0;
   overflow: hidden;
   z-index: 2000;
+}
+
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style>

@@ -1,7 +1,6 @@
 <template>
   <div class="message-center page-background bg-wave">
     <div class="top-dots"></div>
-    <div class="side-dots"></div>
     <div class="bottom-wave"></div>
     
     <!-- 左侧菜单 -->
@@ -90,7 +89,7 @@
           </div>
         </div>
       </div>
-      <el-empty v-else description="暂无消息"></el-empty>
+      <el-empty v-else image="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg" description="暂无消息" ></el-empty>
     </div>
   </div>
 </template>
@@ -101,7 +100,6 @@ import { useTokenStore } from '@/stores/token'
 import { useRouter } from 'vue-router'
 import { getUserMessageListService } from '@/api/user/usermessage'
 import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
 import {formatDate} from "@/utils/format";
 import '@/assets/styles/common-bg.css'
 
@@ -271,14 +269,15 @@ const handleMenuSelect = (key) => {
 <style scoped>
 .message-center {
   display: flex;
-  max-width: 1200px;
-  margin: 80px auto 40px;
+  max-width: 95%;
+  margin-left: 10px;
   padding: 0 20px;
+  margin-top: 10px;
 }
 
 .message-sidebar {
   width: 200px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   margin-right: 20px;
@@ -286,14 +285,28 @@ const handleMenuSelect = (key) => {
 
 .message-menu {
   border-right: none;
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.22); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
 }
 
 .message-content-area {
   flex: 1;
-  background-color: #fff;
+  margin-top: 5px;
+  background-color: rgba(158, 150, 197, 0.47);
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   padding: 20px;
+  backdrop-filter: blur(5px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0); /* 半透明边框 */
 }
 
 .message-header {
@@ -303,7 +316,7 @@ const handleMenuSelect = (key) => {
 .message-header h2 {
   font-size: 24px;
   font-weight: bold;
-  color: #18191c;
+  color: #fbfbfb;
 }
 
 .message-list {
@@ -337,17 +350,17 @@ const handleMenuSelect = (key) => {
 
 .message-username {
   font-weight: bold;
-  color: #18191c;
+  color: #ffffff;
 }
 
 .message-time {
-  color: #9499a0;
+  color: #ffffff;
   font-size: 14px;
 }
 
 .message-text {
   margin-bottom: 12px;
-  color: #18191c;
+  color: #3c3a3e;
   line-height: 1.5;
 }
 
@@ -432,12 +445,12 @@ const handleMenuSelect = (key) => {
 }
 
 .message-badge :deep(.el-badge__content) {
-  background-color: #fb7299;
+  background-color: #CBC5E7;
   border: none;
 }
 
 .system-message .message-username {
-  color: #fb7299;
+  color: #CBC5E7;
 }
 
 /* 响应式样式 */

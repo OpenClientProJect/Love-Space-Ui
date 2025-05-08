@@ -1,12 +1,11 @@
 <template>
-  <div class="announcement-list-page page-background bg-wave">
-    <div class="top-dots"></div>
-    <div class="side-dots"></div>
-    <div class="bottom-wave"></div>
+  <div class="announcement-list-page  bg-wave">
+<!--    <div class="top-dots"></div>-->
+<!--    <div class="bottom-wave"></div>-->
     
     <div class="announcement-list-container">
       <div class="header-section">
-        <h1 class="page-title">公告列表</h1>
+        <h1 class="page-title">公告</h1>
         <el-button @click="goBack" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
           返回首页
@@ -39,7 +38,8 @@
                   <p class="carousel-desc">{{ getAnnouncementSnippet(item.text) }}</p>
                   <div class="carousel-meta">
                     <span class="carousel-time">{{ formatDate(item.createTime) }}</span>
-                    <el-button size="small" type="primary">查看详情</el-button>
+                    <el-button size="small" type="primary" style="background-color: #9E96C5;
+                    border-color: #9E96C5;">查看详情</el-button>
                   </div>
                 </div>
               </div>
@@ -67,11 +67,13 @@
                 </div>
               </div>
               <div class="announcement-action">
-                <el-button type="primary" size="small" plain>查看详情</el-button>
+                <el-button type="primary" size="small" plain style="background-color:rgb(158,150,197);
+                color: #ffffff;
+                border-color: #9E96C5;">查看详情</el-button>
               </div>
             </div>
           </div>
-          
+
           <!-- 分页器 -->
           <div class="pagination-container">
             <el-pagination
@@ -80,13 +82,13 @@
               layout="prev, pager, next"
               :total="announcements.length"
               @current-change="handlePageChange"
-              background
-            />
+            ></el-pagination>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -163,8 +165,8 @@ const getCarouselBackground = (announcement) => {
   }
   // 默认背景色
   return {
-    backgroundColor: '#409EFF',
-    backgroundImage: 'linear-gradient(135deg, #409EFF 0%, #36cfc9 100%)'
+    backgroundColor: '#9E96C5',
+    backgroundImage: 'linear-gradient(135deg, #9E96C5 0%, #36cfc9 100%)'
   }
 }
 
@@ -313,12 +315,19 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.22); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
+
 }
 
 .announcement-item:hover {
@@ -345,7 +354,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #909399;
+  color: rgba(236, 236, 236, 0.88);
   font-size: 13px;
 }
 
@@ -362,8 +371,8 @@ onMounted(() => {
 .media-tag {
   display: inline-flex;
   align-items: center;
-  background-color: #fb729915;
-  color: #fb7299;
+  background-color: #6C679B15;
+  color: #6C679B;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -375,17 +384,17 @@ onMounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #fb7299;
+  background-color: #6C679B;
   margin-right: 4px;
 }
 
 .media-tag.video-tag {
   background-color: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  color: #9E96C5;
 }
 
 .media-tag.video-tag::before {
-  background-color: #409eff;
+  background-color: #9E96C5;
 }
 
 /* 分页器样式 */
@@ -394,6 +403,7 @@ onMounted(() => {
   justify-content: center;
   margin-top: auto;
   padding-top: 20px;
+
 }
 
 /* 响应式设计 */

@@ -7,6 +7,7 @@ import Admin from '@/views/Admin.vue'
 import { useTokenStore } from '@/stores/token'
 import useUserInfoStore from '@/stores/userInfo'
 import { ElMessage } from 'element-plus'
+import User from "@/views/User.vue";
 
 const routes = [
   {
@@ -66,6 +67,12 @@ const routes = [
     path: '/admin',
     name: 'Admin',
     component: Admin,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/creator',
+    name: 'creator',
+    component: User,
     meta: { requiresAuth: true }
   }
 ]

@@ -268,7 +268,7 @@ const isLoading = ref(false)
 }
 
 .close-btn:hover {
-  color: #fb7299;
+  color: #CBC5E7;
 }
 
 .dialog-content {
@@ -322,26 +322,26 @@ const isLoading = ref(false)
 }
 
 .send-code-btn:not(:disabled) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #CBC5E7;
+  border-color: #CBC5E7;
 }
 
 .send-code-btn:not(:disabled):hover {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 .submit-btn {
   width: 100%;
   margin-top: 20px;
   height: 40px;
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #CBC5E7;
+  border-color: #CBC5E7;
 }
 
 .submit-btn:hover {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 .back-login {
@@ -350,14 +350,14 @@ const isLoading = ref(false)
 }
 
 .back-link {
-  color: #00aeec;
+  color: #9E96C5;
   cursor: pointer;
   font-size: 14px;
   transition: color 0.3s;
 }
 
 .back-link:hover {
-  color: #fb7299;
+  color: #CBC5E7;
 }
 
 /* 加载动画样式 */

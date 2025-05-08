@@ -1,7 +1,6 @@
 <template>
   <div class="chat-page page-background bg-wave">
     <div class="top-dots"></div>
-    <div class="side-dots"></div>
     <div class="bottom-wave"></div>
     
     <!-- 左侧聊天列表 -->
@@ -629,7 +628,7 @@ onUnmounted(() => {
 }
 
 .message-bubble.self .message-content {
-  background: #fb7299;
+  background: #6C679B;
   color: #fff;
 }
 
@@ -659,7 +658,7 @@ onUnmounted(() => {
 
 .emoji-picker:hover {
   background: #f6f7f8;
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .input-area {
@@ -693,7 +692,7 @@ onUnmounted(() => {
   min-width: 18px;
   height: 18px;
   padding: 0 6px;
-  background-color: #fb7299;
+  background-color: #6C679B;
   color: white;
   border-radius: 9px;
   font-size: 12px;
@@ -732,5 +731,16 @@ onUnmounted(() => {
 
 .online-status.online {
   background-color: #00c853;
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style> 

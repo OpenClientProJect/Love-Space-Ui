@@ -14,7 +14,7 @@
           <div class="user-detail">
             <h1 class="username">{{ userHomeInfo.nickname }}</h1>
             <div class="user-stats">
-              <div class="stat-item">
+              <div class="stat-item" >
                 <span class="num">{{ userHomeInfo.followCount || 0 }}</span>
                 <span class="label">关注</span>
               </div>
@@ -79,7 +79,8 @@
             </div>
           </div>
         </div>
-        <el-empty v-else description="暂无视频"/>
+        <el-empty v-else image="https://wx1.sinaimg.cn/mw2000/008av8Hogy1i013zb1bdnj30u00u0n3a.jpg"
+                  imageSize="300px" description="暂无视频"/>
       </div>
       <!-- 动态列表 -->
       <div v-if="activeTab === 'dynamics'">
@@ -105,7 +106,8 @@
               </div>
             </div>
           </div>
-          <el-empty v-else description="暂无收藏视频" />
+          <el-empty v-else  image="https://wx1.sinaimg.cn/mw2000/008av8Hogy1i013z5rvzkj30u00u0q63.jpg"
+                    imageSize="300px" description="暂无收藏视频" />
         </div>
       </div>
       <!-- 点赞列表 -->
@@ -127,7 +129,8 @@
               </div>
             </div>
           </div>
-          <el-empty v-else description="暂无点赞视频" />
+          <el-empty v-else image="https://wx2.sinaimg.cn/mw2000/008av8Hogy1i013z87ovdj30u00u0grm.jpg"
+                    imageSize="300px" description="暂无点赞视频" />
         </div>
       </div>
     </div>
@@ -138,7 +141,7 @@
 import {ref, onMounted, computed, watch} from 'vue'
 import {userHomeService} from '@/api/user/user'
 import {useRouter, useRoute} from 'vue-router'
-import bgImage from '@/assets/background/background.webp' // 导入背景图片
+import bgImage from '@/assets/background/love6.jpg' // 导入背景图片
 //图标
 import videoIcon from '@/assets/iconsvg/video.svg'
 import starIcon from '@/assets/iconsvg/userstar.svg'
@@ -151,7 +154,7 @@ import { ElMessage } from 'element-plus'
 import {formatDate} from "@/utils/format";
 
 const userHomeInfo = ref({})
-const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+const defaultAvatar = 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'
 const router = useRouter()
 const route = useRoute()
 const userInfoStore = useUserInfoStore()
@@ -315,7 +318,7 @@ watch(() => route.query.username, (newUsername) => {
 <style scoped>
 .user-home {
   min-height: 100vh;
-  background: #f6f7f8;
+  background: rgba(246, 247, 248, 0.34);
   margin-top: -64px;
 }
 
@@ -467,7 +470,7 @@ watch(() => route.query.username, (newUsername) => {
   left: 0;
   right: 0;
   height: 2px;
-  background: #fb7299;
+  background: #CBC5E7;
 }
 
 .video-list {
@@ -615,5 +618,16 @@ watch(() => route.query.username, (newUsername) => {
   .video-stats {
     font-size: 11px;
   }
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style> 

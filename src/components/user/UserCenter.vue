@@ -1,7 +1,6 @@
 <template>
   <div class="user-center page-background bg-wave" id="user-center">
     <div class="top-dots"></div>
-    <div class="side-dots"></div>
     <div class="bottom-wave"></div>
     
     <!-- 顶部背景和用户信息 -->
@@ -13,7 +12,6 @@
         <div class="user-basic">
           <div class="avatar-wrap">
             <el-avatar :size="120" :src="userInfo.userPic || defaultAvatar"/>
-            <div class="level-tag">LV6</div>
           </div>
           <div class="user-detail">
             <div class="name-row">
@@ -96,7 +94,8 @@
                 </div>
               </div>
             </template>
-            <el-empty v-else description="暂无关注" />
+            <el-empty v-else  image="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg"
+                       description="暂无关注" />
           </div>
         </el-tab-pane>
         <el-tab-pane label="粉丝" name="fans">
@@ -112,7 +111,7 @@
                 </div>
               </div>
             </template>
-            <el-empty v-else description="暂无粉丝" />
+            <el-empty v-else image="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zh841dj30u00u0wip.jpg" description="暂无粉丝" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -137,7 +136,7 @@ const router = useRouter()
 const route = useRoute()
 const userInfoStore = useUserInfoStore()
 const currentNav = ref('videos')
-const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+const defaultAvatar = 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'
 // token
 const tokenStore = useTokenStore()
 
@@ -374,7 +373,7 @@ const goToUserHome = (username) => {
   height: 280px; /* 增加高度 */
   color: #18191c;
   margin-bottom: 20px;
-  background: #fff;
+  background: transparent;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
@@ -385,7 +384,14 @@ const goToUserHome = (username) => {
   left: 0;
   right: 0;
   height: 100%;
-  background: linear-gradient(to bottom, #f6f7f8, #fff);
+  background: linear-gradient(to bottom, rgba(218, 225, 255, 0.1), rgba(175, 176, 246, 0.1));
+  /* 磨砂玻璃核心样式 */
+  backdrop-filter: blur(20px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
 }
 
 .user-info-card {
@@ -428,7 +434,7 @@ const goToUserHome = (username) => {
   bottom: -1px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff6699;
+  background: #6C679B;
   color: #fff;
   padding: 2px 8px;
   border-radius: 4px;
@@ -474,8 +480,8 @@ const goToUserHome = (username) => {
 }
 
 .edit-btn:hover {
-  background: #fb7299;
-  border-color: #fb7299;
+  background: #6C679B;
+  border-color: #6C679B;
   color: #fff;
 }
 
@@ -582,8 +588,9 @@ const goToUserHome = (username) => {
 .side-nav {
   width: 200px;
   flex-shrink: 0;
-  background: #fff;
+  background: rgba(158, 150, 197, 0);
   border-radius: 8px;
+  border-color: rgba(44, 44, 44, 0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 16px;
   position: sticky;
@@ -600,19 +607,19 @@ const goToUserHome = (username) => {
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.3s;
-  background: #fff;
+  background: rgba(158, 150, 197, 0.19);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
 
   &:hover {
-    background: #f6f7f8;
-    color: #fb7299;
+    background: rgba(158, 150, 197, 0.58);
+    color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &.active {
-    background: #fff1f5;
-    color: #fb7299;
+    background: #9e96c5;
+    color: #ffffff;
     font-weight: 500;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -650,15 +657,16 @@ const goToUserHome = (username) => {
 }
 
 :deep(.el-button--primary) {
-  background: #fb7299;
-  border-color: #fb7299;
+  background: #6C679B;
+  border-color: #6C679B;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 :deep(.el-button--primary:hover) {
-  background: #fc8bab;
-  border-color: #fc8bab;
+  background: #6C679B;
+  border-color: #6C679B;
 }
+
 
 /* 响应式设计 */
 @media (max-width: 768px) {
@@ -723,7 +731,7 @@ const goToUserHome = (username) => {
   }
 
   :deep(.el-dropdown-menu__item:hover) {
-    color: #fb7299;
+    color: #6C679B;
     background-color: #fff1f5;
   }
 
@@ -732,11 +740,11 @@ const goToUserHome = (username) => {
   }
 
   :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
-    background-color: #fb7299;
+    background-color: #6C679B;
   }
 
   :deep(.el-pagination.is-background .el-pager li:not(.is-disabled):hover) {
-    color: #fb7299;
+    color: #6C679B;
   }
 
   .cover-uploader :deep(.el-upload) {
@@ -751,7 +759,7 @@ const goToUserHome = (username) => {
   }
 
   .cover-uploader :deep(.el-upload:hover) {
-    border-color: #fb7299;
+    border-color: #6C679B;
   }
 }
 
@@ -792,12 +800,12 @@ const goToUserHome = (username) => {
 }
 
 .follow-dialog :deep(.el-tabs__item.is-active) {
-  color: #fb7299;
+  color: #6C679B;
   font-weight: bold;
 }
 
 .follow-dialog :deep(.el-tabs__active-bar) {
-  background-color: #fb7299;
+  background-color: #6C679B;
 }
 
 .follow-list {
@@ -847,12 +855,12 @@ const goToUserHome = (username) => {
 
 .follow-action .el-button--primary {
   background-color: #fff;
-  color: #fb7299;
-  border-color: #fb7299;
+  color: #6C679B;
+  border-color: #6C679B;
 }
 
 .follow-action .el-button--primary:hover {
-  background-color: #fb7299;
+  background-color: #6C679B;
   color: #fff;
 }
 

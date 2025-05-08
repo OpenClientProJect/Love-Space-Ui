@@ -178,7 +178,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fb7299;
+  background-color: #6C679B;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -224,13 +224,13 @@ onMounted(() => {
 
 .nav-item:hover {
   background: #f6f7f8;
-  color: #fb7299;
+  color: #6C679B;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item.active {
   background: #fff1f5;
-  color: #fb7299;
+  color: #6C679B;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

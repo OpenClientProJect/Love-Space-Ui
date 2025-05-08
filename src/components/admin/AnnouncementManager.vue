@@ -744,8 +744,8 @@ onMounted(() => {
 .media-tag {
   display: inline-flex;
   align-items: center;
-  background-color: #fb729915;
-  color: #fb7299;
+  background-color: #6C679B15;
+  color: #6C679B;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -757,7 +757,7 @@ onMounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #fb7299;
+  background-color: #6C679B;
   margin-right: 4px;
 }
 
@@ -861,15 +861,26 @@ onMounted(() => {
 /* 为视频标签添加特殊样式 */
 .media-tag.video-tag {
   background-color: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  color: #9E96C5;
 }
 
 .media-tag.video-tag::before {
-  background-color: #409eff;
+  background-color: #9E96C5;
 }
 
 /* 添加仅图片样式 */
 .image-preview.image-only {
   cursor: default;
+}
+/* 设置按钮的默认颜色 */
+.el-button--primary {
+  background-color: #BFC4FB;
+  border-color: #BFC4FB;
+}
+
+/* 设置按钮的悬浮颜色 */
+.el-button--primary:hover {
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 </style> 

@@ -213,7 +213,7 @@ getUserInfo()
   top: -40px;
   left: 50%;
   transform: translateX(-50%);
-  background: #fff;
+  background: rgba(158, 150, 197, 0.4);
   border-radius: 50%;
   padding: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -280,7 +280,7 @@ getUserInfo()
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #fb7299;
+  background-color: #6C679B;
   animation: slideIn 0.3s ease-out forwards;
 }
 
@@ -301,7 +301,7 @@ getUserInfo()
 
 .stat-item:hover .num,
 .stat-item:hover .label {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 @keyframes slideIn {
@@ -320,7 +320,7 @@ getUserInfo()
 }
 
 .vip-tag {
-  background-color: #fb7299;
+  background-color: #6C679B;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
@@ -348,7 +348,7 @@ getUserInfo()
 }
 
 .menu-item:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 .menu-item .el-icon {
@@ -365,7 +365,7 @@ getUserInfo()
 }
 
 .logout-btn:hover {
-  color: #fb7299;
+  color: #6C679B;
 }
 
 /* 添加过渡效果 */

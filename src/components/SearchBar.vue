@@ -271,12 +271,12 @@ onUnmounted(() => {
   width: 48px;
   padding: 0;
   border-radius: 0 8px 8px 0;
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
   
   &:hover {
-    background-color: #fc8bab;
-    border-color: #fc8bab;
+    background-color: #6C679B;
+    border-color: #6C679B;
   }
   
   .el-icon {
@@ -286,7 +286,7 @@ onUnmounted(() => {
 
 /* 当搜索框获得焦点时，保持按钮的边框颜色 */
 .search-input.is-focused + .search-btn {
-  border-color: var(--el-input-focus-border-color, #409eff);
+  border-color: var(--el-input-focus-border-color, #9E96C5);
 }
 
 /* 搜索下拉面板 */
@@ -317,7 +317,7 @@ onUnmounted(() => {
     cursor: pointer;
     
     &:hover {
-      color: #00aeec;
+      color: #9E96C5;
     }
   }
 }
@@ -353,16 +353,16 @@ onUnmounted(() => {
       
       &:hover {
         background-color: #f1f2f3;
-        border-color: #00aeec;
+        border-color: #9E96C5;
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         
         span {
-          color: #00aeec;
+          color: #9E96C5;
         }
         
         .el-icon {
-          color: #00aeec;
+          color: #9E96C5;
         }
       }
     }
@@ -390,11 +390,11 @@ onUnmounted(() => {
         background-color: #f1f2f3;
         
         span {
-          color: #00aeec;
+          color: #9E96C5;
         }
         
         .el-icon {
-          color: #00aeec;
+          color: #9E96C5;
         }
       }
     }

@@ -105,7 +105,7 @@ const initPlayer = () => {
     playsInline: true,
     autoPlayback: true,
     airplay: true,
-    theme: '#00a1d6',
+    theme: '#BEB6E5',
     lang: 'zh-cn',
     moreVideoAttr: {
       crossOrigin: 'anonymous',
@@ -337,7 +337,7 @@ onUnmounted(() => {
   height: 100% !important;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   'Helvetica Neue', Arial, sans-serif;
-  --theme: #00a1d6 !important; /* 设置主题色为蓝色 */
+  --theme: #BEB6E5 !important; /* 设置主题色为蓝色 */
 }
 
 :deep(.art-subtitle) {
@@ -354,12 +354,12 @@ onUnmounted(() => {
 
 :deep(.art-video-player .art-control-progress-inner) {
   /* 已播放部分使用蓝色 */
-  background: #00a1d6;
+  background: #BEB6E5;
 }
 
 :deep(.art-video-player .art-control-progress-inner .art-control-progress-dot) {
   /* 进度条小圆点使用蓝色边框 */
-  border-color: #00a1d6;
+  border-color: #BEB6E5;
 }
 
 :deep(.art-video-player .art-control-progress:hover .art-control-progress-inner) {

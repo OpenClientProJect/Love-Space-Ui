@@ -62,7 +62,7 @@
       <!-- 提交按钮 -->
       <el-form-item>
         <el-button type="primary" @click="submitForm(formRef)">保存修改</el-button>
-        <el-button @click="resetForm(formRef)">重置</el-button>
+        <el-button @click="resetForm(formRef)" style="color: #6C679B">重置</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -176,7 +176,7 @@ const formatDate = (dateString) => {
 <style scoped>
 .edit-profile-content {
   padding: 32px 40px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.26);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   max-width: 1000px;
@@ -233,7 +233,7 @@ const formatDate = (dateString) => {
 }
 
 .avatar-uploader :deep(.el-upload:hover) {
-  border-color: #fb7299;
+  border-color: #6C679B;
 }
 
 .avatar-uploader-icon {
@@ -251,13 +251,13 @@ const formatDate = (dateString) => {
 }
 
 :deep(.el-button--primary) {
-  background-color: #fb7299;
-  border-color: #fb7299;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #fc8bab;
-  border-color: #fc8bab;
+  background-color: #6C679B;
+  border-color: #6C679B;
 }
 
 :deep(.el-form-item) {

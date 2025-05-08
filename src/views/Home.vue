@@ -7,8 +7,9 @@ import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close, Calendar} from '@elem
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import CategoryContent from '@/components/CategoryContent.vue'
-import defaultBackground from '@/assets/background/background.webp'
+import defaultBackground from '@/assets/background/love6.jpg'
 import '@/assets/styles/common-bg.css'
+
 
 // 添加 router 实例
 const router = useRouter()
@@ -24,21 +25,17 @@ const loadingCarousel = ref(false)
 // 分类导航
 const categories = ref([
   { id: 0, name: '全部' },
-  { id: 1, name: '动画' },
-  { id: 2, name: '番剧' },
-  { id: 3, name: '国创' },
-  { id: 4, name: '音乐' },
-  { id: 5, name: '舞蹈' },
-  { id: 6, name: '游戏' },
-  { id: 7, name: '知识' },
-  { id: 8, name: '科技' },
-  { id: 9, name: '运动' },
-  { id: 10, name: '生活' },
-  { id: 11, name: '美食' },
-  { id: 12, name: '动物' },
-  { id: 13, name: '鬼畜' },
-  { id: 14, name: '时尚' },
-  { id: 15, name: '娱乐' }
+  { id: 1, name: '多人' },
+  { id: 2, name: '沈星回' },
+  { id: 3, name: '黎深' },
+  { id: 4, name: '祁煜' },
+  { id: 5, name: '秦彻' },
+  { id: 6, name: '夏以昼' },
+  { id: 7, name: '流浪体' },
+  { id: 8, name: 'npc' },
+  { id: 9, name: '深网' },
+  { id: 10, name: '猎人锦标赛' },
+  { id: 11, name: '定向轨道' }
 ])
 
 // 当前激活的分类
@@ -306,9 +303,9 @@ const videoLoaded = (event) => {
 
 <template>
   <div class="home page-background bg-wave">
-    <div class="top-dots"></div>
-    <div class="side-dots"></div>
-    <div class="bottom-wave"></div>
+<!--    <div class="top-dots"></div>-->
+<!--    <div class="side-dots"></div>-->
+<!--    <div class="bottom-wave"></div>-->
     
     <!-- 顶部背景图 -->
     <div class="top-background">
@@ -351,6 +348,7 @@ const videoLoaded = (event) => {
                 size="small" 
                 link
                 @click.stop="showAnnouncementDetails(item)"
+                style="color: #ffffff"
               >
                 详情
               </el-button>
@@ -417,8 +415,7 @@ const videoLoaded = (event) => {
               </div>
             <div class="video-info">
                 <div class="uploader">
-                  <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
-                  <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                  <img :src="video.userPic || 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'"
                        class="user-avatar">
                   <span class="username">{{ video.nickname }}</span>
                 </div>
@@ -456,8 +453,7 @@ const videoLoaded = (event) => {
           </div>
           <div class="video-info">
             <div class="uploader">
-              <span class="up-tag"><img src="../assets/iconsvg/up.svg" style="width: 20px" alt=""></span>
-              <img :src="video.userPic || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+              <img :src="video.userPic || 'https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg'"
                    class="user-avatar">
               <span class="username">{{ video.nickname }} </span>
             </div>
@@ -526,18 +522,17 @@ const videoLoaded = (event) => {
   margin: 0 auto;
   position: relative;
   max-width: 100%;
-  background-color: #f4f5f7;
 }
 
 /* 顶部背景图样式 */
 .top-background {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 320px;
   overflow: hidden;
   z-index: 0;
   margin-bottom: 10px;
-  margin-top: -64px; /* 负外边距，使背景图位于导航栏下方 */
+  margin-top: -40px; /* 负外边距，使背景图位于导航栏下方 */
 }
 
 .background-image {
@@ -583,12 +578,20 @@ const videoLoaded = (event) => {
   margin-top: 0;
   overflow-x: auto;
   white-space: nowrap;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+  /*background-image: url("../assets/background/pink(3)(1).jpg");*/
   position: relative;
   z-index: 2; /* 确保在背景图上方 */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE 和 Edge */
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.22); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
+
 }
 
 /* 隐藏滚动条 Chrome, Safari */
@@ -607,13 +610,13 @@ const videoLoaded = (event) => {
 }
 
 .category-item:hover {
-  color: #fb7299;
+  color: #6C679B;
   transform: scale(1.05);
 }
 
 /* 修改激活状态样式，确保不会导致内容溢出 */
 .category-item.active {
-  color: #fb7299;
+  color: #6C679B;
   font-weight: bold;
   position: relative;
 }
@@ -626,7 +629,7 @@ const videoLoaded = (event) => {
   transform: translateX(-50%);
   width: 24px;
   height: 3px;
-  background-color: #fb7299;
+  background-color: #6C679B;
   border-radius: 2px;
   /* 确保伪元素不会造成内容溢出 */
   box-sizing: content-box;
@@ -640,8 +643,8 @@ const videoLoaded = (event) => {
 
 /* 添加分类标签样式 */
 .category-tag {
-  background-color: #fb729930;
-  color: #fb7299;
+  background-color: #6C679B30;
+  color: #6C679B;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
@@ -745,7 +748,7 @@ const videoLoaded = (event) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #fb7299;
+  background-color: #6C679B;
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 14px;
@@ -754,7 +757,7 @@ const videoLoaded = (event) => {
 }
 
 .play-icon:hover {
-  background-color: #fc8bab;
+  background-color: #6C679B;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(251, 114, 153, 0.4);
 }
@@ -828,7 +831,7 @@ const videoLoaded = (event) => {
 }
 
 .up-tag {
-  color: #fb7299;
+  color: #6C679B;
   font-weight: bold;
   font-size: 12px;
   margin-right: 0;
@@ -884,7 +887,9 @@ const videoLoaded = (event) => {
   width: 44px;
   height: 44px;
   border-radius: 8px;
-  background-color: #fb7299;
+  background-image: url("../assets/imge/Hui.png");
+  background-size: cover; /* 让背景图片覆盖整个元素 */
+  background-position: center; /* 背景图片居中显示 */
   color: #fff;
   display: flex;
   align-items: center;
@@ -895,7 +900,7 @@ const videoLoaded = (event) => {
 }
 
 .action-button:hover {
-  background-color: #fc8bab;
+  background-color: #6C679B;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(251, 114, 153, 0.3);
 }
@@ -915,12 +920,15 @@ const videoLoaded = (event) => {
 
 /* 返回顶部按钮样式 */
 .back-to-top {
-  --el-backtop-bg-color: #fb7299;
+  --el-backtop-bg-color: #6C679B;
   --el-backtop-text-color: #fff;
-  --el-backtop-hover-bg-color: #fc8bab;
+  --el-backtop-hover-bg-color: #6C679B;
 }
 
 .back-top-content {
+  background-image: url('../assets/imge/Li.png');
+  background-size: cover; /* 让背景图片覆盖整个元素 */
+  background-position: center; /* 背景图片居中显示 */
   height: 100%;
   width: 100%;
   display: flex;
@@ -1070,7 +1078,7 @@ const videoLoaded = (event) => {
 
 .section-title {
   margin-bottom: 20px;
-  border-left: 4px solid #fb7299;
+  border-left: 4px solid #6C679B;
   padding-left: 12px;
 }
 
@@ -1156,19 +1164,25 @@ const videoLoaded = (event) => {
 .notice-bar {
   display: flex;
   align-items: center;
-  background-color: #fff;
+ /* background-image: url("../assets/background/pink(3)(2).jpg");*/
   padding: 12px 40px;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 10px;
   position: relative;
   z-index: 1;
+  /* 磨砂玻璃核心样式 */
+  background-color: rgba(255, 255, 255, 0.22); /* 半透明背景 */
+  backdrop-filter: blur(10px); /* 模糊强度，数值越大越模糊 */
+  -webkit-backdrop-filter: blur(10px); /* 兼容 Webkit 内核浏览器 */
+
+  /* 立体感增强 */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* 轻量级阴影 */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明边框 */
+
 }
 
 .notice-icon {
-  color: #fb7299;
+  color: #6C679B;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1360,80 +1374,6 @@ const videoLoaded = (event) => {
   height: 480px;
   border-radius: 8px;
   overflow: hidden;
-}
-
-/* 活动栏样式 */
-.activity-bar {
-  display: flex;
-  align-items: center;
-  background-color: #fff;
-  padding: 12px 40px;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  position: relative;
-  z-index: 1;
-}
-
-.activity-icon {
-  color: #ff5722;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  width: 36px;
-  height: 36px;
-  background-color: rgba(255, 87, 34, 0.1);
-  border-radius: 50%;
-}
-
-.activity-content {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-height: 36px;
-}
-
-.activity-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding-right: 10px;
-}
-
-.activity-text {
-  font-size: 15px;
-  color: #555;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 5px;
-  line-height: 36px;
-  font-weight: 500;
-  flex: 1;
-}
-
-.activity-label {
-  display: inline-block;
-  background-color: #ff5722;
-  color: white;
-  font-size: 12px;
-  padding: 1px 8px;
-  border-radius: 4px;
-  margin-right: 10px;
-  line-height: normal;
-}
-
-.activity-detail-btn {
-  font-size: 12px;
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  flex-shrink: 0;
 }
 
 /* 活动栏轮播样式 - 使用非常具体的选择器 */
