@@ -92,6 +92,9 @@
                   <div class="follow-name">{{ user.nickname }}</div>
                   <div class="follow-intro">{{ user.introduction || '这个人很懒什么都没写' }}</div>
                 </div>
+                <div class="follow-action">
+                  <el-button size="small" @click.stop="unfollowUser(user.id)">取消关注</el-button>
+                </div>
               </div>
             </template>
             <el-empty v-else  image="https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.jpg"
@@ -128,6 +131,7 @@ import {ElMessage} from "element-plus";
 import {useTokenStore} from "@/stores/token";
 import {getUserVideoService} from "@/api/userVideo";
 import {getFollowListService, getFansListService} from "@/api/follow";
+import {followUserService} from "@/api/user/userfollow";
 import EditProfileContent from '@/components/user/EditUserInformation.vue'
 import UserVideoContent from '@/components/user/UserVideoContent.vue'
 import '@/assets/styles/common-bg.css'
@@ -195,6 +199,23 @@ const getFollowList = async () => {
   }
 }
 
+// 取消关注用户
+const unfollowUser = async (userId) => {
+  try {
+    await followUserService(userId, false) // isFollow设为false表示取消关注
+    // 从关注列表中移除该用户
+    followList.value = followList.value.filter(user => user.id !== userId)
+    // 更新关注数量
+    userInfoStore.info.followCount -= 1
+    // 更新用户统计数据
+    userStats.value[0].num = userInfoStore.info.followCount
+    ElMessage.success('已取消关注')
+  } catch (error) {
+    console.error('取消关注失败:', error)
+    ElMessage.error('取消关注失败，请稍后重试')
+  }
+}
+
 // 获取粉丝列表
 const getFansList = async () => {
   fansLoading.value = true
@@ -229,10 +250,10 @@ watch(activeTab, (newTab) => {
   }
 });
 
-const userStats = [
+const userStats = ref([
   {num: userInfo.value.followCount, label: '关注', action: openFollowDialog},
   {num: userInfo.value.fansCount, label: '粉丝', action: openFansDialog},
-]
+])
 
 const getEmptyText = computed(() => {
   const texts = {
@@ -852,6 +873,9 @@ const goToUserHome = (username) => {
   text-overflow: ellipsis;
 }
 
+.follow-action {
+  margin-left: auto;
+}
 
 .follow-action .el-button--primary {
   background-color: #fff;
