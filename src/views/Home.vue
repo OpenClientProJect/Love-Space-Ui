@@ -22,20 +22,39 @@ const carouselItems = ref([])
 // 轮播图加载状态
 const loadingCarousel = ref(false)
 
-// 分类导航
+// 主分类和副分类结构
+// 主分类列表
+const mainCategories = ref([
+  { id: 1, name: '角色分类' },
+  { id: 2, name: '内容分类' },
+  { id: 3, name: '特殊分类' }
+])
+
+// 所有分类映射表
+const categoryMap = {
+  1: [  // 角色分类下的副分类
+    { id: 101, name: '沈星回', mainId: 1 },
+    { id: 102, name: '黎深', mainId: 1 },
+    { id: 103, name: '祁煜', mainId: 1 },
+    { id: 104, name: '秦彻', mainId: 1 },
+    { id: 105, name: '夏以昼', mainId: 1 },
+    { id: 106, name: '多人角色', mainId: 1 }
+  ],
+  2: [  // 内容分类下的副分类
+    { id: 201, name: '流浪体', mainId: 2 },
+    { id: 202, name: 'npc', mainId: 2 },
+    { id: 203, name: '深网', mainId: 2 }
+  ],
+  3: [  // 特殊分类下的副分类
+    { id: 301, name: '猎人锦标赛', mainId: 3 },
+    { id: 302, name: '定向轨道', mainId: 3 }
+  ]
+}
+
+// 展平的分类数据，用于导航和筛选
 const categories = ref([
   { id: 0, name: '全部' },
-  { id: 1, name: '多人' },
-  { id: 2, name: '沈星回' },
-  { id: 3, name: '黎深' },
-  { id: 4, name: '祁煜' },
-  { id: 5, name: '秦彻' },
-  { id: 6, name: '夏以昼' },
-  { id: 7, name: '流浪体' },
-  { id: 8, name: 'npc' },
-  { id: 9, name: '深网' },
-  { id: 10, name: '猎人锦标赛' },
-  { id: 11, name: '定向轨道' }
+  ...Object.values(categoryMap).flat()
 ])
 
 // 当前激活的分类
@@ -71,7 +90,7 @@ const handleCategoryClick = async (categoryId) => {
     // 如果选择的是"全部"分类，则不传递分类ID参数
     const res = categoryId === 0 
       ? await getVideoListService() 
-      : await getVideoListService({ categoryId })
+      : await getVideoListService({ categoryId, subCategoryId: categoryId })
     videos.value = res.data
   } catch (error) {
     console.error('获取分类视频失败:', error)
@@ -106,8 +125,11 @@ const getVideoList = async () => {
     // 根据当前选中的分类获取视频
     const res = activeCategory.value === 0
       ? await getVideoListService()
-      : await getVideoListService({ categoryId: activeCategory.value })
-  videos.value = res.data
+      : await getVideoListService({ 
+          categoryId: activeCategory.value,
+          subCategoryId: activeCategory.value
+        })
+    videos.value = res.data
   } catch (error) {
     console.error('获取视频列表失败:', error)
     ElMessage.error('获取视频列表失败，请稍后重试')
@@ -123,7 +145,10 @@ const handleRefresh = async () => {
     // 重新获取当前分类的视频
     const res = activeCategory.value === 0
       ? await getVideoListService()
-      : await getVideoListService({ categoryId: activeCategory.value })
+      : await getVideoListService({ 
+          categoryId: activeCategory.value,
+          subCategoryId: activeCategory.value
+        })
     videos.value = res.data
     ElMessage.success('刷新成功')
   } catch (error) {
@@ -256,11 +281,33 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyDown)
 })
 
-// 获取分类名称
+// 获取分类名称 - 更新以适应新的分类结构
 const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
-  const category = categories.value.find(c => c.id == categoryId)
-  return category ? category.name : ''
+  
+  // 在所有副分类中查找匹配的分类
+  for (const categories of Object.values(categoryMap)) {
+    const category = categories.find(c => c.id === categoryId)
+    if (category) return category.name
+  }
+  
+  return ''
+}
+
+// 获取主分类名称
+const getMainCategoryName = (categoryId) => {
+  if (!categoryId) return ''
+  
+  // 查找对应的主分类
+  for (const [mainId, categories] of Object.entries(categoryMap)) {
+    const category = categories.find(c => c.id === categoryId)
+    if (category) {
+      const mainCategory = mainCategories.value.find(m => m.id === parseInt(mainId))
+      return mainCategory ? mainCategory.name : ''
+    }
+  }
+  
+  return ''
 }
 
 // 处理播放视频点击
@@ -420,8 +467,9 @@ const videoLoaded = (event) => {
                   <span class="username">{{ video.nickname }}</span>
                 </div>
                 <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+                  <span class="main-category">{{ getMainCategoryName(video.categoryId) }}</span>
                   {{ getCategoryName(video.categoryId) }}
-              </span>
+                </span>
             </div>
             </div>
           </div>
@@ -458,6 +506,7 @@ const videoLoaded = (event) => {
               <span class="username">{{ video.nickname }} </span>
             </div>
             <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+              <span class="main-category">{{ getMainCategoryName(video.categoryId) }}</span>
               {{ getCategoryName(video.categoryId) }}
             </span>
           </div>
@@ -641,15 +690,25 @@ const videoLoaded = (event) => {
   to { opacity: 1; width: 24px; }
 }
 
-/* 添加分类标签样式 */
+/* 更新分类标签样式 */
 .category-tag {
-  background-color: #6C679B30;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #6C679B15;
   color: #6C679B;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   margin-left: auto;
   white-space: nowrap;
+}
+
+.main-category {
+  font-size: 10px;
+  color: #6C679B;
+  opacity: 0.8;
+  margin-right: 2px;
 }
 
 /* 新的主布局样式 */

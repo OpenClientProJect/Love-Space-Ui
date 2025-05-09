@@ -14,8 +14,8 @@
       </el-empty>
     </div>
 
-    <!-- 发布视频按钮 -->
-    <div class="button-container">
+    <!-- 发布视频按钮和筛选区域 -->
+    <div class="action-bar">
       <el-button type="primary" @click="drawerVisible = true" class="publish-button">
         <el-icon><VideoCamera /></el-icon>
         发布视频
@@ -55,6 +55,14 @@
               <el-tag size="small" class="main-category-tag">{{ getMainCategoryName(video.categoryId) }}</el-tag>
               {{ getCategoryName(video.categoryId) }}
             </span>
+            <!-- 状态标签 - 内联展示 -->
+            <el-tag 
+              size="small" 
+              :type="getStatusTagType(video.status)" 
+              class="status-tag"
+            >
+              {{ getStatusText(video.status) }}
+            </el-tag>
             <span class="update-time">发布时间: {{ formatDate(video.createTime) }}</span>
             <span class="view-count">更新时间: {{ formatDate(video.updateTime) }}</span>
           </div>
@@ -216,6 +224,9 @@ const emptyImge='https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.j
 const videos = ref([])
 const hasContent = computed(() => videos.value.length > 0)
 
+// 状态筛选
+const statusFilter = ref('all')
+
 // 分页相关
 const pagination = ref({
   pageNum: 1,
@@ -249,7 +260,6 @@ const rules = {
   subCategoryId: [{ required: true, message: '请选择副分类', trigger: 'change' }]
 }
 
-// 分类数据结构
 // 主分类列表
 const mainCategories = ref([
   { id: 1, name: '角色分类' },
@@ -291,10 +301,18 @@ const handleMainCategoryChange = (mainId) => {
 
 // 获取用户视频列表
 const getUserVideoInfo = async () => {
-  const result = await getUserVideoService({
+  // 构建查询参数
+  const params = {
     pageNum: pagination.value.pageNum,
     pageSize: pagination.value.pageSize
-  })
+  }
+  
+  // 添加状态筛选
+  if (statusFilter.value !== 'all') {
+    params.status = parseInt(statusFilter.value)
+  }
+  
+  const result = await getUserVideoService(params)
   videos.value = result.data.items
   pagination.value.total = result.data.total
 }
@@ -510,6 +528,27 @@ const getMainCategoryName = (categoryId) => {
   
   return ''
 }
+
+// 获取状态文本
+const getStatusText = (status) => {
+  switch (status) {
+    case 1: return '待审核'
+    case 2: return '已通过'
+    case 3: return '未通过'
+    default: return '未知状态'
+  }
+}
+
+
+// 获取状态标签类型
+const getStatusTagType = (status) => {
+  switch (status) {
+    case 1: return 'warning'
+    case 2: return 'success'
+    case 3: return 'danger'
+    default: return 'info'
+  }
+}
 </script>
 
 <style scoped>
@@ -517,10 +556,26 @@ const getMainCategoryName = (categoryId) => {
   width: 100%;
 }
 
-.button-container {
+/* 操作栏样式 */
+.action-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+/* 视频卡片样式 */
+.video-cover-wrap {
+  width: 200px;
+  height: 120px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.status-tag {
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .video-list {
@@ -543,12 +598,6 @@ const getMainCategoryName = (categoryId) => {
 .video-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.video-cover-wrap {
-  width: 200px;
-  height: 120px;
-  flex-shrink: 0;
 }
 
 .video-cover {

@@ -3,8 +3,8 @@ import request from "@/utils/request"
 //获取视频列表接口
 export const getVideoListService = (params) => {
     // 如果传入了分类参数，使用query方式传递
-    if (params && params.categoryId !== undefined) {
-        return request.get(`/video?categoryId=${params.categoryId}`)
+    if (params && params.subCategoryId !== undefined) {
+        return request.get(`/video?subCategoryId=${params.subCategoryId}`)
     }
     // 默认获取所有视频
     return request.get('/video')

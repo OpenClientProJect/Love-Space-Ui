@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="delete">
+    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="添加主分类">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/video.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/video.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/user/UserVideoContent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/UserVideoContent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Home.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +98,7 @@
       <updated>1746693070416</updated>
       <workItem from="1746693071874" duration="764000" />
       <workItem from="1746753284014" duration="3446000" />
-      <workItem from="1746770541990" duration="7403000" />
+      <workItem from="1746770541990" duration="8613000" />
     </task>
     <task id="LOCAL-00001" summary="update 2.0">
       <option name="closed" value="true" />
@@ -130,7 +132,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746779676240</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="添加主分类">
+      <option name="closed" value="true" />
+      <created>1746780980876</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746780980876</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,6 +174,7 @@
     <MESSAGE value="添加用户管理页面" />
     <MESSAGE value="完善用户管理" />
     <MESSAGE value="delete" />
-    <option name="LAST_COMMIT_MESSAGE" value="delete" />
+    <MESSAGE value="添加主分类" />
+    <option name="LAST_COMMIT_MESSAGE" value="添加主分类" />
   </component>
 </project>
