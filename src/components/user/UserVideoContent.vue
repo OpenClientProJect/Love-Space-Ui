@@ -1,11 +1,11 @@
 <template>
   <div class="video-content">
     <!-- 空状态 -->
-    <div class="empty-state" v-if="!hasContent">
+    <div class="empty-state" v-if="filteredVideos.length === 0">
       <el-empty :description="emptyText"
                 :image="emptyImge">
         <template #description>
-          <p class="empty-text">{{ emptyText }}</p>
+          <p class="empty-text">{{ statusFilter === 'all' ? emptyText : '暂无符合条件的视频' }}</p>
         </template>
         <el-button type="primary" @click="drawerVisible = true">
           <el-icon><VideoCamera /></el-icon>
@@ -20,11 +20,22 @@
         <el-icon><VideoCamera /></el-icon>
         发布视频
       </el-button>
+      
+      <!-- 状态筛选 -->
+      <div class="filter-area">
+        <span class="filter-label">状态筛选:</span>
+        <el-radio-group v-model="statusFilter" size="small">
+          <el-radio-button label="all">全部</el-radio-button>
+          <el-radio-button label="1">待审核</el-radio-button>
+          <el-radio-button label="2">已通过</el-radio-button>
+          <el-radio-button label="3">未通过</el-radio-button>
+        </el-radio-group>
+      </div>
     </div>
 
     <!-- 视频列表展示 -->
-    <div class="video-list" v-if="hasContent">
-      <div v-for="video in videos" :key="video.id" class="video-card">
+    <div class="video-list" v-if="filteredVideos.length > 0">
+      <div v-for="video in filteredVideos" :key="video.id" class="video-card">
         <div class="video-cover-wrap">
           <img :src="video.cover" class="video-cover" alt="图片获取失败"/>
         </div>
@@ -222,10 +233,22 @@ const emptyImge='https://wx1.sinaimg.cn/mw690/008av8Hogy1i013zew461j30u00u00wg.j
 
 // 视频列表数据
 const videos = ref([])
-const hasContent = computed(() => videos.value.length > 0)
 
 // 状态筛选
 const statusFilter = ref('all')
+
+// 计算属性：根据筛选条件过滤后的视频列表
+const filteredVideos = computed(() => {
+  if (statusFilter.value === 'all') {
+    return videos.value
+  } else {
+    const statusNum = parseInt(statusFilter.value)
+    return videos.value.filter(video => video.status === statusNum)
+  }
+})
+
+// 计算是否有内容展示
+const hasContent = computed(() => filteredVideos.value.length > 0)
 
 // 分页相关
 const pagination = ref({
@@ -301,15 +324,10 @@ const handleMainCategoryChange = (mainId) => {
 
 // 获取用户视频列表
 const getUserVideoInfo = async () => {
-  // 构建查询参数
+  // 构建查询参数 - 只保留分页，不添加状态筛选
   const params = {
     pageNum: pagination.value.pageNum,
     pageSize: pagination.value.pageSize
-  }
-  
-  // 添加状态筛选
-  if (statusFilter.value !== 'all') {
-    params.status = parseInt(statusFilter.value)
   }
   
   const result = await getUserVideoService(params)
@@ -547,6 +565,16 @@ const getStatusTagType = (status) => {
     case 2: return 'success'
     case 3: return 'danger'
     default: return 'info'
+  }
+}
+
+// 获取状态类
+const getStatusClass = (status) => {
+  switch (status) {
+    case 1: return 'status-tag-warning'
+    case 2: return 'status-tag-success'
+    case 3: return 'status-tag-danger'
+    default: return 'status-tag-info'
   }
 }
 </script>
@@ -870,5 +898,47 @@ const getStatusTagType = (status) => {
 .el-button--primary:hover {
   background-color: #6C679B;
   border-color: #6C679B;
+}
+
+/* 添加状态标签样式 */
+.status-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.status-tag-warning {
+  background-color: #E6A23C;
+}
+
+.status-tag-success {
+  background-color: #67C23A;
+}
+
+.status-tag-danger {
+  background-color: #F56C6C;
+}
+
+.status-tag-info {
+  background-color: #909399;
+}
+
+/* 筛选区域样式 */
+.filter-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
 }
 </style> 
