@@ -52,6 +52,7 @@
           <p class="video-description">简介：{{ video.content }}</p>
           <div class="video-meta">
             <span class="category-tag" v-if="getCategoryName(video.categoryId)">
+              <el-tag size="small" class="main-category-tag">{{ getMainCategoryName(video.categoryId) }}</el-tag>
               {{ getCategoryName(video.categoryId) }}
             </span>
             <span class="update-time">发布时间: {{ formatDate(video.createTime) }}</span>
@@ -153,9 +154,25 @@
           />
         </el-form-item>
 
-        <el-form-item label="视频分类" prop="categoryId">
-          <el-select v-model="form.categoryId" placeholder="请选择视频分类">
-            <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id"></el-option>
+        <el-form-item label="主分类" prop="mainCategoryId">
+          <el-select v-model="form.mainCategoryId" placeholder="请选择主分类" @change="handleMainCategoryChange">
+            <el-option 
+              v-for="category in mainCategories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="副分类" prop="subCategoryId">
+          <el-select v-model="form.subCategoryId" placeholder="请选择副分类" :disabled="!form.mainCategoryId">
+            <el-option 
+              v-for="category in subCategories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.id">
+            </el-option>
           </el-select>
         </el-form-item>
 
@@ -213,7 +230,8 @@ const form = ref({
   cover: '',
   content: '',
   videoUrl: '',
-  categoryId: ''
+  mainCategoryId: '',
+  subCategoryId: ''
 })
 const isEdit = ref(false)
 const currentEditId = ref(null)
@@ -227,23 +245,49 @@ const rules = {
   title: [{ required: true, message: '请输入视频标题', trigger: 'blur' }],
   cover: [{ required: true, message: '请上传视频封面', trigger: 'change' }],
   videoUrl: [{ required: true, message: '请上传视频文件', trigger: 'change' }],
-  categoryId: [{ required: true, message: '请选择视频分类', trigger: 'change' }]
+  mainCategoryId: [{ required: true, message: '请选择主分类', trigger: 'change' }],
+  subCategoryId: [{ required: true, message: '请选择副分类', trigger: 'change' }]
 }
 
-// 视频分类列表
-const categories = ref([
-  { id: 1, name: '多人' },
-  { id: 2, name: '沈星回' },
-  { id: 3, name: '黎深' },
-  { id: 4, name: '祁煜' },
-  { id: 5, name: '秦彻' },
-  { id: 6, name: '夏以昼' },
-  { id: 7, name: '流浪体' },
-  { id: 8, name: 'npc' },
-  { id: 9, name: '深网' },
-  { id: 10, name: '猎人锦标赛' },
-  { id: 11, name: '定向轨道' }
+// 分类数据结构
+// 主分类列表
+const mainCategories = ref([
+  { id: 1, name: '角色分类' },
+  { id: 2, name: '内容分类' },
+  { id: 3, name: '特殊分类' }
 ])
+
+// 所有分类映射表
+const categoryMap = {
+  1: [  // 角色分类下的副分类
+    { id: 101, name: '沈星回', mainId: 1 },
+    { id: 102, name: '黎深', mainId: 1 },
+    { id: 103, name: '祁煜', mainId: 1 },
+    { id: 104, name: '秦彻', mainId: 1 },
+    { id: 105, name: '夏以昼', mainId: 1 },
+    { id: 106, name: '多人角色', mainId: 1 }
+  ],
+  2: [  // 内容分类下的副分类
+    { id: 201, name: '流浪体', mainId: 2 },
+    { id: 202, name: 'npc', mainId: 2 },
+    { id: 203, name: '深网', mainId: 2 }
+  ],
+  3: [  // 特殊分类下的副分类
+    { id: 301, name: '猎人锦标赛', mainId: 3 },
+    { id: 302, name: '定向轨道', mainId: 3 }
+  ]
+}
+
+// 当前可选的副分类列表
+const subCategories = ref([])
+
+// 处理主分类变更
+const handleMainCategoryChange = (mainId) => {
+  // 重置副分类选择
+  form.value.subCategoryId = ''
+  // 更新副分类列表
+  subCategories.value = categoryMap[mainId] || []
+}
 
 // 获取用户视频列表
 const getUserVideoInfo = async () => {
@@ -272,13 +316,30 @@ const handleCommand = async ({ type, id }) => {
   if (type === 'edit') {
     const currentVideo = videos.value.find(video => video.id === id)
     if (currentVideo) {
+      // 查找对应的主分类ID
+      let mainId = null
+      for (const [key, categories] of Object.entries(categoryMap)) {
+        const found = categories.find(cat => cat.id === currentVideo.categoryId)
+        if (found) {
+          mainId = parseInt(key)
+          break
+        }
+      }
+      
       form.value = {
         title: currentVideo.title,
         cover: currentVideo.cover,
         content: currentVideo.content,
         videoUrl: currentVideo.videoUrl,
-        categoryId: currentVideo.categoryId
+        mainCategoryId: mainId || '',
+        subCategoryId: currentVideo.categoryId 
       }
+      
+      // 更新副分类选择
+      if (mainId) {
+        subCategories.value = categoryMap[mainId] || []
+      }
+      
       isEdit.value = true
       currentEditId.value = id
       drawerVisible.value = true
@@ -306,7 +367,17 @@ const submitForm = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await publishVideoService(form.value)
+        const submitData = {
+          title: form.value.title,
+          cover: form.value.cover,
+          content: form.value.content,
+          videoUrl: form.value.videoUrl,
+          categoryId: form.value.subCategoryId, 
+          mainCategoryId: form.value.mainCategoryId, 
+          subCategoryId: form.value.subCategoryId 
+        };
+
+        await publishVideoService(submitData)
         ElMessage.success('发布成功')
         drawerVisible.value = false
         await getUserVideoInfo()
@@ -324,10 +395,18 @@ const updateVideo = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await editVideoService({
+        const updateData = {
           id: currentEditId.value,
-          ...form.value
-        })
+          title: form.value.title,
+          cover: form.value.cover,
+          content: form.value.content,
+          videoUrl: form.value.videoUrl,
+          categoryId: form.value.subCategoryId, 
+          mainCategoryId: form.value.mainCategoryId, 
+          subCategoryId: form.value.subCategoryId 
+        };
+
+        await editVideoService(updateData)
         ElMessage.success('更新成功')
         drawerVisible.value = false
         await getUserVideoInfo()
@@ -346,8 +425,10 @@ const resetForm = () => {
     cover: '',
     content: '',
     videoUrl: '',
-    categoryId: ''
+    mainCategoryId: '',
+    subCategoryId: ''
   }
+  subCategories.value = []
   videoFileName.value = ''
   isEdit.value = false
   currentEditId.value = null
@@ -401,11 +482,33 @@ onUnmounted(() => {
 // 初始化
 getUserVideoInfo()
 
-// 获取分类名称
+// 获取分类名称 - 副分类
 const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
-  const category = categories.value.find(c => c.id == categoryId)
-  return category ? category.name : ''
+  
+  // 在所有副分类中查找匹配的分类
+  for (const categories of Object.values(categoryMap)) {
+    const category = categories.find(c => c.id === categoryId)
+    if (category) return category.name
+  }
+  
+  return ''
+}
+
+// 获取主分类名称
+const getMainCategoryName = (categoryId) => {
+  if (!categoryId) return ''
+  
+  // 查找对应的主分类
+  for (const [mainId, categories] of Object.entries(categoryMap)) {
+    const category = categories.find(c => c.id === categoryId)
+    if (category) {
+      const mainCategory = mainCategories.value.find(m => m.id === parseInt(mainId))
+      return mainCategory ? mainCategory.name : ''
+    }
+  }
+  
+  return ''
 }
 </script>
 
@@ -686,15 +789,28 @@ const getCategoryName = (categoryId) => {
   color: #6C679B;
 }
 
-/* 使分类标签更加醒目 */
+/* 分类标签样式更新 */
 .video-meta .category-tag {
-  background-color: #6C679B30;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #6C679B15;
   color: #6C679B;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   margin-right: 8px;
 }
+
+.main-category-tag {
+  font-size: 10px !important;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  background-color: #6C679B40 !important;
+  border-color: transparent !important;
+}
+
 /* 设置按钮的默认颜色 */
 .el-button--primary {
   background-color: #BFC4FB;
