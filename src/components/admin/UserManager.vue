@@ -13,43 +13,6 @@
       </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <div class="filter-container">
-      <el-form :inline="true" class="filter-form">
-        <el-form-item label="用户角色">
-          <el-select v-model="filterRole" placeholder="选择角色" clearable>
-            <el-option label="全部" value=""/>
-            <el-option label="普通用户" value="user"/>
-            <el-option label="管理员" value="admin"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="filterStatus" placeholder="选择状态" clearable>
-            <el-option label="全部" value=""/>
-            <el-option label="正常" :value="1"/>
-            <el-option label="禁用" :value="0"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关键词">
-          <el-input v-model="searchKeyword" placeholder="用户名/昵称/邮箱" clearable/>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">
-            <el-icon>
-              <Search/>
-            </el-icon>
-            搜索
-          </el-button>
-          <el-button @click="resetFilter">
-            <el-icon>
-              <RefreshRight/>
-            </el-icon>
-            重置
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
     <!-- 空状态 -->
     <div class="empty-state" v-if="userList.length === 0 && !loading">
       <el-empty description="暂无用户数据">
