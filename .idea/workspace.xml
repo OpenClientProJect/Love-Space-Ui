@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="条件展示" />
+    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="关注列表添加取消关注功能">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/admin/managementUser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/admin/managementUser.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -93,7 +96,7 @@
       <updated>1746693070416</updated>
       <workItem from="1746693071874" duration="764000" />
       <workItem from="1746753284014" duration="3446000" />
-      <workItem from="1746770541990" duration="11102000" />
+      <workItem from="1746770541990" duration="11745000" />
     </task>
     <task id="LOCAL-00001" summary="update 2.0">
       <option name="closed" value="true" />
@@ -159,7 +162,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746787999730</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="关注列表添加取消关注功能">
+      <option name="closed" value="true" />
+      <created>1746788453932</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1746788453932</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +208,7 @@
     <MESSAGE value="审核状态展示" />
     <MESSAGE value="优化审核功能" />
     <MESSAGE value="条件展示" />
-    <option name="LAST_COMMIT_MESSAGE" value="条件展示" />
+    <MESSAGE value="关注列表添加取消关注功能" />
+    <option name="LAST_COMMIT_MESSAGE" value="关注列表添加取消关注功能" />
   </component>
 </project>

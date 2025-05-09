@@ -17,3 +17,8 @@ export const editVideoService = (videoData) => {
 export const deleteVideoService = (videoId) => {
     return request.delete('/user/video?id=' + videoId)
 }
+
+//获取所有创造者
+export const getCreatorService = () => {
+    return request.get('/admin/managementUser/userList')
+}

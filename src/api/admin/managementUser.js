@@ -7,7 +7,7 @@ export const getUserListService = (data) => {
 
 // 更新用户状态
 export const updateUserStatusService = (userId) => {
-  return request.put(`/admin/managementUser/${userId}`);
+  return request.put(`/admin/managementUser/userList/${userId}`);
 };
 
 // 更新用户角色
