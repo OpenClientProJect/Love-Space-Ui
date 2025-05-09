@@ -11,8 +11,8 @@ export const updateUserStatusService = (userId) => {
 };
 
 // 更新用户角色
-export const updateUserRoleService = (userId, role) => {
-  return request.put(`/admin/managementUser/role/${userId}`, { role });
+export const updateUserRoleService = (userId) => {
+  return request.put(`/admin/managementUser/role/${userId}`);
 };
 
 // 获取用户详情

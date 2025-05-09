@@ -5,7 +5,9 @@
       <h2 class="section-title">用户管理</h2>
       <div class="action-group">
         <el-button type="primary" @click="refreshData" class="refresh-button">
-          <el-icon><Refresh /></el-icon>
+          <el-icon>
+            <Refresh/>
+          </el-icon>
           刷新列表
         </el-button>
       </div>
@@ -16,28 +18,32 @@
       <el-form :inline="true" class="filter-form">
         <el-form-item label="用户角色">
           <el-select v-model="filterRole" placeholder="选择角色" clearable>
-            <el-option label="全部" value="" />
-            <el-option label="普通用户" value="user" />
-            <el-option label="管理员" value="admin" />
+            <el-option label="全部" value=""/>
+            <el-option label="普通用户" value="user"/>
+            <el-option label="管理员" value="admin"/>
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="filterStatus" placeholder="选择状态" clearable>
-            <el-option label="全部" value="" />
-            <el-option label="正常" :value="1" />
-            <el-option label="禁用" :value="0" />
+            <el-option label="全部" value=""/>
+            <el-option label="正常" :value="1"/>
+            <el-option label="禁用" :value="0"/>
           </el-select>
         </el-form-item>
         <el-form-item label="关键词">
-          <el-input v-model="searchKeyword" placeholder="用户名/昵称/邮箱" clearable />
+          <el-input v-model="searchKeyword" placeholder="用户名/昵称/邮箱" clearable/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search/>
+            </el-icon>
             搜索
           </el-button>
           <el-button @click="resetFilter">
-            <el-icon><RefreshRight /></el-icon>
+            <el-icon>
+              <RefreshRight/>
+            </el-icon>
             重置
           </el-button>
         </el-form-item>
@@ -55,14 +61,14 @@
 
     <!-- 用户列表表格 -->
     <el-table
-      v-if="userList.length > 0"
-      :data="userList"
-      border
-      style="width: 100%"
-      v-loading="loading"
+        v-if="userList.length > 0"
+        :data="userList"
+        border
+        style="width: 100%"
+        v-loading="loading"
     >
-      <el-table-column type="index" width="50" label="序号" />
-      <el-table-column prop="id" label="用户ID" width="100" />
+      <el-table-column type="index" width="50" label="序号"/>
+      <el-table-column prop="id" label="用户ID" width="100"/>
       <el-table-column label="用户头像" width="80">
         <template #default="scope">
           <el-avatar :size="40" :src="scope.row.userPic || defaultAvatar">
@@ -70,9 +76,9 @@
           </el-avatar>
         </template>
       </el-table-column>
-      <el-table-column prop="username" label="用户名" width="120" />
-      <el-table-column prop="nickname" label="昵称" width="120" />
-      <el-table-column prop="email" label="邮箱" width="180" />
+      <el-table-column prop="username" label="用户名" width="120"/>
+      <el-table-column prop="nickname" label="昵称" width="120"/>
+      <el-table-column prop="email" label="邮箱" width="180"/>
       <el-table-column label="性别" width="80">
         <template #default="scope">
           <span>{{ scope.row.sex === 0 ? '男' : scope.row.sex === 1 ? '女' : '未知' }}</span>
@@ -92,28 +98,28 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="注册时间" width="180" />
+      <el-table-column prop="createTime" label="注册时间" width="180"/>
       <el-table-column label="操作" fixed="right" width="200">
         <template #default="scope">
           <el-button
-            size="small"
-            type="primary"
-            @click="viewUserDetail(scope.row)"
+              size="small"
+              type="primary"
+              @click="viewUserDetail(scope.row)"
           >
             查看
           </el-button>
           <el-button
-            size="small"
-            :type="scope.row.status === 1 ? 'danger' : 'success'"
-            @click="toggleUserStatus(scope.row)"
+              size="small"
+              :type="scope.row.status === 1 ? 'danger' : 'success'"
+              @click="toggleUserStatus(scope.row)"
           >
             {{ scope.row.status === 1 ? '禁用' : '启用' }}
           </el-button>
           <el-button
-            v-if="scope.row.role !== 'admin'"
-            size="small"
-            type="warning"
-            @click="setAsAdmin(scope.row)"
+              v-if="scope.row.role !== 'admin'"
+              size="small"
+              type="warning"
+              @click="setAsAdmin(scope.row)"
           >
             设为管理员
           </el-button>
@@ -124,22 +130,22 @@
     <!-- 分页组件 -->
     <div class="pagination-container" v-if="pagination.total > 0">
       <el-pagination
-        v-model:current-page="pagination.pageNum"
-        v-model:page-size="pagination.pageSize"
-        :page-sizes="[10, 20, 30, 50]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        background
+          v-model:current-page="pagination.pageNum"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 30, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          background
       />
     </div>
 
     <!-- 用户详情对话框 -->
     <el-dialog
-      v-model="userDetailDialogVisible"
-      title="用户详情"
-      width="500px"
+        v-model="userDetailDialogVisible"
+        title="用户详情"
+        width="500px"
     >
       <div class="user-detail" v-if="currentUser">
         <div class="user-header">
@@ -195,9 +201,9 @@
 
     <!-- 操作确认对话框 -->
     <el-dialog
-      v-model="confirmDialogVisible"
-      :title="confirmDialogTitle"
-      width="30%"
+        v-model="confirmDialogVisible"
+        :title="confirmDialogTitle"
+        width="30%"
     >
       <span>{{ confirmDialogMessage }}</span>
       <template #footer>
@@ -213,10 +219,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUserListService, updateUserStatusService, updateUserRoleService } from '@/api/admin/managementUser'
-import { Refresh, Search, RefreshRight } from '@element-plus/icons-vue'
+import {ref, onMounted} from 'vue'
+import {ElMessage} from 'element-plus'
+import {getUserListService, updateUserStatusService, updateUserRoleService} from '@/api/admin/managementUser'
+import {Refresh, Search, RefreshRight} from '@element-plus/icons-vue'
 
 // 默认头像
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
@@ -260,7 +266,7 @@ const loadUserList = async () => {
       status: filterStatus.value !== '' ? filterStatus.value : undefined,
       keyword: searchKeyword.value || undefined
     }
-    
+
     const res = await getUserListService(params)
     if (res.code === 200) {
       userList.value = res.data || []
@@ -316,21 +322,23 @@ const viewUserDetail = (user) => {
 // 切换用户状态（启用/禁用）
 const toggleUserStatus = (user) => {
   confirmDialogTitle.value = user.status === 1 ? '禁用用户' : '启用用户'
-  confirmDialogMessage.value = user.status === 1 
-    ? `确定要禁用用户 "${user.nickname}" 吗？禁用后该用户将无法登录系统。`
-    : `确定要启用用户 "${user.nickname}" 吗？`
-  
+  confirmDialogMessage.value = user.status === 1
+      ? `确定要禁用用户 "${user.nickname}" 吗？禁用后该用户将无法登录系统。`
+      : `确定要启用用户 "${user.nickname}" 吗？`
+
   confirmCallback.value = async () => {
     try {
-      const res = await updateUserStatusService(user.id)
-        ElMessage.success(`已${user.status === 1 ? '禁用' : '启用'}用户: ${user.nickname}`)
-        user.status = newStatus
-        ElMessage.error(res.message || '操作失败')
+      await updateUserStatusService(user.id);
+      const newStatus = user.status === 1 ? 0 : 1;
+      ElMessage.success(`已${user.status === 1 ? '禁用' : '启用'}用户: ${user.nickname}`)
+      user.status = newStatus;
+      // 刷新用户列表
+      await loadUserList();
     } finally {
       confirmDialogVisible.value = false
     }
   }
-  
+
   confirmDialogVisible.value = true
 }
 
@@ -338,16 +346,12 @@ const toggleUserStatus = (user) => {
 const setAsAdmin = (user) => {
   confirmDialogTitle.value = '设置管理员'
   confirmDialogMessage.value = `确定要将用户 "${user.nickname}" 设置为管理员吗？`
-  
+
   confirmCallback.value = async () => {
     try {
-      const res = await updateUserRoleService(user.id, 'admin')
-      if (res.code === 200) {
-        ElMessage.success(`已将用户 ${user.nickname} 设置为管理员`)
-        user.role = 'admin'
-      } else {
-        ElMessage.error(res.message || '操作失败')
-      }
+      await updateUserRoleService(user.id);
+      ElMessage.success(`已将用户 ${user.nickname} 设置为管理员`)
+      user.role = 'admin'
     } catch (error) {
       console.error('更新用户角色出错:', error)
       ElMessage.error('系统异常，请稍后重试')
@@ -355,7 +359,7 @@ const setAsAdmin = (user) => {
       confirmDialogVisible.value = false
     }
   }
-  
+
   confirmDialogVisible.value = true
 }
 
