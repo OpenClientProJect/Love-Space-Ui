@@ -4,6 +4,26 @@
     <div class="header-actions">
       <h2 class="section-title">视频审核</h2>
       <div class="action-group">
+        <!-- 添加状态筛选 -->
+        <div class="filter-container">
+          <el-select v-model="filterStatus" class="filter-select" placeholder="状态筛选">
+            <el-option label="全部状态" :value="-1" />
+            <el-option label="待审核" :value="1" />
+            <el-option label="已通过" :value="2" />
+            <el-option label="未通过" :value="3" />
+          </el-select>
+          
+          <el-select v-model="filterCategory" class="filter-select" placeholder="分类筛选">
+            <el-option label="全部分类" :value="-1" />
+            <el-option 
+              v-for="category in categories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.id"
+            />
+          </el-select>
+        </div>
+        
         <el-button type="primary" @click="refreshData" class="refresh-button">
           <el-icon><Refresh /></el-icon>
           刷新列表
@@ -15,7 +35,7 @@
     <div class="empty-state" v-if="videoList.length === 0 && !loading">
       <el-empty description="暂无视频内容">
         <template #description>
-          <p class="empty-text">暂无待审核视频</p>
+          <p class="empty-text">暂无符合条件的视频</p>
         </template>
       </el-empty>
     </div>
@@ -25,6 +45,10 @@
       <div v-for="video in videoList" :key="video.id" class="video-card">
         <div class="video-cover-wrap">
           <img :src="video.cover" class="video-cover" alt="图片获取失败"/>
+          <!-- 添加状态标签 -->
+          <div class="status-badge" :class="getStatusClass(video.status)">
+            {{ getStatusText(video.status) }}
+          </div>
           <div class="cover-actions" v-if="video.videoUrl">
             <el-button
               @click="handlePreview(video)"
@@ -37,7 +61,7 @@
           <!-- 顶部审核按钮区域 -->
           <div class="top-audit-actions">
             <h3 class="video-title">{{ video.title }}</h3>
-            <div class="actions-group">
+            <div class="actions-group" v-if="video.status === 1">
               <el-button 
                 size="small" 
                 type="success"
@@ -56,6 +80,12 @@
                 <el-icon><Close /></el-icon>
                 拒绝
               </el-button>
+            </div>
+            <!-- 已审核状态显示 -->
+            <div class="status-display" v-else>
+              <el-tag :type="getStatusTagType(video.status)" size="small">
+                {{ getStatusText(video.status) }}
+              </el-tag>
             </div>
           </div>
 
@@ -285,7 +315,7 @@ const handleQuickApprove = async () => {
     }
   ).then(async () => {
     try {
-      await AuditVideo(currentVideo.value.id)
+      await AuditVideo(currentVideo.value.id, true)
       ElMessage.success(`已通过视频 "${currentVideo.value.title}" 的审核`)
       previewDialogVisible.value = false
       await fetchVideoList()
@@ -300,8 +330,27 @@ const handleQuickApprove = async () => {
 
 // 预览对话框中快速拒绝
 const handleQuickReject = () => {
-  handleCommand('reject', currentVideo.value)
-  previewDialogVisible.value = false
+  ElMessageBox.confirm(
+    `确定要拒绝视频 "${currentVideo.value.title}" 的发布申请吗？`,
+    '拒绝发布',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    try {
+      await AuditVideo(currentVideo.value.id, false)
+      ElMessage.info(`已拒绝视频 "${currentVideo.value.title}" 的发布申请`)
+      previewDialogVisible.value = false
+      await fetchVideoList()
+    } catch (error) {
+      console.error('审核失败:', error)
+      ElMessage.error('审核操作失败，请稍后重试')
+    }
+  }).catch(() => {
+    // 用户取消操作
+  })
 }
 
 // 处理下拉菜单命令
@@ -320,7 +369,7 @@ const handleCommand = (command, video) => {
         }
       ).then(async () => {
         try {
-          await AuditVideo(video.id)
+          await AuditVideo(video.id, true)
           ElMessage.success(`已通过视频 "${video.title}" 的审核`)
           fetchVideoList()
         } catch (error) {
@@ -355,7 +404,7 @@ const handleConfirmAction = async () => {
   try {
     switch (currentAction.value) {
       case 'reject':
-        // 这里调用拒绝发布API，如果有专门的API
+        await AuditVideo(video.id, false)
         ElMessage.info(`已拒绝视频 "${video.title}" 的发布申请`)
         break
         
@@ -398,7 +447,7 @@ const handleCardAudit = async (id, title) => {
     }
   ).then(async () => {
     try {
-      await AuditVideo(id)
+      await AuditVideo(id, true)
       ElMessage.success(`已通过视频 "${title}" 的审核`)
       fetchVideoList()
     } catch (error) {
@@ -420,12 +469,48 @@ const handleCardReject = (id, title) => {
       cancelButtonText: '取消',
       type: 'warning'
     }
-  ).then(() => {
-    ElMessage.info(`已拒绝视频 "${title}" 的发布申请`)
-    fetchVideoList()
+  ).then(async () => {
+    try {
+      await AuditVideo(id, false)
+      ElMessage.info(`已拒绝视频 "${title}" 的发布申请`)
+      fetchVideoList()
+    } catch (error) {
+      console.error('审核失败:', error)
+      ElMessage.error('审核操作失败，请稍后重试')
+    }
   }).catch(() => {
     // 用户取消操作
   })
+}
+
+// 获取状态文本
+const getStatusText = (status) => {
+  switch (status) {
+    case 1: return '待审核'
+    case 2: return '已通过'
+    case 3: return '未通过'
+    default: return '未知状态'
+  }
+}
+
+// 获取状态CSS类
+const getStatusClass = (status) => {
+  switch (status) {
+    case 1: return 'status-pending'
+    case 2: return 'status-approved'
+    case 3: return 'status-rejected'
+    default: return ''
+  }
+}
+
+// 获取状态标签类型
+const getStatusTagType = (status) => {
+  switch (status) {
+    case 1: return 'warning'
+    case 2: return 'success'
+    case 3: return 'danger'
+    default: return 'info'
+  }
 }
 
 // 组件挂载时获取数据
@@ -518,15 +603,11 @@ onMounted(() => {
   opacity: 1;
 }
 
-
-
 .preview-icon {
   width: 20px;
   height: 20px;
   filter: brightness(0) invert(0.4) sepia(1) saturate(10) hue-rotate(300deg);
 }
-
-
 
 .video-info {
   flex: 1;
@@ -589,7 +670,6 @@ onMounted(() => {
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
-
 
 .video-description {
   margin: 0 0 15px 0;
@@ -734,7 +814,6 @@ onMounted(() => {
   }
 }
 
-
 .audit-buttons .el-button {
   padding: 8px 16px;
   font-size: 14px;
@@ -780,5 +859,47 @@ onMounted(() => {
 .el-button--primary:hover {
   background-color: #6C679B;
   border-color: #6C679B;
+}
+
+/* 添加筛选区样式 */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.filter-select {
+  width: 120px;
+}
+
+/* 状态标签样式 */
+.status-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.status-pending {
+  background-color: #E6A23C;
+}
+
+.status-approved {
+  background-color: #67C23A;
+}
+
+.status-rejected {
+  background-color: #F56C6C;
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
 }
 </style> 
