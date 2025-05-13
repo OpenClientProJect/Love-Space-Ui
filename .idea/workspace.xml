@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="关注列表添加取消关注功能">
+    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="暂时备份">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/admin/managementUser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/admin/managementUser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/admin/UserManager.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/admin/UserManager.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/User.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/User.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +37,9 @@
     &quot;accountId&quot;: &quot;d9124d08-0586-4e2f-8bbe-2e1128c3ef6c&quot;
   }
 }</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -45,23 +50,25 @@
     <option name="sortByType" value="true" />
     <option name="sortKey" value="BY_TYPE" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Exploitation/JavaWeb/KH/love-space/love-2/Love-Space-Ui&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;D:\\Exploitation\\Idea\\IntelliJ IDEA 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Exploitation/JavaWeb/KH/love-space/love-2/Love-Space-Ui",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "ts.external.directory.path": "D:\\Exploitation\\Idea\\IntelliJ IDEA 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -87,6 +94,7 @@
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
       <changelist id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="" />
@@ -96,7 +104,9 @@
       <updated>1746693070416</updated>
       <workItem from="1746693071874" duration="764000" />
       <workItem from="1746753284014" duration="3446000" />
-      <workItem from="1746770541990" duration="11745000" />
+      <workItem from="1746770541990" duration="12130000" />
+      <workItem from="1747098937929" duration="958000" />
+      <workItem from="1747099932841" duration="3502000" />
     </task>
     <task id="LOCAL-00001" summary="update 2.0">
       <option name="closed" value="true" />
@@ -170,7 +180,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746788453932</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="暂时备份">
+      <option name="closed" value="true" />
+      <created>1746789262391</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1746789262391</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -187,7 +205,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="master" />
+                        <option value="github/main" />
                       </list>
                     </value>
                   </entry>
@@ -209,6 +227,7 @@
     <MESSAGE value="优化审核功能" />
     <MESSAGE value="条件展示" />
     <MESSAGE value="关注列表添加取消关注功能" />
-    <option name="LAST_COMMIT_MESSAGE" value="关注列表添加取消关注功能" />
+    <MESSAGE value="暂时备份" />
+    <option name="LAST_COMMIT_MESSAGE" value="暂时备份" />
   </component>
 </project>

@@ -222,24 +222,9 @@ const confirmCallback = ref(null)
 const loadUserList = async () => {
   loading.value = true
   try {
-    const params = {
-      pageNum: pagination.value.pageNum,
-      pageSize: pagination.value.pageSize,
-      role: filterRole.value || undefined,
-      status: filterStatus.value !== '' ? filterStatus.value : undefined,
-      keyword: searchKeyword.value || undefined
-    }
-
-    const res = await getUserListService(params)
-    if (res.code === 200) {
+    const res = await getUserListService()
       userList.value = res.data || []
       pagination.value.total = res.total || userList.value.length
-    } else {
-      ElMessage.error(res.message || '获取用户列表失败')
-    }
-  } catch (error) {
-    console.error('获取用户列表出错:', error)
-    ElMessage.error('系统异常，请稍后重试')
   } finally {
     loading.value = false
   }
