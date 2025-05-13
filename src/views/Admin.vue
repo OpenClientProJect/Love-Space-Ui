@@ -44,6 +44,7 @@
           <AnnouncementManager v-else-if="currentNav === 'announcement'" />
           <HomeImageManager v-else-if="currentNav === 'HomeImg'" />
           <UserManager v-else-if="currentNav === 'users'" />
+          <CategoryManager v-else-if="currentNav === 'categories'" />
         </div>
       </div>
     </div>
@@ -75,6 +76,7 @@ import AdminVideoManager from '@/components/admin/AdminVideoManager.vue'
 import AnnouncementManager from '@/components/admin/AnnouncementManager.vue'
 import HomeImageManager from '@/components/admin/HomeImageManager.vue'
 import UserManager from '@/components/admin/UserManager.vue'
+import CategoryManager from '@/components/admin/CategoryManager.vue'
 
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
@@ -87,6 +89,7 @@ const navItems = [
   {name: 'announcement', label: '公告管理', icon: 'Bell', count: 0},
   {name: 'HomeImg', label: '首页图片管理', icon: 'PictureFilled', count: 0},
   {name: 'users', label: '用户管理', icon: 'User', count: 0},
+  {name: 'categories', label: '分类管理', icon: 'Menu', count: 0},
 ]
 
 // 计算属性：是否已登录
