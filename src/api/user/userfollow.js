@@ -4,7 +4,13 @@ import request from '@/utils/request'
 export const followUserService = (id, isFollow) => {
   return request.put(`/user/follow/${id}?isFollow=${isFollow}`)
 }
-// 获取用户关注信息接口
+
+// 获取指定用户的关注列表
 export const getUserFollowService = (id) => {
-  return request.get(`/user/follow/${id}`)
+  if (id) {
+    return request.get(`/user/follow/${id}`)
+  } else {
+    // 获取当前登录用户的关注列表
+    return request.get('/user/follow/list')
+  }
 }

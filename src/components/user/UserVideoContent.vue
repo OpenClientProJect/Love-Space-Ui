@@ -224,6 +224,7 @@ import {
   getUserVideoService, 
   publishVideoService 
 } from '@/api/userVideo'
+import { getCategoryListService } from '@/api/admin/category'
 import {formatDate} from "@/utils/format";
 import eventBus from '@/utils/eventBus'
 
@@ -283,43 +284,38 @@ const rules = {
   subCategoryId: [{ required: true, message: '请选择副分类', trigger: 'change' }]
 }
 
-// 主分类列表
-const mainCategories = ref([
-  { id: 1, name: '角色分类' },
-  { id: 2, name: '内容分类' },
-  { id: 3, name: '特殊分类' }
-])
-
-// 所有分类映射表
-const categoryMap = {
-  1: [  // 角色分类下的副分类
-    { id: 101, name: '沈星回', mainId: 1 },
-    { id: 102, name: '黎深', mainId: 1 },
-    { id: 103, name: '祁煜', mainId: 1 },
-    { id: 104, name: '秦彻', mainId: 1 },
-    { id: 105, name: '夏以昼', mainId: 1 },
-    { id: 106, name: '多人角色', mainId: 1 }
-  ],
-  2: [  // 内容分类下的副分类
-    { id: 201, name: '流浪体', mainId: 2 },
-    { id: 202, name: 'npc', mainId: 2 },
-    { id: 203, name: '深网', mainId: 2 }
-  ],
-  3: [  // 特殊分类下的副分类
-    { id: 301, name: '猎人锦标赛', mainId: 3 },
-    { id: 302, name: '定向轨道', mainId: 3 }
-  ]
-}
-
-// 当前可选的副分类列表
+// 分类数据
+const mainCategories = ref([])
 const subCategories = ref([])
+const allSubCategories = ref([])
+
+// 加载分类数据
+const loadCategories = async () => {
+  try {
+    const res = await getCategoryListService()
+    if (res.data) {
+      mainCategories.value = res.data.mainCategoryList.map(item => ({
+        id: item.categoryId,
+        name: item.categoryName
+      }))
+      allSubCategories.value = res.data.subCategoryList.map(item => ({
+        id: item.categoryId,
+        name: item.categoryName,
+        mainId: item.mainCategoryId
+      }))
+    }
+  } catch (error) {
+    console.error('获取分类数据失败:', error)
+    ElMessage.error('获取分类数据失败，请稍后重试')
+  }
+}
 
 // 处理主分类变更
 const handleMainCategoryChange = (mainId) => {
   // 重置副分类选择
   form.value.subCategoryId = ''
-  // 更新副分类列表
-  subCategories.value = categoryMap[mainId] || []
+  // 根据主分类ID筛选副分类
+  subCategories.value = allSubCategories.value.filter(item => item.mainId === mainId)
 }
 
 // 获取用户视频列表
@@ -352,28 +348,22 @@ const handleCommand = async ({ type, id }) => {
   if (type === 'edit') {
     const currentVideo = videos.value.find(video => video.id === id)
     if (currentVideo) {
-      // 查找对应的主分类ID
-      let mainId = null
-      for (const [key, categories] of Object.entries(categoryMap)) {
-        const found = categories.find(cat => cat.id === currentVideo.categoryId)
-        if (found) {
-          mainId = parseInt(key)
-          break
-        }
-      }
+      // 查找副分类
+      const subCategory = allSubCategories.value.find(cat => cat.id === currentVideo.categoryId)
+      const mainId = subCategory ? subCategory.mainId : null
       
       form.value = {
         title: currentVideo.title,
         cover: currentVideo.cover,
         content: currentVideo.content,
         videoUrl: currentVideo.videoUrl,
-        mainCategoryId: mainId || '',
+        mainCategoryId: mainId,
         subCategoryId: currentVideo.categoryId 
       }
       
       // 更新副分类选择
       if (mainId) {
-        subCategories.value = categoryMap[mainId] || []
+        handleMainCategoryChange(mainId)
       }
       
       isEdit.value = true
@@ -408,9 +398,7 @@ const submitForm = async () => {
           cover: form.value.cover,
           content: form.value.content,
           videoUrl: form.value.videoUrl,
-          categoryId: form.value.subCategoryId, 
-          mainCategoryId: form.value.mainCategoryId, 
-          subCategoryId: form.value.subCategoryId 
+          categoryId: form.value.subCategoryId
         };
 
         await publishVideoService(submitData)
@@ -437,9 +425,7 @@ const updateVideo = async () => {
           cover: form.value.cover,
           content: form.value.content,
           videoUrl: form.value.videoUrl,
-          categoryId: form.value.subCategoryId, 
-          mainCategoryId: form.value.mainCategoryId, 
-          subCategoryId: form.value.subCategoryId 
+          categoryId: form.value.subCategoryId
         };
 
         await editVideoService(updateData)
@@ -509,6 +495,9 @@ onMounted(() => {
   eventBus.on('openUploadDrawer', () => {
     drawerVisible.value = true
   })
+  
+  // 加载分类数据
+  loadCategories()
 })
 
 onUnmounted(() => {
@@ -522,26 +511,18 @@ getUserVideoInfo()
 const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  // 在所有副分类中查找匹配的分类
-  for (const categories of Object.values(categoryMap)) {
-    const category = categories.find(c => c.id === categoryId)
-    if (category) return category.name
-  }
-  
-  return ''
+  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  return subCategory ? subCategory.name : ''
 }
 
 // 获取主分类名称
 const getMainCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  // 查找对应的主分类
-  for (const [mainId, categories] of Object.entries(categoryMap)) {
-    const category = categories.find(c => c.id === categoryId)
-    if (category) {
-      const mainCategory = mainCategories.value.find(m => m.id === parseInt(mainId))
-      return mainCategory ? mainCategory.name : ''
-    }
+  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  if (subCategory) {
+    const mainCategory = mainCategories.value.find(main => main.id === subCategory.mainId)
+    return mainCategory ? mainCategory.name : ''
   }
   
   return ''
@@ -556,7 +537,6 @@ const getStatusText = (status) => {
     default: return '未知状态'
   }
 }
-
 
 // 获取状态标签类型
 const getStatusTagType = (status) => {

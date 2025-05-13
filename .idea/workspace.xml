@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="创作者">
-      <change afterPath="$PROJECT_DIR$/src/api/admin/category.js" afterDir="false" />
+    <list default="true" id="5a3f91af-e818-4846-9684-b65f60673f03" name="更改" comment="完善">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Admin.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Admin.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/user/userfollow.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/user/userfollow.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/video.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/video.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/user/UserVideoContent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/UserVideoContent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Home.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/User.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/User.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +108,7 @@
       <workItem from="1746753284014" duration="3446000" />
       <workItem from="1746770541990" duration="12130000" />
       <workItem from="1747098937929" duration="958000" />
-      <workItem from="1747099932841" duration="5011000" />
+      <workItem from="1747099932841" duration="7019000" />
     </task>
     <task id="LOCAL-00001" summary="update 2.0">
       <option name="closed" value="true" />
@@ -195,7 +198,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747103953560</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="添加分类管理">
+      <option name="closed" value="true" />
+      <created>1747117575784</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1747117575784</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -236,6 +247,8 @@
     <MESSAGE value="关注列表添加取消关注功能" />
     <MESSAGE value="暂时备份" />
     <MESSAGE value="创作者" />
-    <option name="LAST_COMMIT_MESSAGE" value="创作者" />
+    <MESSAGE value="添加分类管理" />
+    <MESSAGE value="完善" />
+    <option name="LAST_COMMIT_MESSAGE" value="完善" />
   </component>
 </project>

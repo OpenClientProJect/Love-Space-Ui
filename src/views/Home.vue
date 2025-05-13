@@ -3,6 +3,7 @@ import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {getVideoListService} from "@/api/video";
 import {getAnnouncementListService} from "@/api/Announcement";
 import {getHomeImageService, getBackgroundImageService} from "@/api/admin/adminhomeimage";
+import {getCategoryListService} from "@/api/admin/category";
 import {VideoPlay, ArrowUp, Refresh, Loading, Bell, Close, Calendar} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
@@ -22,40 +23,10 @@ const carouselItems = ref([])
 // 轮播图加载状态
 const loadingCarousel = ref(false)
 
-// 主分类和副分类结构
-// 主分类列表
-const mainCategories = ref([
-  { id: 1, name: '角色分类' },
-  { id: 2, name: '内容分类' },
-  { id: 3, name: '特殊分类' }
-])
-
-// 所有分类映射表
-const categoryMap = {
-  1: [  // 角色分类下的副分类
-    { id: 101, name: '沈星回', mainId: 1 },
-    { id: 102, name: '黎深', mainId: 1 },
-    { id: 103, name: '祁煜', mainId: 1 },
-    { id: 104, name: '秦彻', mainId: 1 },
-    { id: 105, name: '夏以昼', mainId: 1 },
-    { id: 106, name: '多人角色', mainId: 1 }
-  ],
-  2: [  // 内容分类下的副分类
-    { id: 201, name: '流浪体', mainId: 2 },
-    { id: 202, name: 'npc', mainId: 2 },
-    { id: 203, name: '深网', mainId: 2 }
-  ],
-  3: [  // 特殊分类下的副分类
-    { id: 301, name: '猎人锦标赛', mainId: 3 },
-    { id: 302, name: '定向轨道', mainId: 3 }
-  ]
-}
-
-// 展平的分类数据，用于导航和筛选
-const categories = ref([
-  { id: 0, name: '全部' },
-  ...Object.values(categoryMap).flat()
-])
+// 分类数据
+const mainCategories = ref([])
+const allSubCategories = ref([])
+const categories = ref([{ id: 0, name: '全部' }])
 
 // 当前激活的分类
 const activeCategory = ref(0)
@@ -79,6 +50,36 @@ const loadingBackground = ref(false)
 const activities = ref([])
 const loadingActivities = ref(false)
 
+// 加载分类数据
+const loadCategories = async () => {
+  try {
+    const res = await getCategoryListService()
+    if (res.data) {
+      // 设置主分类列表
+      mainCategories.value = res.data.mainCategoryList.map(item => ({
+        id: item.categoryId,
+        name: item.categoryName
+      }))
+      
+      // 设置子分类列表
+      allSubCategories.value = res.data.subCategoryList.map(item => ({
+        id: item.categoryId,
+        name: item.categoryName,
+        mainId: item.mainCategoryId
+      }))
+      
+      // 更新导航分类列表 - 首页只展示主分类
+      categories.value = [
+        { id: 0, name: '全部' },
+        ...mainCategories.value
+      ]
+    }
+  } catch (error) {
+    console.error('获取分类数据失败:', error)
+    ElMessage.error('获取分类数据失败，请稍后重试')
+  }
+}
+
 // 分类点击处理
 const handleCategoryClick = async (categoryId) => {
   activeCategory.value = categoryId
@@ -90,7 +91,7 @@ const handleCategoryClick = async (categoryId) => {
     // 如果选择的是"全部"分类，则不传递分类ID参数
     const res = categoryId === 0 
       ? await getVideoListService() 
-      : await getVideoListService({ categoryId, subCategoryId: categoryId })
+      : await getVideoListService({ categoryId })
     videos.value = res.data
   } catch (error) {
     console.error('获取分类视频失败:', error)
@@ -125,10 +126,7 @@ const getVideoList = async () => {
     // 根据当前选中的分类获取视频
     const res = activeCategory.value === 0
       ? await getVideoListService()
-      : await getVideoListService({ 
-          categoryId: activeCategory.value,
-          subCategoryId: activeCategory.value
-        })
+      : await getVideoListService({ categoryId: activeCategory.value })
     videos.value = res.data
   } catch (error) {
     console.error('获取视频列表失败:', error)
@@ -145,10 +143,7 @@ const handleRefresh = async () => {
     // 重新获取当前分类的视频
     const res = activeCategory.value === 0
       ? await getVideoListService()
-      : await getVideoListService({ 
-          categoryId: activeCategory.value,
-          subCategoryId: activeCategory.value
-        })
+      : await getVideoListService({ categoryId: activeCategory.value })
     videos.value = res.data
     ElMessage.success('刷新成功')
   } catch (error) {
@@ -228,6 +223,7 @@ const getBackgroundData = async () => {
 }
 
 onMounted(() => {
+  loadCategories() // 加载分类数据
   getVideoList()
   getAnnouncementList()
   getCarouselData() // 获取轮播图数据
@@ -285,26 +281,18 @@ onUnmounted(() => {
 const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  // 在所有副分类中查找匹配的分类
-  for (const categories of Object.values(categoryMap)) {
-    const category = categories.find(c => c.id === categoryId)
-    if (category) return category.name
-  }
-  
-  return ''
+  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  return subCategory ? subCategory.name : ''
 }
 
 // 获取主分类名称
 const getMainCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  // 查找对应的主分类
-  for (const [mainId, categories] of Object.entries(categoryMap)) {
-    const category = categories.find(c => c.id === categoryId)
-    if (category) {
-      const mainCategory = mainCategories.value.find(m => m.id === parseInt(mainId))
-      return mainCategory ? mainCategory.name : ''
-    }
+  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  if (subCategory) {
+    const mainCategory = mainCategories.value.find(main => main.id === subCategory.mainId)
+    return mainCategory ? mainCategory.name : ''
   }
   
   return ''
