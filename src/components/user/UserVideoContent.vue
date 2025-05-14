@@ -248,9 +248,6 @@ const filteredVideos = computed(() => {
   }
 })
 
-// 计算是否有内容展示
-const hasContent = computed(() => filteredVideos.value.length > 0)
-
 // 分页相关
 const pagination = ref({
   pageNum: 1,
@@ -548,15 +545,6 @@ const getStatusTagType = (status) => {
   }
 }
 
-// 获取状态类
-const getStatusClass = (status) => {
-  switch (status) {
-    case 1: return 'status-tag-warning'
-    case 2: return 'status-tag-success'
-    case 3: return 'status-tag-danger'
-    default: return 'status-tag-info'
-  }
-}
 </script>
 
 <style scoped>

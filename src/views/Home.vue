@@ -30,6 +30,12 @@ const categories = ref([{ id: 0, name: '全部' }])
 
 // 当前激活的分类
 const activeCategory = ref(0)
+// 当前选中的主分类ID
+const activeMainCategory = ref(null)
+// 当前显示的子分类列表
+const currentSubCategories = ref([])
+// 是否显示子分类
+const showSubCategories = ref(false)
 
 // 加载状态
 const loading = ref(false)
@@ -55,17 +61,17 @@ const loadCategories = async () => {
   try {
     const res = await getCategoryListService()
     if (res.data) {
-      // 设置主分类列表
+      // 设置主分类列表 - 确保ID为字符串类型
       mainCategories.value = res.data.mainCategoryList.map(item => ({
-        id: item.categoryId,
+        id: String(item.categoryId),
         name: item.categoryName
       }))
       
-      // 设置子分类列表
+      // 设置子分类列表 - 确保ID为字符串类型
       allSubCategories.value = res.data.subCategoryList.map(item => ({
-        id: item.categoryId,
+        id: String(item.categoryId),
         name: item.categoryName,
-        mainId: item.mainCategoryId
+        mainId: String(item.mainCategoryId)
       }))
       
       // 更新导航分类列表 - 首页只展示主分类
@@ -80,12 +86,29 @@ const loadCategories = async () => {
   }
 }
 
-// 分类点击处理
+// 主分类点击处理
 const handleCategoryClick = async (categoryId) => {
   activeCategory.value = categoryId
+  
+  if (categoryId === 0) {
+    // 如果点击全部，清空当前主分类和子分类显示
+    activeMainCategory.value = null
+    showSubCategories.value = false
+    currentSubCategories.value = []
+  } else {
+    // 点击主分类，显示其子分类
+    activeMainCategory.value = categoryId
+    // 过滤出属于当前主分类的子分类
+    currentSubCategories.value = allSubCategories.value.filter(
+      subCat => subCat.mainId === categoryId
+    )
+    showSubCategories.value = true
+  }
+  
   // 滚动到页面顶部
   window.scrollTo({ top: 0, behavior: 'smooth' })
-  // 通过分类ID获取对应视频
+  
+  // 加载视频数据
   loading.value = true
   try {
     // 如果选择的是"全部"分类，则不传递分类ID参数
@@ -96,6 +119,23 @@ const handleCategoryClick = async (categoryId) => {
   } catch (error) {
     console.error('获取分类视频失败:', error)
     ElMessage.error('获取分类视频失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 子分类点击处理
+const handleSubCategoryClick = async (subCategoryId) => {
+  activeCategory.value = subCategoryId
+  
+  // 加载子分类的视频数据
+  loading.value = true
+  try {
+    const res = await getVideoListService({ categoryId: subCategoryId })
+    videos.value = res.data
+  } catch (error) {
+    console.error('获取子分类视频失败:', error)
+    ElMessage.error('获取子分类视频失败，请稍后重试')
   } finally {
     loading.value = false
   }
@@ -136,7 +176,7 @@ const getVideoList = async () => {
   }
 }
 
-// 添加刷新方法
+// 更新刷新方法
 const handleRefresh = async () => {
   try {
     loading.value = true
@@ -281,7 +321,8 @@ onUnmounted(() => {
 const getCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  // 将categoryId转为字符串再比较
+  const subCategory = allSubCategories.value.find(cat => cat.id === String(categoryId))
   return subCategory ? subCategory.name : ''
 }
 
@@ -289,7 +330,8 @@ const getCategoryName = (categoryId) => {
 const getMainCategoryName = (categoryId) => {
   if (!categoryId) return ''
   
-  const subCategory = allSubCategories.value.find(cat => cat.id === categoryId)
+  // 将categoryId转为字符串再比较
+  const subCategory = allSubCategories.value.find(cat => cat.id === String(categoryId))
   if (subCategory) {
     const mainCategory = mainCategories.value.find(main => main.id === subCategory.mainId)
     return mainCategory ? mainCategory.name : ''
@@ -354,9 +396,22 @@ const videoLoaded = (event) => {
           v-for="(category, index) in categories"
           :key="index"
           @click="handleCategoryClick(category.id)"
-          :class="{ active: category.id === activeCategory }"
+          :class="{ active: category.id === activeCategory || (showSubCategories && category.id === activeMainCategory) }"
       >
         {{ category.name }}
+      </div>
+    </div>
+
+    <!-- 子分类导航 -->
+    <div class="subcategory-nav" v-if="showSubCategories && currentSubCategories.length > 0">
+      <div
+          class="subcategory-item"
+          v-for="subCategory in currentSubCategories"
+          :key="subCategory.id"
+          @click="handleSubCategoryClick(subCategory.id)"
+          :class="{ active: subCategory.id === activeCategory }"
+      >
+        {{ subCategory.name }}
       </div>
     </div>
 
@@ -1036,6 +1091,11 @@ const videoLoaded = (event) => {
   .video-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+  
+  /* 调整子分类导航 */
+  .subcategory-nav {
+    padding: 8px 20px;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -1063,10 +1123,20 @@ const videoLoaded = (event) => {
 
   .carousel-title {
     font-size: 20px;
-}
+  }
 
-.carousel-description {
+  .carousel-description {
     -webkit-line-clamp: 1;
+  }
+  
+  /* 调整子分类导航 */
+  .subcategory-nav {
+    padding: 6px 20px;
+  }
+  
+  .subcategory-item {
+    padding: 4px 12px;
+    font-size: 13px;
   }
 }
 
@@ -1093,6 +1163,17 @@ const videoLoaded = (event) => {
   .category-item {
     padding: 8px 12px;
     font-size: 14px;
+  }
+  
+  /* 调整子分类导航 */
+  .subcategory-nav {
+    padding: 6px 10px;
+  }
+  
+  .subcategory-item {
+    padding: 3px 10px;
+    font-size: 12px;
+    margin-right: 6px;
   }
 }
 
@@ -1435,5 +1516,58 @@ const videoLoaded = (event) => {
 .activity-content :deep(.el-carousel__item) {
   line-height: 36px;
   padding: 0;
+}
+
+/* 子分类导航样式 */
+.subcategory-nav {
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px 40px;
+  margin-bottom: 0;
+  margin-top: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 和 Edge */
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 隐藏子分类导航滚动条 */
+.subcategory-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.subcategory-item {
+  padding: 4px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s;
+  position: relative;
+  box-sizing: border-box;
+  margin-right: 8px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.subcategory-item:hover {
+  color: #6C679B;
+  background-color: rgba(108, 103, 155, 0.1);
+}
+
+.subcategory-item.active {
+  color: white;
+  background-color: #6C679B;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>

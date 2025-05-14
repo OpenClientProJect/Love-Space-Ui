@@ -42,7 +42,7 @@
           v-loading="mainCategoryLoading"
         >
           <el-table-column type="index" width="50" label="序号"/>
-          <el-table-column prop="categoryId" label="分类ID" width="100"/>
+          <el-table-column prop="categoryId" label="分类ID" width="190"/>
           <el-table-column prop="categoryName" label="分类名称"/>
           <el-table-column label="操作" width="180">
             <template #default="scope">
@@ -93,7 +93,7 @@
           v-loading="subCategoryLoading"
         >
           <el-table-column type="index" width="50" label="序号"/>
-          <el-table-column prop="categoryId" label="分类ID" width="80"/>
+          <el-table-column prop="categoryId" label="分类ID" width="190"/>
           <el-table-column prop="categoryName" label="分类名称"/>
           <el-table-column label="所属主分类" width="150">
             <template #default="scope">

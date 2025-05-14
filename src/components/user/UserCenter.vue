@@ -315,20 +315,12 @@ const handleNavClick = (item) => {
 
 const currentAnimeId = ref(null)
 
-const handleAnimeSelect = (animeId) => {
-  currentAnimeId.value = animeId
-}
-
-const handleBackToAnimeList = () => {
-  currentAnimeId.value = null
-}
 
 // 添加defineExpose，暴露currentNav
 defineExpose({
   currentNav
 })
 
-// 添加onMounted钩子，在组件挂载后打印调试信息
 onMounted(() => {
   console.log('UserCenter组件已挂载')
   const userCenterEl = document.querySelector('#user-center')
